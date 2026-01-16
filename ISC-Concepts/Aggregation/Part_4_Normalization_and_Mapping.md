@@ -312,6 +312,6 @@ Why later bugs often start here?
 ---
 
 ### Navigation
-⬅️ Previous: [Part 3 – Extraction Phase](../Part_3_Extraction_Phase_Best.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 5 – Write and Persistence](../Part_5_Write_and_Persistence.md)
+⬅️ Previous: [Part 3 – Extraction Phase](./Part_3_Extraction_Phase_Reading_Data.md)  
+🏠 Home: [README – Aggregation Master Series](./README.md)  
+➡️ Next: [Part 5 – Write and Persistence](./Part_5_Write_and_Persistence.md)
