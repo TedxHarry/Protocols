@@ -214,6 +214,6 @@ Why are overlapping jobs dangerous?
 ---
 
 ### Navigation
-⬅️ Previous: [Part 1 – Before Aggregation Can Run (Pre‑Flight)](./Part_1_Pre_Flight_Merged_Best.md)  
+⬅️ Previous: [Part 1 – Before Aggregation Can Run (Pre‑Flight)](./Part_1_Before_Aggregation_Can_Run_Pre_Flight.md)  
 🏠 Home: [README – Aggregation Master Series](./README.md)  
 ➡️ Next: [Part 3 – Extraction Phase](./part_3_extraction_phase.md)
