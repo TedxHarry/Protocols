@@ -1,5 +1,5 @@
 
-# Part 5 – Write and Persistence (Story-Driven)
+# Part 5 – Write and Persistence
 
 [⬅️ Back to Home](../README.md)
 
@@ -280,6 +280,6 @@ everything else follows that belief.
 ---
 
 ### Navigation
-⬅️ Previous: [Part 4 – Normalization and Mapping](../Part_4_Normalization_and_Mapping_Best_v2.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 6 – Correlation (Accounts → Identities)](../Part_6_Correlation_Accounts_to_Identities.md)
+⬅️ Previous: [Part 4 – Normalization and Mapping](./Part_4_Normalization_and_Mapping.md)  
+🏠 Home: [README – Aggregation Master Series](./README.md)  
+➡️ Next: [Part 6 – Correlation (Accounts → Identities)](./Part_6_Correlation_Accounts_to_Identities.md)
