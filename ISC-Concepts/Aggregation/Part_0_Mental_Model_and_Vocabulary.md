@@ -174,28 +174,28 @@ They are not.
 ## The Engine in Simple Words
 Every aggregation run follows this thinking path:
 
-1. **Trigger**
+1. **Trigger**:
    Something says “start.” Manual, schedule, or API.
 
-2. **Extract**
+2. **Extract**:
    Connector reads accounts and access from the source.
 
-3. **Normalize**
+3. **Normalize**:
    Raw data is converted into ISC format and types.
 
-4. **Persist**
+4. **Persist**:
    ISC decides to create, update, disable, or delete.
 
-5. **Correlate**
+5. **Correlate**:
    Accounts are linked (or not) to identities.
 
-6. **Evaluate**
+6. **Evaluate**:
    Identity profile logic runs and sets identity fields.
 
-7. **Recompute**
+7. **Recompute**:
    Access model recalculates roles and access profiles.
 
-8. **Publish**
+8. **Publish**:
    Indexes update and UI eventually shows the result.
 
 This is not one action.
