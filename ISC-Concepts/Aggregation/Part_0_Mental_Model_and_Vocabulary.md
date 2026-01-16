@@ -382,4 +382,4 @@ Always ask:
 ### Navigation
 ⬅️ Previous: None – This Is the Beginning
 🏠 Home: [README – Aggregation Master Series](README_Aggregation_Master_Series_FINAL_v3.md)
-➡️ Next: [Part 1 – Before Aggregation Can Run (Pre‑Flight)](part_1_before_aggregation_can_run_pre_flight.md)
+➡️ Next: [Part 1 – Before Aggregation Can Run (Pre‑Flight)](Part_1_Before_Aggregation_Can_Run_Pre_Flight.md)
