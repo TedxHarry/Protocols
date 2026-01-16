@@ -317,6 +317,6 @@ What is risky about delta extraction?
 ---
 
 ### Navigation
-⬅️ Previous: [Part 2 – Triggers and Job Lifecycle](../Part_2_Triggers_and_Job_Lifecycle_Best.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 4 – Normalization and Mapping](../Part_4_Normalization_and_Mapping.md)
+⬅️ Previous: [Part 2 – Triggers and Job Lifecycle](./Part_2_Triggers_and_Job_Lifecycle.md)  
+🏠 Home: [README – Aggregation Master Series](./README.md)  
+➡️ Next: [Part 4 – Normalization and Mapping](./Part_4_Normalization_and_Mapping.md)
