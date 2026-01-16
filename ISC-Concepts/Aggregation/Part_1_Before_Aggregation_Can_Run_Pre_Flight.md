@@ -288,8 +288,8 @@ If you can answer these, you’re ready:
 ---
 
 ### Navigation
-⬅️ Previous: [Part 0 – Mental Model and Vocabulary](../Part_0_Mental_Model_and_Vocabulary.md)
+⬅️ Previous: [Part 0 – Mental Model and Vocabulary](./Part_0_Mental_Model_and_Vocabulary.md)
 
-🏠 Home: [README – Aggregation Master Series](../README.md)  
+🏠 Home: [README – Aggregation Master Series](./README.md)  
 
-➡️ Next: [Part 2 – Triggers and Job Lifecycle](../Part_2_Triggers_and_Job_Lifecycle.md)
+➡️ Next: [Part 2 – Triggers and Job Lifecycle](./Part_2_Triggers_and_Job_Lifecycle.md)
