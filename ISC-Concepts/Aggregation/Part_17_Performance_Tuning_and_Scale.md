@@ -266,6 +266,7 @@ If you can answer these, you can tune safely:
 
 ---
 ### Navigation
-⬅️ Previous: [Part 16 – Observability and Monitoring](../Part_16_Observability_and_Monitoring.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 18 – Governance Impacts (Certifications, Requests, and Policies)](../part_18_governance_impacts.md)
+⬅️ Previous: [Part 16 – Observability](./Part_16_Observability_and_Monitoring.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 18 – Governance Impacts](./Part_18_Governance_Impacts_Certifications_Requests_and_Policies.md)
+
