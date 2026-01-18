@@ -282,6 +282,7 @@ But only understanding makes fixes safe.
 ---
 
 ### Navigation
-⬅️ Previous: [Part 11 – Verification and Validation](../Part_11_Verification_and_Validation_Story.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 13 – Proof Paths and Fix Playbooks](../part_13_proof_paths_and_fix_playbooks.md)
+⬅️ Previous: [Part 11 – Verification](./Part_11_Verification_and_Validation.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 13 – Proof Paths](./Part_13_Proof_Paths_and_Fix_Playbooks.md)
+
