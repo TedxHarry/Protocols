@@ -1,258 +1,341 @@
-# Part 15 – Custom Scheduling Patterns (Weekends, Windows, and Exceptions)
+# Part 15 – Custom Scheduling Patterns (Weekends, Windows, and Exceptions) — Teaching Mastery Edition
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-# Part 15 – Custom Scheduling Patterns (Weekends, Windows, and Exceptions)
+## The One Question This Part Answers
 
-## Purpose
-This part explains how to handle real‑world scheduling rules.
+**How do I bend time to business needs without breaking truth?**
 
-In theory, schedules are clean: run daily, same time.
-In reality, businesses ask for things like:
-- do not run on weekends
-- run only during a maintenance window
-- run twice a day on weekdays
-- run full on Sunday and delta on weekdays
-- pause runs during payroll cutover
+Custom schedules are not calendar tricks.  
+They change how stale data is allowed to become.
 
-This part teaches how to think through these requests safely.
+Keep this in mind:
+
+**Every exception is a promise about staleness.**
 
 ---
-## Where This Fits in the Master Flow
+
+## Where This Lives in the Engine
 
 Trigger → Extract → Normalize → Persist → Correlate → Evaluate → Recompute → Publish
 
-Custom scheduling still controls Trigger.
-But the risk is bigger because the more rules you add, the easier it is to create gaps, overlaps, or delta drift.
+Custom schedules control the Trigger,  
+but they quietly reshape every step that follows.
 
 ---
-## Mini‑Glossary
 
-**Window**  
-A time range where jobs are allowed.
+## Mental Model
 
-**Blackout**  
-A time range where jobs must not run.
+```
+Business rule about time
+   → Run gaps and bursts
+     → Delta memory behavior
+       → Recompute waves
+         → How stale truth is allowed to be
+```
 
-**Exception**  
-A special rule like “skip weekends” or “run full on Sunday.”
-
-**Catch‑up run**  
-A run that compensates for skipped days.
-
----
-## The Core Principle
-
-Custom schedules are not just calendar rules.
-They change what data freshness means.
-
-Every exception creates a data gap.
-Your job is to decide whether that gap is acceptable and how to manage the consequences.
+If you don’t define staleness on purpose,  
+you accept it by accident.
 
 ---
-## Step 1: Ask What the Business Really Wants
 
-A request like “don’t run on weekends” usually has a reason:
-- source maintenance
-- cost control
-- performance concerns
-- vendor rate limits
+## A Real Story
 
-You should translate the request into a technical question:
-“Is it acceptable if identity and access changes are stale for up to 48 hours?”
+Business says:
+“Don’t run HR on weekends.”
 
-Because that is what “skip weekends” really means.
+What they usually mean:
+“Nothing important changes on weekends.”
 
----
-## Step 2: Decide Whether Delta Can Survive the Gap
+What the system hears:
+“It is okay if identity is wrong for up to 48 hours.”
 
-Delta depends on a token.
-When you skip runs for two days, delta has to cover a bigger change window.
-
-This is usually fine, but it increases risk:
-- larger change sets
-- higher chance of token issues
-- bigger recompute waves
-
-If the source is large, a Monday delta might become heavy enough to behave like a full run.
+If that is not true, the schedule is lying before the engine even starts.
 
 ---
-## Step 3: Choose a Pattern That Matches Reality
 
-Here are the patterns that work well in real ops.
+## Translate Requests Into Truth
 
-### Pattern A: Weekdays Only, Same Time
-Use when:
-The business can tolerate weekend staleness.
+Never accept a rule like:
+- “Skip weekends”
+- “Run only in window”
+- “Pause during payroll”
 
-What to watch:
-Monday backlog and recompute storm.
+Translate it to a truth statement:
+
+- “Identity may be stale for 48 hours.”  
+- “Access changes may wait until morning.”  
+- “Leavers may keep access until window opens.”  
+
+If the business is not okay with that sentence,  
+the schedule is wrong.
 
 ---
-### Pattern B: Weekdays Delta, Weekly Full
-Use when:
-You want speed daily but also want drift correction.
+
+## Delta and Gaps
+
+Delta relies on memory.
+
+When you skip days:
+- Delta window becomes larger  
+- Token risk increases  
+- Monday runs become heavier  
+
+Skipping does not stop change.  
+It only delays when you see it.
+
+So every gap must answer:
+
+“How big a change set am I willing to process at once?”
+
+---
+
+## Common Patterns (Taught Through Reasoning)
+
+### Pattern: Weekdays Only
+
+Why people want it:
+- Systems are slow on weekends
+- Teams are not watching
+
+What it really means:
+- Joiners/leavers wait up to 48 hours
+
+When it works:
+- Business accepts weekend staleness
+
+What usually breaks:
+- Monday backlog
+- Recompute storms
+
+---
+
+### Pattern: Weekdays Delta, Weekly Full
+
+Why it exists:
+- Delta is fast
+- Full corrects drift
+
+How to think:
+- Delta handles daily noise  
+- Full resets memory weekly  
+
+This pattern accepts:
+- Small daily risk  
+- Big weekly cleanup  
+
+It works when you plan the full carefully so it does not collide with Monday business traffic.
+
+---
+
+### Pattern: Twice Per Day
+
+Why people want it:
+- Faster joiners and leavers
+
+What it risks:
+- Overlap
+- Recompute stacking
+- Worker exhaustion
+
+Before doing this, you must know:
+Worst-case duration, not average.
+
+---
+
+### Pattern: Maintenance Window Only
+
+Why it exists:
+- Source is fragile
+- Vendor restricts access
+
+Hidden danger:
+If a run slips, it may retry into forbidden time, or skip entirely.
+
+So you must design:
+What happens if today’s window fails?
+
+Do you retry tomorrow?  
+Do you force a full?
+
+---
+
+### Pattern: Blackout During Events
 
 Example:
-Delta Monday–Saturday, full Sunday.
+Payroll cutover, quarter close, mergers.
 
-This catches:
-- missed delta changes
-- connector drift
-- token weirdness
+What blackout really means:
+“I accept that truth will freeze for a while.”
+
+Every blackout must come with a plan:
+How do we safely wake truth back up?
+
+That is the catch-up run.
 
 ---
-### Pattern C: Two Runs Per Day
-Use when:
-Joiners and leavers need faster turnaround.
+
+## Catch-Up Runs: Waking Truth Back Up
+
+When you skip or pause, you must choose:
+
+1) Big delta catch-up  
+2) Controlled full reset  
+
+Big delta is lighter but riskier.  
+Full reset is heavier but safer.
+
+Choose based on:
+- How critical missed changes are
+- How risky delta memory feels
+
+---
+
+## Dependency Still Matters
+
+Even with fancy calendars:
+
+People-creating sources must run first.  
+Access-attaching sources must follow.
+
+If HR skips but AD runs:
+AD will see stale people and mis-correlate.
+
+So exceptions must respect dependency chains,  
+not just calendars.
+
+---
+
+## The Hidden Enemy: Overlap by Accident
+
+Custom rules often create overlap accidentally.
 
 Example:
-HR at 6 AM and 2 PM.
+- Delta twice per day  
+- Weekly full  
+- Maintenance window  
 
-What to watch:
-Overlap risk and downstream recompute load.
+If the full runs long, it may collide with the next delta.
 
----
-### Pattern D: Maintenance Windows Only
-Use when:
-Source system is sensitive and only allows reads during a window.
+Overlap is not a scheduling bug.  
+It is a math bug.
 
-Example:
-Run between 1 AM and 3 AM.
-
-What to watch:
-If a job slips outside window, it must not retry endlessly.
+You must space based on worst case, not hope.
 
 ---
-### Pattern E: Blackout During Critical Events
-Use when:
-There is a known business event like payroll cutover.
 
-What to watch:
-Plan a catch‑up run after blackout ends.
+## Interactive Pause
 
----
-## Step 4: Plan the Catch‑Up Run
+HR runs only weekdays.  
+Monday delta runs at 5 AM.  
+Worst-case HR job = 90 minutes.
 
-If you skip runs, you need to decide how to catch up.
+Question:
+Is a 6 AM AD run safe?
 
-Two common choices:
+Pause. Think.
 
-1) Monday delta catch‑up
-You run delta and accept the larger change set.
-
-2) Monday full reset
-You force a full to rebuild truth.
-
-Full reset is heavier but safer when you suspect delta drift.
+Answer:
+No. If HR takes 90 minutes, AD will start before HR finishes.  
+That breaks dependency and risks correlation.
 
 ---
-## Step 5: Respect Dependency Order Even With Exceptions
 
-Skipping weekends often breaks the normal “HR then AD” chain.
+## Why Custom Schedules Create Illusions
 
-Example:
-If HR doesn’t run Saturday and Sunday, but AD does run, AD will see stale identities.
+You may see:
+- Jobs Completed
+- UI green
+- But identity stale
 
-So you should apply exceptions consistently:
-If HR skips weekends, downstream sources that depend on HR should also skip or adjust.
+Because time silently changed truth expectations,  
+not logic.
 
----
-## Step 6: Prevent Overlap With Custom Rules
-
-Custom rules often create accidental overlaps.
-
-Example:
-Two runs per day plus a weekly full.
-
-If the full run takes longer, it can overlap with the next delta.
-
-So you must build spacing based on worst‑case duration, not average duration.
+Time can lie more politely than code.
 
 ---
-## Running Example: “Skip Weekends for HR”
 
-Business request:
-Do not aggregate HR on Saturday and Sunday.
+## Traps That Fool Smart People
 
-Operator translation:
-Identity freshness can be up to 48 hours stale.
+- Accepting calendar rules without defining staleness  
+- Skipping HR but not skipping downstream  
+- Adding weekly full without adjusting spacing  
+- Trusting average duration instead of worst case  
 
-Safe schedule:
-- HR runs Monday–Friday at 5 AM
-- HR runs a full on Sunday night or early Monday once
-- AD runs after HR on weekdays only
-
-Why this works:
-HR stays authoritative and fresh on business days.
-AD only runs when identities are updated.
-Full run catches drift.
+These are not beginner mistakes.  
+They are rushed-operator mistakes.
 
 ---
-## Why This Matters
 
-Custom schedules create real risk:
-- joiners delayed
-- leavers keep access longer
-- delta drift grows
-- Monday storms happen
+## Debug Mindset for Custom Schedules
 
-If you design the pattern intentionally, these risks become manageable.
+When timing feels wrong, ask:
 
----
-## If You See This → Do This
+1) What staleness did we promise?  
+2) Is that acceptable?  
+3) What is worst-case duration?  
+4) Do any rules create overlap?  
+5) Does dependency still flow correctly?  
 
-If Monday runs are heavy, add a weekly full or add a Saturday light run.
-If access changes lag after weekends, align dependent sources.
-If delta starts skipping changes, schedule periodic full and monitor token behavior.
+Fix rhythm before fixing logic.
 
 ---
-## How People Usually Fail Here
 
-They implement calendar rules without thinking about freshness.
-They skip HR but keep downstream sources running.
-They don’t plan catch‑up.
-They create overlaps with weekly full runs.
+## Visual Rhythm Check
 
----
-## Proof Paths
-
-UI: Job history and durations across week  
-API: Job timestamps and run types  
-Logs: Delta token usage across gaps
-
----
-## What Must Not Happen
-
-Do not add exceptions without understanding data staleness.  
-Do not break dependency order.  
-Do not create overlap with full runs.  
-Do not ignore Monday backlog.
+```
+Business rule about time
+   ↓
+What staleness does it allow?
+   ↓
+Worst-case job duration
+   ↓
+Do any runs overlap?
+   ↓
+Do dependencies still flow?
+```
 
 ---
-## Safe Fixes
 
-Align exceptions across dependent sources.  
-Add weekly full runs.  
-Stagger Monday schedules.  
-Measure worst‑case duration.
+## What This Phase Does NOT Do
 
----
-## Confidence Check
+- It does not fix mapping  
+- It does not fix correlation  
+- It does not fix access rules  
 
-If you can answer these, you can design custom schedules:
-- What does “skip weekends” really mean in data freshness?
-- Why can Monday delta become heavy?
-- Why must dependent sources follow the same exceptions?
-- When should you add a catch‑up full run?
+It only decides how long truth is allowed to sleep.
 
 ---
-### Navigation
-⬅️ Previous: Part 14 – Operational Scheduling and Avoiding Overlap
-🏠 Home: README – Aggregation Master Series
-➡️ Next: Part 16 – Observability and Monitoring
+
+## Safe Design Principles
+
+- Always define acceptable staleness  
+- Space by worst-case, not average  
+- Respect dependency order  
+- Pair delta with periodic full  
+- Plan catch-up for every blackout  
+
+---
+
+## The One Sentence That Defines Mastery
+
+Before you accept a calendar rule, ask:
+
+**What lie about freshness am I agreeing to?**
+
+---
+
+## Mastery Check
+
+Answer without notes:
+
+- What does “skip weekends” really mean in truth?  
+- Why does delta become riskier after gaps?  
+- Why must dependencies still flow during exceptions?  
+- Why is worst-case duration more important than average?  
+- Why does every blackout need a wake-up plan?  
 
 ---
 ### Navigation
