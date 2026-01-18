@@ -228,6 +228,7 @@ The only real question is:
 ---
 
 ### Navigation
-⬅️ Previous: [Part 9 – Delta State and Token Lifecycle](../Part_9_Delta_State_and_Token_Lifecycle_Story.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 11 – Verification and Validation](../Part_11_Verification_and_Validation.md)
+⬅️ Previous: [Part 9 – Delta](./Part_9_Delta_State_and_Token_Lifecycle.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 11 – Verification and Validation](./Part_11_Verification_and_Validation.md)
+
