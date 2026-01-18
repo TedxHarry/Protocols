@@ -1,107 +1,113 @@
-
-# Part 8 – Identity Refresh and Recompute (Story-Driven)
+# Part 8 – Identity Refresh and Recompute — Teaching Mastery Edition
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-## Big Idea
+## Why This Part Exists
 
-After identity is built, access is still not decided.
+Up to now, the engine has answered:
 
-At this point ISC knows:
-- Who the person is
-- What their attributes are
+- What data exists (Extraction)  
+- What it looks like (Normalization)  
+- What is remembered (Persistence)  
+- Who owns which account (Correlation)  
+- Who the person is (Evaluation)  
 
-But it does NOT yet know:
-- What access they should have
+Part 8 answers the business question:
 
-Recompute is the phase where ISC asks:
+**Given who this person is, what access should they have now?**
 
-“Given who this person is now, what should they be allowed to do?”
+This is where identity turns into power.
 
-This is where identity turns into access.
+Keep this sentence in mind:
+
+**Evaluation builds the person. Recompute builds their power.**
 
 ---
 
-## Where This Fits in the Engine
+## Where This Fits in the Big Engine
 
 Trigger → Extract → Normalize → Persist → Correlate → Evaluate → **Recompute** → Publish
 
-Evaluation answered: Who is this person?  
-Recompute answers: What should this person have?
+Evaluation answered: “Who is this person?”  
+Recompute answers: “What should this person have?”
+
+They often run close together, but they are not the same job.
 
 ---
 
-## What ISC Is Thinking During Recompute
+## The Mental Model
 
-ISC is not looking at raw accounts anymore.
+```
+Identity (who you are)
+   → Rules and policies
+     → Access decisions (what you get)
+```
 
-It is thinking:
+Recompute does not copy data.  
+It judges data.
 
-- Based on identity fields…  
-- Based on role rules…  
-- Based on access profile rules…  
+It looks at identity and asks:
 
-What access should exist now?
-
-It is making decisions like:
-- Add this role
-- Remove that role
-- Grant this access profile
-- Revoke that one
-
-Recompute is judgment, not copying.
+- Which roles apply?
+- Which access profiles apply?
+- Which access must be removed?
 
 ---
 
 ## Identity Refresh vs Recompute
 
-They sound similar but think differently.
+They sound similar, but they think differently.
 
-Identity Refresh thinks:
-“Do I still know who this person is?”
+### Identity Refresh thinks:
+“Do I still know who this person is?”  
+It re-evaluates identity attributes.
 
-Recompute thinks:
-“Given who they are, what should they have?”
+### Recompute thinks:
+“Given who this person is, what should they have?”  
+It recalculates access.
 
 Refresh builds the person.  
 Recompute builds their access.
 
-They often run together, but they solve different problems.
-
 ---
 
-## A Slow Story: Alice Changes Department
+## A Guided Story: Alice Changes
 
-Alice moves from Sales to Engineering in HR.
+Source: HR  
+Alice moves from Sales to Engineering.
 
 Earlier phases already did:
-- Account updated
-- Correlation still correct
-- Identity profile updated department = Engineering
 
-So now ISC knows:
-Alice is now an Engineering person.
+- HR account updated  
+- Correlation still correct  
+- Identity evaluation set department = Engineering  
+
+So ISC now knows:
+
+Alice is an Engineering person.
 
 But she still has Sales access.
 
-Recompute now asks:
-What does an Engineering person get?
+Recompute is now responsible for fixing that.
 
 ---
 
 ## What Recompute Does With Alice
 
-Role rules say:
-- Sales role if department = Sales
-- Engineering role if department = Engineering
+Role rules:
+
+- Sales role if department = Sales  
+- Engineering role if department = Engineering  
 
 Recompute logic:
-- Remove Sales role
-- Add Engineering role
 
-Now Alice’s access matches her identity.
+- Identity says: Engineering  
+- Remove Sales role  
+- Add Engineering role  
+
+Now Alice’s access matches who she is.
 
 ---
 
@@ -110,39 +116,51 @@ Now Alice’s access matches her identity.
 Recompute is often asynchronous.
 
 That means:
-- Aggregation job may say Completed
-- Identity shows new department
-- Access still shows old roles
 
-This does not always mean failure.  
+- Aggregation job may say Completed  
+- Identity shows new department  
+- Access still shows old roles  
+
+This is not always a failure.  
 It often just means recompute has not finished yet.
 
-This delay confuses people into rerunning aggregation unnecessarily.
-
----
-
-## What Goes Wrong Here
-
-When access is wrong but identity is right, usually:
-
-- Recompute has not run yet
-- Recompute failed
-- Role rules do not match identity fields
-
-The problem is rarely aggregation at this point.
+This delay tricks people into rerunning aggregation, which usually makes things worse.
 
 ---
 
 ## What Recompute Never Does
 
 Recompute does NOT:
-- Re-read sources
-- Re-link accounts
-- Change identity fields
+
+- Re-read sources  
+- Re-link accounts  
+- Change identity attributes  
 
 It only changes access.
 
-So rerunning aggregation to fix access is usually the wrong instinct.
+So if identity is wrong, recompute cannot fix it.  
+And if access is wrong, rerunning aggregation is usually the wrong instinct.
+
+---
+
+## Interactive Pause
+
+Scenario:
+
+- Identity shows: Alice.department = Engineering  
+- Access still shows: Sales role  
+
+Question:
+What should you check first?
+
+Pause. Think.
+
+Answer:
+- Did recompute run?
+- Did recompute succeed?
+- Are role rules correct?
+
+Not: “Let me rerun aggregation.”
 
 ---
 
@@ -154,12 +172,12 @@ Alice = Sales
 
 Run 2:
 Alice becomes Engineering  
-Identity updated first  
+Identity updates first  
 Access still Sales for a while
 
 Recompute runs later:
-- Remove Sales role
-- Add Engineering role
+- Remove Sales role  
+- Add Engineering role  
 
 Only now does access reflect truth.
 
@@ -168,26 +186,27 @@ Only now does access reflect truth.
 ## Why This Phase Is Risky
 
 If recompute is slow or broken:
-- Leavers keep access
-- Movers keep old access
-- Joiners wait too long
 
-Business risk lives here, not in aggregation.
+- Leavers keep access  
+- Movers keep old access  
+- Joiners wait too long  
+
+Business risk lives here, not in extraction.
+
+You can have perfect data and still have dangerous access.
 
 ---
 
-## How to Think When It Breaks
+## What Goes Wrong Here
 
-Do not start with:
-“Why is aggregation broken?”
+When access is wrong but identity is right, usually:
 
-Ask:
-- Is identity correct?
-- Did recompute run?
-- Did recompute succeed?
-- Do role rules match identity?
+- Recompute never ran  
+- Recompute failed  
+- Role or access rules don’t match identity fields  
+- Conditions are too strict or too loose  
 
-Only then change anything.
+The problem is rarely aggregation at this point.
 
 ---
 
@@ -195,38 +214,97 @@ Only then change anything.
 
 HR changed department for 200 users.
 
-Identities updated correctly.  
-Roles stayed old.
+- Identities updated correctly  
+- Roles stayed old  
 
 Team reran aggregation many times.
 
 Real issue:
 Recompute queue was stuck.
 
-Aggregation was never broken.
+Aggregation was never broken.  
+Judgment was.
 
 ---
 
-## How to Know You Understand Recompute
+## Debug Playbook
 
-You understand this phase if you can answer:
+When access looks wrong, debug in this order:
 
-- What question is recompute answering?  
+1) Is identity correct?  
+2) Did recompute run?  
+3) Did recompute succeed?  
+4) Do rules match identity fields?  
+5) Are conditions too strict or too broad?  
+
+Only after this, look at aggregation again.
+
+---
+
+## Visual Debug Flow
+
+```
+Is identity correct?
+   ↓
+Did recompute run?
+   ↓
+Did it succeed?
+   ↓
+Do rules match identity?
+   ↓
+Fix rules or rerun recompute
+```
+
+---
+
+## Proof Paths
+
+To prove recompute health:
+
+- Identity view (who the person is)  
+- Role and access assignments  
+- Recompute job history  
+- Logs for rule evaluation  
+
+Truth lives in judgment results, not raw data.
+
+---
+
+## What Must Not Happen
+
+- Do not rerun aggregation to fix access  
+- Do not ignore recompute failures  
+- Do not write rules without testing  
+- Do not assume identity change means access change  
+
+---
+
+## Safe Fixes
+
+- Access wrong → rerun recompute  
+- Rule wrong → fix rule and recompute  
+- Identity wrong → go back to evaluation phase  
+- Queue stuck → fix recompute engine, not aggregation  
+
+---
+
+## The One Sentence That Defines Mastery
+
+Before you ask “Why is access wrong?”, ask:
+
+**Did the judgment that grants access run correctly?**
+
+---
+
+## Mastery Check
+
+Answer without notes:
+
+- What question does recompute answer?  
 - Why can identity be right while access is wrong?  
-- Why is rerunning aggregation often the wrong fix?  
+- Why is rerunning aggregation often wrong?  
 - Why does business risk live here?  
-
----
-
-## Mindset
-
-Aggregation builds truth.  
-Evaluation builds the person.  
-Recompute builds access.
-
-If access is wrong,  
-do not rebuild truth blindly.  
-Fix the judgment that gives access.
+- What is your debug order for access issues?  
 
 ---
 
