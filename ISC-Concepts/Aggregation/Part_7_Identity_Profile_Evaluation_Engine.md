@@ -1,30 +1,28 @@
-
-# Part 7 – Identity Profile Evaluation Engine (Story-Driven)
+# Part 7 – Identity Profile Evaluation Engine — Teaching Mastery Edition
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-## Big Idea
+## Why This Part Exists
 
-Correlation decides **who owns an account.**  
-Identity Profile Evaluation decides **who that person actually is.**
+Parts before this decided:
 
-After correlation, ISC knows:
-“These accounts belong to Alice.”
+- What data exists (Extraction),
+- What it looks like (Normalization),
+- What ISC remembers (Persistence),
+- Who owns which account (Correlation).
 
-But it still does not know:
-- What is Alice’s department?
-- Which email is real?
-- Who is her manager?
-- What lifecycle stage is she in?
+Part 7 answers a deeper question:
 
-Identity Profile Evaluation answers:
+**Given all the linked accounts, who is this person supposed to be?**
 
-“Given all the accounts linked to this person,  
-who is this person supposed to be?”
+Correlation says: “These accounts belong to Alice.”  
+Evaluation says: “So… who is Alice?”
 
-This is where identity becomes a story, not just data.
+Keep this sentence in mind:
+
+**Evaluation is judgment. Not copying.**
 
 ---
 
@@ -36,50 +34,71 @@ Persistence made data real.
 Correlation gave it an owner.  
 Evaluation gives that owner meaning.
 
+This is where identity becomes a story, not just records.
+
 ---
 
-## What ISC Is Thinking During Evaluation
+## The Mental Model
 
-ISC is not asking:
-“What did the source say?”
+```
+Linked accounts
+   → Apply identity profile rules
+     → Choose, derive, and resolve conflicts
+       → Final identity attributes
+```
+
+Evaluation never reads raw sources.  
+It only reads already-linked accounts and applies rules to them.
+
+---
+
+## What ISC Is Really Doing
+
+During evaluation, ISC is not asking:
+
+- What did the source say?
+- Which value is newest?
+- Which system is loudest?
 
 It is asking:
-“When sources disagree, who do I trust?”
 
-For every identity field, it thinks:
+**When sources disagree, who do I trust?**
+
+For every identity attribute, ISC checks:
 
 - Which sources are allowed to speak?
-- In what order should I trust them?
-- Should I copy or calculate this field?
+- In what order should they be trusted?
+- Should the value be copied or calculated?
 
-Evaluation is not copying.  
-Evaluation is choosing.
+Evaluation is choosing. Not copying.
 
 ---
 
-## Identity Profile: The Rulebook
+## The Identity Profile: The Rulebook
 
 The Identity Profile is the rulebook that answers:
 
 For each identity attribute:
+
 - Which sources can supply it
-- Which one wins if there are many
+- Which one wins if many exist
 - Whether it is copied or derived
 
-It never reads raw data.  
-It only reads already-linked accounts.
+It does not read raw data.  
+It reads linked account attributes and decides what becomes “truth.”
 
-If the rulebook is wrong, the identity will be wrong even when accounts are perfect.
+If the rulebook is wrong, identity will be wrong — even when accounts are perfect.
 
 ---
 
-## A Slow Story: One Person, Two Systems
+## Guided Story: One Person, Two Systems
 
 Sources:
 - HR (authoritative)
 - AD (non-authoritative)
 
-Alice has two accounts:
+Alice has two linked accounts:
+
 - HR_Alice
 - AD_Alice
 
@@ -91,9 +110,9 @@ AD says:
 - department = Sales
 - email = alice@corp.local
 
-So who is Alice?
+Who is Alice?
 
-The identity profile decides.
+Evaluation decides.
 
 ---
 
@@ -112,14 +131,15 @@ email:
 
 This means:
 
-If HR has department, use it.  
-Only if HR is empty, try AD.
+- If HR has a value, use it.
+- Only if HR is empty, try AD.
 
 So Alice becomes:
+
 - department = Engineering  
 - email = alice@company.com  
 
-AD is ignored, not because it is wrong,  
+AD is ignored — not because it is wrong,  
 but because it is less trusted.
 
 ---
@@ -128,14 +148,15 @@ but because it is less trusted.
 
 Next month, HR removes Alice’s department.
 
-Now evaluation thinks:
+Evaluation logic:
 
-HR has no value.  
-Try AD.  
-AD says Sales.  
+- HR has no value.
+- Try AD.
+- AD says Sales.
+
 So identity.department becomes Sales.
 
-Nothing “broke.”  
+Nothing broke.  
 The rulebook worked exactly as written.
 
 ---
@@ -145,20 +166,23 @@ The rulebook worked exactly as written.
 Some fields are not copied at all.
 
 Examples:
+
 - displayName = firstName + lastName
 - managerEmail = manager.identity.email
 - isManager = true if has reports
 
-These fields are built using logic, not copying.
+These fields are created using logic.
 
-If logic is wrong, identity is logically wrong, even if source data is fine.
+If the logic is wrong, identity becomes logically wrong —  
+even if all source data is perfect.
 
 ---
 
 ## Lifecycle State: The Most Powerful Field
 
 Lifecycle answers:
-Where is this person in their journey?
+
+**Where is this person in their journey?**
 
 Examples:
 - Joiner
@@ -166,12 +190,13 @@ Examples:
 - Leave
 - Terminated
 
-Often based on HR data:
-- Hire date
+Often based on HR fields:
 - Status
+- Hire date
 - Termination date
 
 Lifecycle is dangerous because it drives:
+
 - Provisioning
 - Deprovisioning
 - Certifications
@@ -184,38 +209,47 @@ If lifecycle is wrong, automation becomes wrong.
 ## When Evaluation Runs
 
 Evaluation runs:
+
 - After correlation
 - After account updates
-- During identity refresh
+- During identity refresh/recompute
 
-It may not run instantly.  
-So you may see:
+It may not run instantly.
 
-Account changed → Identity still old → Later identity updates.
+So you might see:
 
-This delay often confuses people into thinking something is broken.
+Account changed → Identity still old → Later identity updates
+
+This delay often tricks people into thinking something is broken.
 
 ---
 
-## Full Story Example
-
-Accounts linked:
-- HR_Alice
-- AD_Alice
+## Interactive Scenario
 
 Profile rules:
+
 - department: HR first, then AD
-- email: HR
+- email: HR only
 - displayName: firstName + lastName
-- lifecycle: based on HR status
+- lifecycle: from HR status
 
-Evaluation result:
-- department = Engineering
-- email = alice@company.com
-- displayName = Alice Smith
-- lifecycle = Active
+Accounts linked:
+- HR_Alice: department = Engineering, status = Active
+- AD_Alice: department = Sales
 
-Even though AD said Sales, it was ignored by design.
+Question:
+What does identity look like?
+
+Pause. Think.
+
+Answer:
+
+- department = Engineering  
+- email = from HR  
+- displayName = derived  
+- lifecycle = Active  
+
+AD’s department is ignored by design.
 
 ---
 
@@ -223,39 +257,48 @@ Even though AD said Sales, it was ignored by design.
 
 This is the classic trap.
 
-You check the account.  
-It has the right value.
-
+You check the account — it looks correct.  
 But identity shows something else.
 
 This usually means:
+
 - Wrong precedence
 - Wrong source allowed
 - Bad derived logic
-- Lifecycle overriding
+- Lifecycle overriding behavior
 
 The account is not wrong.  
 The rulebook is.
 
 ---
 
-## How to Think When It Breaks
+## Debug Playbook
 
-Do not ask:
-“Why is access wrong?”
-
-Ask:
-“Who does ISC think this person is?”
-
-Then walk in this order:
+When identity looks wrong, debug in this order:
 
 1) Which sources feed this field?  
 2) What is the precedence order?  
-3) Are any sources empty?  
+3) Are higher-priority sources empty?  
 4) Is this field derived?  
 5) Is lifecycle influencing behavior?  
 
 Only after this, look at roles or access.
+
+---
+
+## Visual Debug Flow
+
+```
+Which sources feed the field?
+   ↓
+What is precedence order?
+   ↓
+Is top source empty?
+   ↓
+Is field derived?
+   ↓
+Is lifecycle involved?
+```
 
 ---
 
@@ -276,25 +319,46 @@ The rulebook was wrong.
 
 ---
 
-## How to Know You Understand This Phase
+## Proof Paths
 
-You truly understand evaluation if you can answer:
+To validate evaluation:
+
+- Check identity profile rules  
+- Check linked account values  
+- Check precedence order  
+- Check derived logic  
+- Check lifecycle rules  
+
+Truth lives in the rulebook, not the source alone.
+
+---
+
+## What Must Not Happen
+
+- Do not change precedence casually  
+- Do not ignore empty higher-priority sources  
+- Do not write complex derived logic blindly  
+- Do not debug access before judgment  
+
+---
+
+## The One Sentence That Defines Mastery
+
+Before you ask “Why is access wrong?”, ask:
+
+**Who does ISC think this person is?**
+
+---
+
+## Mastery Check
+
+Answer these without notes:
 
 - What question is evaluation really answering?  
 - Why is it about choosing, not copying?  
 - Why can identity be wrong when accounts are right?  
 - Why is lifecycle the most dangerous field?  
-- Why do most “mystery” bugs live here?  
-
----
-
-## Mindset
-
-Identity Profile Evaluation is not data flow.  
-It is judgment.
-
-Once judgment is wrong,  
-everything built on it is wrong.
+- Why do mystery bugs live here?  
 
 ---
 
