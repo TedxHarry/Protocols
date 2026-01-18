@@ -240,6 +240,7 @@ If you can answer these, you understand the governance impacts:
 
 ---
 ### Navigation
-⬅️ Previous: [Part 17 – Performance Tuning and Scale](../Part_17_Performance_Tuning_and_Scale.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 19 – Change Management and Safe Updates](../part_19_change_management_and_safe_updates.md)
+⬅️ Previous: [Part 17 – Performance](./Part_17_Performance_Tuning_and_Scale.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 19 – Change Management](./Part_19_Change_Management_and_Safe_Updates.md)
+
