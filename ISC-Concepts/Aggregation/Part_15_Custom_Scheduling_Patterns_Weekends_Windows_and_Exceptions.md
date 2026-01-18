@@ -256,6 +256,7 @@ If you can answer these, you can design custom schedules:
 
 ---
 ### Navigation
-⬅️ Previous: [Part 14 – Operational Scheduling and Avoiding Overlap](../Part_14_Operational_Scheduling_and_Avoiding_Overlap.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 16 – Observability and Monitoring](../part_16_observability_and_monitoring.md)
+⬅️ Previous: [Part 14 – Scheduling](./Part_14_Operational_Scheduling_and_Avoiding_Overlap.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 16 – Observability](./Part_16_Observability_and_Monitoring.md)
+
