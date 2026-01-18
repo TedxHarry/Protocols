@@ -1,37 +1,47 @@
-
-# Part 12 – Troubleshooting Playbook (Story-Driven)
+# Part 12 – Troubleshooting Playbook — Teaching Mastery Edition
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-## Big Idea
+## The One Question This Part Answers
+
+**How do I think when reality and expectation disagree?**
 
 Troubleshooting is not fixing.  
-Troubleshooting is understanding.
+Troubleshooting is learning the truth before you touch anything.
 
-Most teams rush to “do something.”  
-Rerun jobs. Change configs. Reset delta.
+Keep this line in mind:
 
-That feels active, but it often makes the story messier.
-
-This playbook teaches one habit:
-
-First learn what the system believes.  
-Only then decide what to change.
+**Action without understanding creates new lies.**
 
 ---
 
-## Where This Fits
+## Where This Fits in the Engine
 
 Trigger → Extract → Normalize → Persist → Correlate → Evaluate → Recompute → Publish
 
 Troubleshooting is not a step in the engine.  
-It is how you walk through the engine when reality and expectation disagree.
+It is how you walk the engine when something feels wrong.
 
 ---
 
-## Four Layers of Truth
+## The Mental Model
+
+```
+Expectation
+   vs
+Reality
+   → Find which layer is lying
+     → Prove it
+       → Fix only that
+```
+
+If you can’t name the lying layer, you are guessing.
+
+---
+
+## The Four Layers of Truth
 
 Every problem lives in one of four layers:
 
@@ -40,7 +50,7 @@ Every problem lives in one of four layers:
 3) Identity truth – What ISC believes about people  
 4) Governance truth – What access and rules say  
 
-If you can’t name the broken layer, you are not troubleshooting. You are guessing.
+Most chaos happens because people mix these layers.
 
 ---
 
@@ -50,14 +60,14 @@ HR says Alice is Engineering.
 ISC identity says Alice is Sales.  
 Roles still give Sales access.
 
-Where is the lie?
+Which story is false?
 
 - HR might be wrong  
 - Account might be wrong  
-- Identity might be choosing wrong  
+- Identity judgment might be wrong  
 - Recompute might be late  
 
-Troubleshooting is finding which story is false.
+Troubleshooting is finding which story is lying.
 
 ---
 
@@ -65,17 +75,17 @@ Troubleshooting is finding which story is false.
 
 Never change anything until you can answer:
 
-Which layer is wrong?
+**Which layer is wrong?**
 
-Changing before you know this just creates new lies.
+Changing before knowing this just creates new lies.
 
 ---
 
-## How to Start: One Person
+## Start With One Person
 
 Never start with “everyone.”
 
-Pick one person who shows the problem clearly.
+Pick one person who clearly shows the problem.
 
 Why?
 
@@ -84,14 +94,14 @@ you will never understand ten thousand.
 
 ---
 
-## Step 1: Prove Source Truth
+## Step 1 – Prove Source Truth
 
 Ask: What does reality say?
 
 Check:
-- HR screen
 - Source UI
 - Source API
+- Business or HR record
 
 Write it down.
 
@@ -100,7 +110,7 @@ Everything else is innocent.
 
 ---
 
-## Step 2: Prove Account Truth
+## Step 2 – Prove Account Truth
 
 Ask: Did ISC read and store this correctly?
 
@@ -111,26 +121,26 @@ Check the account object:
 
 If account is wrong, the lie started in extraction or mapping.
 
-Identity has no chance to be right if the account is wrong.
+Identity has no chance if account is wrong.
 
 ---
 
-## Step 3: Prove Persistence Belief
+## Step 3 – Prove Persistence Behavior
 
-Ask: What did ISC decide about this account?
+Ask: What did ISC do with this account?
 
 Check:
 - Unique ID match
 - Created vs updated
 - Disabled or missing-from-feed
 
-If ISC is matching the wrong record, everything after this is poisoned.
+If memory is wrong, everything after it is poisoned.
 
 ---
 
-## Step 4: Prove Correlation
+## Step 4 – Prove Correlation
 
-Ask: Is this account linked to the right person?
+Ask: Is this account linked to the right identity?
 
 If linked to wrong identity:
 Stop. Fix this first.
@@ -142,7 +152,7 @@ This is the most dangerous failure.
 
 ---
 
-## Step 5: Prove Identity Judgment
+## Step 5 – Prove Identity Judgment
 
 Ask: Why does identity show this value?
 
@@ -156,20 +166,20 @@ If account is right but identity is wrong, the rulebook is lying.
 
 ---
 
-## Step 6: Prove Access Judgment
+## Step 6 – Prove Access Judgment
 
 Ask: Given this identity, is access correct?
 
 If identity is right but roles are wrong:
 - Recompute may be late
-- Role rules may not match identity
+- Rules may not match identity
 - Access profile logic may be wrong
 
 Do not rerun aggregation to fix access logic.
 
 ---
 
-## Step 7: Prove UI vs Reality
+## Step 7 – Prove UI vs Reality
 
 If API is right but UI is wrong:
 - Indexing
@@ -182,11 +192,11 @@ Do not touch aggregation for a UI illusion.
 
 ## Walking the Engine
 
-When something is wrong, walk like this every time:
+Always walk in this order:
 
-Reality → Account → Persistence → Correlation → Identity → Access → UI
+Reality → Account → Memory → Correlation → Identity → Access → UI
 
-At each step, ask:
+At each step ask:
 
 Is this still true?
 
@@ -194,20 +204,39 @@ The first “no” is where truth broke.
 
 ---
 
+## Interactive Pause
+
+Scenario:
+
+Alice changed department in HR.  
+ISC still shows old department.
+
+Question:
+What do you check first?
+
+Pause. Think.
+
+Answer:
+Did extraction even read Alice’s change?
+
+If she never entered the engine, nothing else matters.
+
+---
+
 ## Failure Story
 
-Team saw wrong department on identity.
+Team saw wrong department.
 
 They reran aggregation three times.
 
 Still wrong.
 
 Finally checked:
-Extraction never saw Alice because filter excluded her.
+Filter excluded Alice. She was never read.
 
 Reruns only repeated the same lie.
 
-They were fixing without understanding.
+They fixed without understanding.
 
 ---
 
@@ -218,14 +247,14 @@ But reruns:
 
 - Hide root cause
 - Create noise
-- Change state repeatedly
+- Change memory repeatedly
 - Make history confusing
 
 Rerun only after you know what you are fixing.
 
 ---
 
-## Smallest Safe Fix
+## The Smallest Safe Fix
 
 Before touching anything, ask:
 
@@ -234,8 +263,8 @@ Before touching anything, ask:
 - Can I roll back?
 
 Prefer fixes that are:
-- Reversible
 - Small
+- Reversible
 - Testable
 
 Be careful with:
@@ -249,9 +278,7 @@ These change memory, not just behavior.
 
 ## After Fix: Prove Again
 
-After you change something:
-
-Walk the same path again:
+After any change, walk again:
 
 Reality → Account → Identity → Access → UI
 
@@ -259,19 +286,83 @@ If you don’t re-prove, you don’t know.
 
 ---
 
-## Mental Model
+## Illusions This Phase Creates
 
-Troubleshooting is not action.  
-It is investigation.
+- Rerunning is fixing  
+- Green UI means safe  
+- More action means more progress  
 
-Fixing is easy.  
-Understanding is hard.
-
-But only understanding makes fixes safe.
+All can be false.
 
 ---
 
-## You Understand This If You Can Answer
+## Traps That Fool Smart People
+
+- Debugging access before identity  
+- Rerunning before proving  
+- Trusting UI over API  
+- Changing many things at once  
+
+These are senior-level mistakes.
+
+---
+
+## What This Phase Does NOT Do
+
+- It does not change data  
+- It does not fix logic  
+- It does not rerun jobs  
+
+It only teaches you where truth broke.
+
+---
+
+## Debug Mindset
+
+When something feels wrong:
+
+1) Pick one person  
+2) Prove reality  
+3) Walk the engine  
+4) Find first lie  
+5) Fix only that  
+6) Prove again  
+
+---
+
+## Visual Debug Flow
+
+```
+Pick one person
+   ↓
+Prove source truth
+   ↓
+Prove account truth
+   ↓
+Prove memory
+   ↓
+Prove correlation
+   ↓
+Prove identity
+   ↓
+Prove access
+   ↓
+Prove UI
+```
+
+---
+
+## The One Sentence That Defines Mastery
+
+Before you touch anything, ask:
+
+**Which layer is lying to me?**
+
+---
+
+## Mastery Check
+
+Answer without notes:
 
 - What are the four layers of truth?  
 - Why start with one person?  
@@ -280,7 +371,6 @@ But only understanding makes fixes safe.
 - Why are blind reruns harmful?  
 
 ---
-
 ### Navigation
 ⬅️ Previous: [Part 11 – Verification](./Part_11_Verification_and_Validation.md)  
 🏠 Home: [README](./README.md)  
