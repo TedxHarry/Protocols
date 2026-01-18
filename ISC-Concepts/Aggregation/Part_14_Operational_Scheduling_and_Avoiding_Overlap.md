@@ -1,262 +1,349 @@
-# Part 14 – Operational Scheduling and Avoiding Overlap
+# Part 14 – Operational Scheduling and Avoiding Overlap — Teaching Mastery Edition
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-# Part 14 – Operational Scheduling and Avoiding Overlap
+## The One Question This Part Answers
 
-## Purpose
-This part explains how to schedule aggregation like an operator, not like a gambler.
+**How do I make time work *with* the engine instead of against it?**
 
-Scheduling sounds simple: pick a time and run daily.
-In reality, scheduling is where many production issues are born:
-- overlapping jobs
-- slow sources causing backlog
-- delta runs missing changes
-- downstream recompute storms
+Scheduling is not picking a clock.  
+Scheduling is deciding how much truth the engine must carry at once.
 
-The goal here is to build schedules that are predictable, calm, and safe.
+Keep this in mind:
+
+**Bad schedules don’t just run late. They change outcomes.**
 
 ---
-## Where This Fits in the Master Flow
+
+## Where This Lives in the Engine
 
 Trigger → Extract → Normalize → Persist → Correlate → Evaluate → Recompute → Publish
 
-Scheduling controls Trigger.
-But it also indirectly controls every later phase by deciding how often the engine runs and how much work it creates.
+Scheduling controls the Trigger, but it shapes everything after it.  
+It decides how often truth is refreshed and how much pressure the engine feels.
 
 ---
-## Mini‑Glossary
 
-**Schedule**  
-A time rule that creates jobs automatically.
+## Mental Model
 
-**Overlap**  
-A new job starts before the previous job finished.
+```
+Time choice
+   → Job creation rhythm
+     → Worker load
+       → Delta memory stability
+         → Downstream recompute pressure
+```
 
-**Backlog**  
-Jobs waiting in the queue because workers are busy.
-
-**Burst**  
-Too many jobs start at the same time.
-
-**Downstream storm**  
-A wave of recompute and indexing caused by many identity changes.
+If time is chaotic, everything after it becomes chaotic — even if logic is perfect.
 
 ---
-## The Core Scheduling Truth
 
-Scheduling is not just about “when.”
-Scheduling is about workload and dependency.
+## A Story: Two Teams, Same System
 
-If you schedule without understanding job duration and downstream impact, you create fragile systems.
+Team A schedules everything at midnight.  
+Team B staggers sources with purpose.
+
+At 12:00 AM:
+- Team A launches 12 jobs
+- Queue fills
+- Some jobs overlap
+- Delta memory collides
+- Recompute storms begin
+
+Team B:
+- HR at 4:30 AM
+- AD at 5:30 AM
+- Apps spread through the day
+
+By 8:00 AM:
+Team B has fresh identities and calm access.  
+Team A is still waiting for yesterday to finish.
+
+Same engine.  
+Different time decisions.
 
 ---
-## Step 1: Start With a Simple Model
 
-For each source, answer three questions:
+## What Scheduling Really Controls
 
-1) How long does a typical run take?
-2) How frequently does the source change?
-3) How painful is it if it lags?
+People think scheduling controls *when*.
 
-This gives you a schedule priority.
+It actually controls:
+
+- How many jobs compete at once
+- How often delta memory changes
+- How much downstream recompute happens
+- How stale identity can become
+
+Time is a load balancer.
+
+---
+
+## The First Truth: Duration Beats Frequency
+
+Before you choose “daily” or “hourly,” ask:
+
+- How long does this job take on a bad day?
+- How slow can the source get?
+- How long does recompute take after?
+
+If a job can take 45 minutes,  
+scheduling it every 30 minutes guarantees overlap — even if you don’t see it immediately.
+
+Overlap is not a maybe.  
+It is math.
+
+---
+
+## Overlap: Why It Is So Dangerous
+
+When two jobs overlap on the same source:
+
+- They fight over workers
+- They may confuse delta memory
+- They may write in unpredictable order
+- They may hide each other’s failures
+
+The engine assumes one storyteller at a time.  
+Overlap creates two narrators talking over each other.
+
+---
+
+## The Second Truth: Order Matters
+
+Not all sources are equal.
+
+Some sources create people.  
+Others only decorate them.
+
+Authoritative sources (like HR) define:
+- Who exists
+- Lifecycle state
+
+Non-authoritative sources (like AD, apps) attach access.
+
+So order must be:
+
+People first → Access later
+
+If access runs before people exist,  
+correlation suffers and cleanup follows.
+
+---
+
+## A Slow Walk Through a Good Order
+
+HR runs at 5:00 AM.  
+It creates and updates identities.
+
+AD runs at 6:00 AM.  
+It finds identities ready and correlates cleanly.
+
+Apps run later.  
+They attach access to already-known people.
+
+The engine flows like a river, not a traffic jam.
+
+---
+
+## Bursts: The Hidden Enemy
+
+A burst is when many jobs start together.
+
+Bursts cause:
+
+- Long queues
+- Worker starvation
+- Slow delta responses
+- Recompute waves
+
+It feels efficient to “run everything at midnight.”  
+It is not. It is noisy.
+
+Think traffic lights, not drag racing.
+
+---
+
+## Delta and Time
+
+Delta is memory-based.
+
+If you change memory too often:
+
+- Tokens churn
+- Risk of silent skips rises
+- History becomes fragile
+
+Delta likes calm rhythms.
+
+Healthy pattern:
+
+- Delta regularly
+- Full occasionally
 
 Example:
-HR changes constantly and drives lifecycle states.
-It deserves a reliable schedule.
-A small app that changes weekly does not.
+Delta daily.  
+Full weekly.
+
+Not because full is faster —  
+because memory needs periodic grounding.
 
 ---
-## Step 2: Understand Dependencies Between Sources
 
-Sources are not independent.
+## Downstream Is Real Work
 
-Authoritative sources (like HR) often need to run before non‑authoritative sources.
+Aggregation does not end when the job ends.
 
-Why:
-If HR creates or updates identities, other sources need those identities to exist so they can correlate.
+After each run:
+- Identities may re-evaluate
+- Access may recompute
+- Indexing may refresh
 
-Example flow:
-HR runs first → identities updated → AD runs second → correlates accounts → access model updated
+If you run heavy jobs back-to-back,  
+you stack waves of judgment on top of each other.
 
-If you reverse this:
-AD runs first → accounts become uncorrelated → later HR creates identities → now you have clean‑up work.
+This looks like:
+- Access arriving late
+- UI feeling frozen
+- Queues that never empty
 
----
-## Step 3: Avoid Overlap by Design
-
-Overlap happens when:
-- a job takes longer than expected
-- schedule frequency is too high
-- multiple sources share the same time slot
-
-Overlap is dangerous because jobs compete for:
-- connector capacity
-- worker threads
-- shared state in delta tokens
-
-A simple rule:
-Never schedule a source to start again before its longest expected run time.
-
-If a source can take 45 minutes on a bad day, don’t schedule it every 30 minutes.
+The engine is not broken.  
+It is exhausted.
 
 ---
-## Step 4: Stagger Jobs, Don’t Burst
 
-A common beginner mistake:
-Run everything at midnight.
+## Interactive Pause
 
-That creates:
-- job queue spikes
-- slow response
-- recompute storms
-- UI lag
+You schedule HR every 15 minutes.
 
-Instead, stagger sources.
+On bad days, HR job takes 25 minutes.
 
-Think of it like traffic signals.
-You don’t release every lane at once.
-You sequence lanes to keep flow stable.
+Question:
+What will eventually happen?
+
+Pause. Think.
+
+Answer:
+Jobs will overlap, delta memory will compete, and outcomes will become unpredictable — even if jobs still say “Completed.”
 
 ---
-## Step 5: Respect Delta Fragility
 
-Delta schedules look attractive because they are fast.
-But delta has a memory and can break.
+## Scheduling for Business Reality
 
-If you schedule delta too aggressively:
-- you create constant token churn
-- you increase risk of silent skips
-- you create frequent downstream recompute waves
+Time is chosen for humans, not machines.
 
-A healthier pattern:
-- delta frequently
-- full occasionally
+Ask:
+- When do joiners need access?
+- How fast must leavers lose access?
+- When are admins awake to watch failures?
 
-Example:
-Delta daily, full weekly.
+Then place authoritative sources early.  
+Place access sources after.  
+Place low-impact systems later.
 
-This catches drift.
+Schedule for people, not just processors.
 
 ---
-## Step 6: Plan for Downstream Work
 
-Aggregation does not end at “accounts updated.”
+## Why Scheduling Creates Illusions
 
-Every run can trigger:
-- identity evaluation
-- recompute
-- indexing
+You may see:
 
-If you schedule heavy aggregations back‑to‑back, you can create a recompute storm.
+- Jobs say Completed
+- UI shows green
+- But identity is stale
 
-Symptoms:
-- roles appear late
-- UI feels stale
-- job queue grows
+That often means:
+Your schedule starved the engine of calm time to finish judgment.
 
-Scheduling must include this downstream cost.
+Time lied to you politely.
 
 ---
-## Step 7: Scheduling for Business Needs
 
-You schedule based on what the business cares about.
+## Traps That Fool Smart People
 
-Examples:
-Joiners need access early in the day.
-Leavers should lose access quickly.
-Certifications may need fresh data before launch.
+- Scheduling too frequently “just to be safe”
+- Running everything at the same time
+- Ignoring job duration trends
+- Forgetting downstream recompute cost
 
-So schedule HR early.
-Schedule access sources after HR.
-Schedule non‑critical sources off‑peak.
+These are not beginner mistakes.  
+They are rushed-operator mistakes.
 
 ---
-## Running Example Schedule
 
-Sources:
-- HR (authoritative)
-- AD (non‑authoritative)
-- A small SaaS app
+## Debug Mindset for Scheduling
 
-A calm schedule could be:
-- HR at 5:00 AM daily
-- AD at 6:00 AM daily
-- SaaS app at 2:00 PM daily
+When timing feels wrong, ask:
 
-No overlap, clear dependency order.
+1) How long does each job really take?
+2) Do any jobs overlap?
+3) Are bursts happening?
+4) Is recompute piling up?
+5) Is delta memory stable?
 
----
-## Why This Matters
-
-Bad scheduling produces:
-- uncorrelated accounts
-- stale identities
-- delayed access removal
-- backlogs that look like “ISC is broken”
-
-Good scheduling produces:
-- predictable identity freshness
-- calm recompute
-- fewer incidents
+Fix rhythm before fixing logic.
 
 ---
-## If You See This → Do This
 
-If queue is always full, reduce bursts and stagger.
-If jobs overlap, increase spacing or reduce frequency.
-If access changes lag, check recompute storms.
-If non‑auth accounts uncorrelated, check source order.
+## Visual Rhythm Check
 
----
-## How People Usually Fail Here
-
-They schedule everything at midnight.
-They ignore dependency order.
-They schedule delta too aggressively.
-They forget downstream recompute cost.
-
----
-## Proof Paths
-
-UI: Job history and duration trends  
-API: Job objects and timestamps  
-Logs: Worker usage, queue behavior
+```
+Job duration
+   vs
+Schedule gap
+   ↓
+Is gap always larger?
+   ↓
+Are jobs staggered?
+   ↓
+Is downstream calm?
+```
 
 ---
-## What Must Not Happen
 
-Do not schedule overlapping jobs.  
-Do not burst all sources at once.  
-Do not rely on delta without periodic full runs.  
-Do not ignore downstream recompute impact.
+## What This Phase Does NOT Do
 
----
-## Safe Fixes
+- It does not change data
+- It does not fix mapping
+- It does not fix correlation
 
-Stagger schedules.  
-Run authoritative sources first.  
-Add periodic full runs.  
-Measure job duration and adjust.
+It only controls *how calmly* truth is allowed to move.
 
 ---
-## Confidence Check
 
-If you can answer these, you can design safe schedules:
-- Why is overlap dangerous?
-- Why should authoritative sources run first?
-- Why do bursts create recompute storms?
-- Why pair delta with occasional full?
+## Safe Scheduling Principles
 
----
-### Navigation
-⬅️ Previous: Part 13 – Proof Paths and Fix Playbooks
-🏠 Home: README – Aggregation Master Series
-➡️ Next: Part 15 – Custom Scheduling Patterns (Weekends, Windows, and Exceptions)
+- Never schedule sooner than worst-case duration
+- Run authoritative sources first
+- Stagger, don’t burst
+- Pair delta with periodic full
+- Leave time for downstream judgment
 
 ---
+
+## The One Sentence That Defines Mastery
+
+Before you choose a time, ask:
+
+**Will this rhythm keep the engine calm when it is tired?**
+
+---
+
+## Mastery Check
+
+Answer without notes:
+
+- Why is overlap more dangerous than slowness?
+- Why must people-creating sources run first?
+- Why do bursts cause recompute storms?
+- Why does delta need calm memory?
+- Why is time a load balancer?
+
+---
+
 ### Navigation
 ⬅️ Previous: [Part 13 – Proof Paths](./Part_13_Proof_Paths_and_Fix_Playbooks.md)  
 🏠 Home: [README](./README.md)  
