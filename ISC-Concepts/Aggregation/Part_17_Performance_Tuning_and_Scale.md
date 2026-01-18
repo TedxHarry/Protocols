@@ -1,268 +1,358 @@
-
-# Part 17 – Performance Tuning and Scale
+# Part 17 – Performance Tuning and Scale — Teaching Mastery Edition
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-## Purpose
-This part explains how aggregation performance behaves at scale, and how to tune it without breaking correctness.
+## The One Question This Part Answers
 
-When teams grow, the system grows too:
-More identities.
-More accounts.
-More entitlements.
-More joins and leavers.
+**How do I make the engine faster without teaching it to lie?**
 
-Aggregation that felt fine at 1,000 accounts can become painful at 100,000.
+Speed is not a goal.  
+Truth delivered on time is the goal.
 
-Performance tuning is not just “make it faster.”
-It is “make it faster without losing truth.”
+Keep this in mind:
+
+**Fast wrong is worse than slow right.**
 
 ---
-## Where This Fits in the Master Flow
+
+## Where This Lives in the Engine
 
 Trigger → Extract → Normalize → Persist → Correlate → Evaluate → Recompute → Publish
 
-Performance can bottleneck any phase.
-But the most common bottlenecks happen in:
-- Extract (network, pagination)
-- Persist (writes)
-- Correlate (matching)
-- Recompute (access model)
-- Publish (indexing)
+Performance can break any phase,  
+but most pain comes from:
+- Extraction
+- Persistence
+- Correlation
+- Recompute
+- Indexing
+
+Tuning is choosing which pain to remove first.
 
 ---
-## Mini‑Glossary
 
-**Throughput**  
-How much data you can process per minute.
+## Mental Model
 
-**Latency**  
-How long one run takes end‑to‑end.
+```
+Volume grows
+   → Cost grows
+     → Pressure moves to weakest phase
+       → That phase lies first
+```
 
-**Backlog**  
-Jobs waiting because workers are busy.
-
-**Hotspot**  
-A phase or object type consuming most time.
-
-**Scope**  
-Limiting what you read or process.
+The slowest phase decides your truth speed.
 
 ---
-## The Core Principle
 
-Do not tune blindly.
+## A Simple Story
 
-First, prove where the time is going.
-Then tune the smallest part.
+At 1,000 accounts, everything felt fine.  
+At 50,000, jobs took hours.  
+At 120,000, access arrived the next day.
 
-Most “performance tuning” disasters happen when people change multiple variables without measurement.
+Nothing “broke.”  
+The engine simply ran out of breath.
 
----
-## Step 1: Measure Before You Tune
-
-Pick one source.
-Collect these metrics over time:
-- job duration
-- queue time
-- accounts read
-- entitlements read
-- memberships processed
-- identities touched
-- roles changed
-
-Now you can see whether slowdown is:
-- more data
-- slower source
-- slower workers
-- downstream recompute
-
-Without this baseline, you are guessing.
+Performance tuning is helping the engine breathe again.
 
 ---
-## Step 2: Understand the Three Real Cost Drivers
 
-### Cost driver 1: How much you read
-Accounts, entitlements, and memberships volume.
+## The Three Real Cost Drivers
 
-### Cost driver 2: How much you change
-A run that reads 10,000 records but updates only 10 is cheaper than a run that updates 5,000.
-Writes are expensive.
+Most people think speed is about reading fast.  
+It is not.
 
-### Cost driver 3: How many identities you touch
-Identity evaluation and recompute cost grows with identities touched.
+The real costs are:
 
-Many teams focus on reading speed, but the real cost is often recompute.
+1) How much you read  
+2) How much you change  
+3) How many identities you disturb  
+
+Reading is cheap.  
+Writing is expensive.  
+Recomputing is brutal.
 
 ---
-## Step 3: Tune Extraction Safely
 
-Extraction speed depends on:
-- API rate limits
-- pagination size
-- network latency
-- filtering
+## Why Writes Hurt More Than Reads
 
-Safe tuning moves:
+Reading 10,000 accounts that don’t change is cheap.  
+Updating 5,000 identities is very expensive.
+
+Every write can trigger:
+- Identity evaluation
+- Role evaluation
+- Access changes
+- Indexing
+
+So the fastest system is the one that changes the least when nothing really changed.
+
+---
+
+## Start With Proof, Not Tuning
+
+Before touching anything, ask:
+
+- How long does a run really take?
+- Where is time spent?
+- How many objects changed?
+- How many identities were touched?
+
+If you don’t know this, you are guessing.
+
+Tuning without measurement creates new lies.
+
+---
+
+## Extraction: Speed Without Blindness
+
+Extraction gets slow because of:
+- Rate limits
+- Pagination size
+- Network latency
+- Filters
+
+Safe speed:
 - Adjust page size carefully
-- Use filters only when business allows
-- Prefer delta when it is stable
+- Respect rate limits
+- Use delta when stable
 
-Dangerous tuning moves:
-- Aggressive filtering that hides data
-- Over‑tight delta windows
+Dangerous speed:
+- Aggressive filters that hide people
+- Tight delta windows that skip change
 
-The fastest extraction is useless if it skipped the joiner.
-
----
-## Step 4: Reduce Write Pressure
-
-Persistence cost increases when you update many objects.
-
-Common causes of unnecessary writes:
-- mapping that changes formatting every run (case, whitespace)
-- transforms that generate new values each time
-- unstable fields used as unique ID
-
-If you see high update counts every run, ask:
-“Are these real changes, or noisy changes?”
-
-Noisy changes create recompute storms.
+The fastest extraction is useless if it missed the joiner.
 
 ---
-## Step 5: Make Correlation Cheaper and Safer
 
-Correlation becomes expensive when match keys are weak or inconsistent.
+## Noisy Data: The Silent Killer
 
-Good match keys:
-- unique
-- stable
-- present on all accounts
+Some systems change values every run:
+- Whitespace
+- Case
+- Timestamps
+- Randomized transforms
+
+These create fake changes.
+
+Fake changes create:
+- Writes
+- Recompute storms
+- Lag
+
+If identity changes every day for no business reason, performance will always die.
+
+Fix noise before fixing speed.
+
+---
+
+## Correlation: Where Safe Is Also Fast
 
 Bad match keys:
-- email when email changes frequently
-- usernames that vary by system
+- Change often
+- Missing on some accounts
+- Not unique
 
-A strong match key improves:
-- performance
-- correctness
+They cause:
+- Slow matching
+- Wrong matches
+- Manual cleanup
 
-This is one of the rare places where the safe option is also the fast option.
+Good match keys:
+- Stable
+- Unique
+- Always present
 
----
-## Step 6: Control Recompute Storms
+They give you:
+- Faster runs
+- Safer identity
 
-Recompute is often the biggest performance cost.
-
-Why:
-Every identity change can trigger:
-- role evaluation
-- access profile evaluation
-- provisioning decisions
-- indexing
-
-If your mapping causes thousands of identities to change every day, recompute will drown.
-
-Ways to control storms:
-- Fix noisy attribute changes
-- Stagger source schedules
-- Recompute only when needed
-
-The goal is fewer unnecessary identity changes.
+This is rare in tech: the safe choice is also the fast choice.
 
 ---
-## Step 7: Scale Scheduling, Not Frequency
 
-A common mistake is to run more frequently to “stay fresh.”
+## Recompute Storms
 
-If the system is already behind, running more often makes backlog worse.
+Recompute is the most expensive judgment in the system.
 
-Better approach:
-- reduce overlap
-- stagger heavy sources
-- run authoritative sources first
-- monitor freshness SLOs
+Storms happen when:
+- Thousands of identities change at once
+- Schedules burst
+- Mapping is noisy
 
-Freshness comes from stability, not from panic frequency.
+Storm symptoms:
+- Access arrives late
+- Queues grow
+- UI feels frozen
 
----
-## Step 8: Use Scope as a Tool
-
-When troubleshooting or tuning, do not run full population.
-
-Use scope:
-- test on one identity
-- test on one department
-- test on small OU
-
-This reduces blast radius and gives faster feedback.
+Fix storms by:
+- Reducing fake changes
+- Staggering sources
+- Not touching identity unless needed
 
 ---
-## Running Example: Monday Storm
 
-You skip HR on weekends.
-Monday delta reads a large change set.
-Thousands of identities update.
-Recompute storms.
-UI lags.
+## Frequency Is Not Freshness
 
-Fix is not “run again.”
+When systems fall behind, people run them more often.
+
+This makes things worse.
+
+More runs:
+- Create overlap
+- Create backlog
+- Increase pressure
+
+Freshness comes from calm flow, not panic frequency.
+
+---
+
+## Scope: Your Safety Valve
+
+Never tune on the whole world.
+
+Test with:
+- One person
+- One department
+- One OU
+
+Small scope:
+- Gives fast feedback
+- Limits damage
+- Shows real behavior
+
+If you can’t tune on one person, you can’t tune on a million.
+
+---
+
+## Monday Morning Disaster
+
+You skip HR on weekends.  
+Monday delta is huge.  
+Thousands of identities change.  
+Recompute storms.  
+Access arrives late.
+
+Fix is not:
+“Run again.”
+
 Fix is:
-- add a Sunday full or light run
-- stagger downstream sources
-- reduce noisy updates
+- Add light Sunday run
+- Reduce noisy changes
+- Stagger downstream
+
+The problem was time design, not code.
 
 ---
-## Why This Matters
 
-Performance problems become business problems:
-- joiners delayed
-- leavers not removed
-- access changes late
-- certifications stale
+## What Performance Problems Become
 
-The fastest pipeline is useless if it is not trustworthy.
+They turn into business pain:
 
----
-## If You See This → Do This
+- Joiners wait
+- Leavers keep access
+- Certifications drift
+- Auditors lose trust
 
-If duration grows slowly, suspect volume growth or worker contention.
-If update counts are huge daily, suspect noisy mapping.
-If roles lag, suspect recompute storm.
-If queue time grows, stagger schedules.
+Speed is not technical.  
+It is trust delivery.
 
 ---
-## How People Usually Fail Here
 
-They tune without measurement.
-They filter aggressively and lose truth.
-They ignore recompute as a cost driver.
-They increase frequency and create backlog.
+## Illusions This Phase Creates
 
----
-## Proof Paths
+- Faster always means better  
+- Reads are the main cost  
+- More frequency means more freshness  
+- Filtering is harmless  
 
-UI: duration trends and job history  
-API: counts of updates and identities touched  
-Logs: phase timings, pagination, rate limit hits
+All can be lies.
 
 ---
-## What Must Not Happen
 
-Do not trade correctness for speed.  
-Do not tune without baseline metrics.  
-Do not create performance “fixes” that hide data.
+## Traps That Fool Smart People
+
+- Tuning without measurement  
+- Fixing reads while writes explode  
+- Ignoring recompute as a cost  
+- Using filters to hide slowness  
+- Increasing frequency in panic  
+
+These are senior mistakes.
 
 ---
-## Confidence Check
 
-If you can answer these, you can tune safely:
+## Debug Mindset for Performance
+
+When speed feels wrong, ask:
+
+1) How much did we read?  
+2) How much did we write?  
+3) How many identities changed?  
+4) Did recompute storm?  
+5) Did schedules overlap?  
+
+The first strange answer is your bottleneck.
+
+---
+
+## Visual Performance Thinking
+
+```
+Read volume
+   ↓
+Write volume
+   ↓
+Identities touched
+   ↓
+Recompute pressure
+   ↓
+Freshness delay
+```
+
+Follow the pressure.
+
+---
+
+## What This Phase Does NOT Do
+
+- It does not change truth  
+- It does not hide data  
+- It does not excuse bad design  
+
+It only makes honest systems faster.
+
+---
+
+## Safe Tuning Principles
+
+- Measure before tuning  
+- Fix noise before speed  
+- Protect match keys  
+- Calm recompute  
+- Prefer stability over panic  
+
+---
+
+## The One Sentence That Defines Mastery
+
+Before you make it faster, ask:
+
+**Which part is lying because it is tired?**
+
+---
+
+## Mastery Check
+
+Answer without notes:
+
 - What are the three real cost drivers?
-- Why writes and recompute matter more than reads?
+- Why are writes worse than reads?
 - What is a recompute storm?
-- How do you tune without losing truth?
+- Why is frequency not freshness?
+- Why must you remove noise before tuning?
 
 ---
 ### Navigation
