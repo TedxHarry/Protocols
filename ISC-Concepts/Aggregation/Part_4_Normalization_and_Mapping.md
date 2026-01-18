@@ -1,316 +1,337 @@
-
-# Part 4 – Normalization and Mapping (Best)
+# Part 4 – Normalization and Mapping (Teaching Mastery Edition)
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-## Purpose
-This part explains what happens after data is read but before it is stored.
+## Why This Part Exists
 
-Extraction only copies raw data.  
-Normalization and mapping decide what that data **means** inside ISC.
+Part 3 (Extraction) answers:
+**Did ISC read the data?**
 
-If this step is wrong, everything downstream will look wrong in confusing ways, because the data is shaped incorrectly before it ever becomes an account or identity.
+Part 4 answers the next, more dangerous question:
+**Did ISC understand the data correctly?**
 
----
+Extraction copies raw truth from the source.
+Normalization and mapping **shape that raw truth into ISC truth**.
 
-## Where This Fits in the Master Flow
+If this step is wrong, everything downstream can still run perfectly…
+but it will run on **mis-shaped data**, which creates the most confusing kind of bugs.
 
-Trigger → Extract → **Normalize** → Persist → Correlate → Evaluate → Recompute → Publish
+Keep this sentence in your head:
 
-Normalization is the translator between the source world and the ISC world.  
-If normalization lies, persistence stores a lie.
-
----
-
-## Visual Mental Map
-
-Raw Source Data  
-→ Normalize (convert types, clean values)  
-→ Map (assign meaning and destination)  
-→ Stored Account Attributes
-
-This is where “data” becomes “truth.”
+**If extraction is the camera, normalization is the translator, and mapping is the meaning.**
 
 ---
 
-## Mini-Glossary (Plain English)
+## Where This Fits in the End-to-End Flow
 
-Normalization: converting raw source data into ISC’s data types.  
-Mapping: deciding where each source field goes in ISC.  
-Transform: changing a value with logic.  
-Data type: text, number, date, boolean, list.  
-Silent failure: data breaks without loud errors.
+Trigger → Extract → **Normalize + Map** → Persist → Correlate → Evaluate → Recompute → Publish
 
----
+- Extraction brings raw fields into the pipeline.
+- Normalization converts raw values into ISC-friendly forms.
+- Mapping decides **where each value belongs** inside ISC.
 
-## Wrong vs Right Thinking
-
-Wrong: Extraction already fixed the data.  
-Right: Extraction only copied it. Normalization defines meaning.
-
-Wrong: If job completes, mapping is fine.  
-Right: Mapping can fail silently and still say Completed.
-
-Wrong: Empty field means source was empty.  
-Right: Empty field usually means mapping or type mismatch.
+This is where “data” becomes “truth inside ISC.”
 
 ---
 
-## Failure Story
+## The Mental Model (Use This Forever)
 
-HR had hire dates for everyone.  
-ISC showed hireDate empty for all users.
+```
+Raw source fields
+  → Normalization (convert + clean + standardize)
+    → Mapping (assign meaning + destination)
+      → Stored account attributes
+```
 
-Team blamed identity logic.
+Think of it like translating a sentence:
 
-Root cause:  
-hireDate mapped as text into a date field.  
-Normalization dropped it silently.
+- Normalization fixes spelling, converts units, standardizes the format.
+- Mapping decides what each word means and where it belongs in the final sentence.
+
+If you translate wrong, you don’t get a small error.
+You get a **perfectly stored lie**.
 
 ---
 
-## Running Example
+## Definitions (Taught, Not Memorized)
+
+### Normalization
+Normalization is the step where ISC (and connector logic) converts raw source values into values ISC can reliably work with.
+
+Examples of normalization:
+- Convert a date string into a real date type
+- Convert “Y/N” into true/false
+- Trim spaces, fix casing, standardize separators
+- Convert “1001” (text) into 1001 (number)
+- Ensure a multi-value field stays multi-value
+
+Normalization is about **shape and type**, not meaning.
+
+### Mapping
+Mapping is the step where you teach ISC what each source field means and where it should land.
+
+Examples of mapping:
+- employeeId → accountAttribute.employeeId
+- email → accountAttribute.email
+- department → accountAttribute.department
+- hireDate → accountAttribute.hireDate
+
+Mapping is about **meaning and destination**, not “cleaning.”
+
+### Transform
+A transform is logic applied during normalization/mapping to derive the final value.
+
+Examples:
+- firstName + lastName → displayName
+- Trim spaces, change case, replace characters
+- If department is blank, set “Unknown”
+- Convert “ACTIVE/INACTIVE” into lifecycle states (where applicable)
+
+Transforms are powerful because they can create new truth.
+They’re risky because they can create wrong truth silently.
+
+---
+
+## A Guided Running Example (So the Concept Becomes Real)
 
 Source: HR system  
 People: Alice, Bob, Carol  
-Accounts: HR_Alice, HR_Bob, HR_Carol  
-Fields: employeeId, email, department, hireDate  
+Fields: employeeId, email, department, hireDate
 
-Extraction already read raw data.  
-Now ISC must translate it.
+### Raw record for Alice (what extraction brought in)
+- employeeId = "1001"
+- email = "alice@company.com"
+- department = "Engineering"
+- hireDate = "2025-01-01"
 
----
+At this moment, these are just raw strings coming from the source.
+ISC has not decided what they *are* yet.
 
-## What Normalization Really Means
+### Step 1: Normalization (make values usable)
+- "1001" → number 1001
+- "2025-01-01" → date 2025-01-01
+- Trim/standardize strings (if needed)
 
-Systems don’t speak the same language.
+### Step 2: Mapping (assign meaning + destination)
+- 1001 → accountAttribute.employeeId
+- alice@company.com → accountAttribute.email
+- Engineering → accountAttribute.department
+- 2025-01-01 → accountAttribute.hireDate
 
-One system stores dates as text.  
-Another as numbers.  
-ISC wants a date object.
-
-Normalization is ISC saying:  
-“I will convert whatever you give me into my own types.”
-
-If wrong:
-Dates become text.  
-Numbers become strings.  
-Lists collapse.  
-Later logic breaks quietly.
-
----
-
-## What Mapping Really Means
-
-Mapping is you teaching ISC meaning.
-
-“When you see this field in the source, put it here.”
-
-Example:
-employeeId → accountAttribute.employeeId  
-email → accountAttribute.email  
-department → accountAttribute.department  
-hireDate → accountAttribute.hireDate  
-
-You are not copying.  
-You are assigning meaning.
+Now the data is not just present.
+It is **structured truth inside ISC**.
 
 ---
 
-## Data Types Matter More Than You Think
+## Why “Jobs Completed” Can Still Mean “Data Is Wrong”
 
-Every field has a type.
+A job status like Completed usually means:
+- The worker finished
+- The connector didn’t crash
 
-Single vs multi-value matters.  
-Text vs date matters.  
-Number vs string matters.
+It does **not** guarantee:
+- Types were compatible
+- Multi-values were preserved
+- Transforms produced correct values
+- Mappings pointed to the right fields
 
-Common silent bugs:
-Multi-value into single → only one kept  
-Text into date → dropped  
-Number into text → breaks comparisons  
+Normalization/mapping failures are often **silent**:
+the job ends, but values are missing, malformed, or overwritten.
 
-Job still says Completed.
-
----
-
-## Transforms and Logic
-
-Sometimes raw value is not what you want.
-
-Examples:
-first + last → displayName  
-“Y” / “N” → true / false  
-trim spaces  
-change case  
-
-Transforms run during normalization.  
-Wrong transform = wrong data forever.
+This is why beginners get confused and experienced operators get paranoid here.
 
 ---
 
-## Silent Failures
+## Data Types (The Silent Source of Most Problems)
 
-This phase fails quietly.
+Most “mystery bugs” here are type bugs.
 
-You may see:
-Fields always empty  
-Values partially missing  
-Weird formatting  
+### Text vs Number
+- If employeeId is text in one place and number in another, comparisons can break.
+- Matching/correlation logic that expects consistent types can fail quietly.
 
-And the job still says Completed.
+### Text vs Date
+- If hireDate is stored as text, date logic (range, sorting, “older than”) behaves incorrectly.
+- Some pipelines drop invalid dates instead of erroring loudly.
 
----
+### Single-value vs Multi-value
+This one causes the nastiest silent failure.
 
-## Running Example Through Normalization
-
-Raw HR record:
-employeeId = "1001"  
-email = "alice@company.com"  
-department = "Engineering"  
-hireDate = "2025-01-01"  
-
-Normalization:
-"1001" → number 1001  
-"2025-01-01" → date  
-
-Mapping:
-1001 → accountAttribute.employeeId  
-alice@company.com → accountAttribute.email  
-Engineering → accountAttribute.department  
-2025-01-01 → accountAttribute.hireDate  
-
-Now data has meaning inside ISC.
-
----
-
-## Learning Check
-
-If source had many values but ISC shows only one,  
-most likely mistake: single-value field used for multi-value data.
-
----
-
-## Why This Matters
-
-If normalization or mapping is wrong:
-Persistence stores wrong data.  
-Correlation uses wrong keys.  
-Identity logic misfires.  
-Access logic breaks.
-
-Many bugs blamed on correlation start here.
-
----
-
-## Debug Playbook
-
-When values look wrong:
-
-1) Check mapping preview  
-2) Check target field type  
-3) Check transform logic  
-4) Compare source vs normalized value  
-5) Only then blame later phases  
-
----
-
-## Broken Flow Walkthrough
+If you map a multi-value field into a single-value target:
+- ISC may keep only one value (often last seen)
+- Or drop values depending on the target field rules
 
 Symptom:
-Alice has department in source but empty in ISC.
+- “Source has many values, ISC shows one.”
 
-Check:
-Source has department ✔  
-Extraction logs show department ✔  
-Mapping preview shows blank ❌  
+Root cause is rarely correlation.
+It’s usually **multi vs single** mismatch during mapping.
+
+---
+
+## Transforms (When You’re Not Copying, You’re Creating)
+
+Transforms exist because sources rarely give you values in the exact shape you want.
+
+Good transforms:
+- Build displayName from firstName + lastName
+- Standardize email casing
+- Convert “Y/N” into boolean
+- Replace empty department with a default
+
+Risky transforms:
+- Changing identifiers used by correlation
+- Deriving values with incomplete rules
+- Copying transforms from another source without understanding
+
+Master rule:
+**If a transform touches an identifier (employeeId, email, username), treat it like production code.**
+
+---
+
+## Failure Patterns (Symptom → Most Likely Cause)
+
+Use this to avoid wasting days.
+
+### 🔴 Pattern: Field is always empty in ISC
+Most likely:
+- wrong mapping (pointing to wrong source field), or
+- type mismatch causing silent drop, or
+- transform produced null/blank
+
+### 🔴 Pattern: Field looks “weird” (spacing, casing, formatting)
+Most likely:
+- missing/incorrect normalization or transform
+
+### 🔴 Pattern: Only one value shows up when source has many
+Most likely:
+- multi-value mapped into a single-value target
+
+### 🔴 Pattern: Correlation suddenly fails after a mapping change
+Most likely:
+- you changed the shape/type/value of a correlation key (email, employeeId, etc.)
+
+---
+
+## A Real Failure Story (So You Remember This)
+
+HR had hire dates for everyone.
+ISC showed hireDate empty for all accounts.
+
+People blamed identity logic and correlation.
 
 Root cause:
-Wrong source field mapped.
+hireDate came in as text and was mapped into a date field.
+Normalization dropped it quietly.
 
-Not correlation.  
-Not identity logic.  
-Normalization error.
-
----
-
-## If You See This → Do This
-
-Field empty → check mapping  
-Weird format → check transform  
-Only one value → check multi vs single  
-Wrong comparisons → check type  
+Lesson:
+**Empty in ISC does not mean empty in source. It often means “dropped during normalization.”**
 
 ---
 
-## How People Fail Here
+## Debug Playbook (The Order Masters Use)
 
-Trust defaults blindly  
-Ignore data types  
-Skip preview testing  
-Copy transforms without understanding  
-Assume errors are loud  
+When values look wrong, debug in this order:
 
----
+### Step 1: Confirm the source value
+Open the source record and confirm the exact raw value.
+This prevents guessing.
 
-## Proof Paths
+### Step 2: Confirm extraction saw the raw field
+If extraction never read the field, Part 3 is your problem.
 
-Mapping preview shows transformed values.  
-API shows stored account attributes.  
-Logs show transform and type warnings.
+### Step 3: Check mapping preview (your best friend)
+Mapping preview shows what ISC believes the value becomes **after transforms**.
+If preview is wrong, the stored value will be wrong.
 
----
+### Step 4: Verify target field type and cardinality
+Ask:
+- Is this a date or text?
+- Single or multi-value?
+- Boolean or string?
 
-## What Must Not Happen
+### Step 5: Validate transform logic with one record
+Test one user (Alice) and make sure the transform output matches expectation.
 
-Do not change mapping mid-run  
-Do not assume empty = source empty  
-Do not ignore type warnings  
+### Step 6: Only then move downstream
+Correlation, identity profile logic, lifecycle state evaluation, access modeling.
 
----
-
-## Safe Fixes
-
-Fix mapping → preview again  
-Fix transform → test one record  
-Fix type mismatch → rerun small scope  
+Master question:
+**Was the data shaped correctly before persistence?**
 
 ---
 
-## Quick Pre-Run Checklist
+## Visual Debug Flow (Use This During Incidents)
 
-Before running big aggregation:
-- Preview shows correct values
-- Types match target fields
-- Multi-value fields mapped correctly
-- Transforms tested with sample record
-- No warnings ignored
-
----
-
-## Mindset
-
-Never ask:  
-Why is correlation wrong?
-
-First ask:  
-Was the data shaped correctly?
+```
+Source value correct?
+   ↓
+Extraction read the field?
+   ↓
+Mapping preview shows correct transformed value?
+   ↓
+Target type + single/multi matches?
+   ↓
+If no → mapping/type/transform issue
+   ↓
+If yes → move downstream (persist/correlate)
+```
 
 ---
 
-## Confidence Check
+## Proof Paths (How You Prove This Phase Is Healthy)
 
-You understand this part if you can answer:
+Use more than one proof path:
 
-Difference between extraction and normalization?  
-Why do data types matter?  
-Why jobs can complete with wrong data?  
-Why later bugs often start here?
+- **Mapping preview** (truth before it is stored)
+- **API account attributes** (truth after persistence)
+- **Logs** (warnings about types, transforms, drops)
+
+If preview is correct but stored value is wrong, persistence is suspect (next part).
+If preview is wrong, this part is your root cause.
 
 ---
 
+## Safe Fixes (Do This Without Creating New Damage)
+
+- Fix mapping → preview again before running full
+- Fix transform → test on one record first
+- Fix type mismatch → correct the target field, then rerun a small scope
+- If you changed a correlation key → expect correlation impacts and re-test intentionally
+
+---
+
+## What Must Not Happen (Hard Rules)
+
+- Do not change mappings mid-run
+- Do not ignore type warnings
+- Do not copy transforms blindly
+- Do not “fix correlation” until you confirm normalization/mapping is correct
+
+---
+
+## The One Sentence That Defines Mastery
+
+Before you blame correlation, ask:
+
+**Was the data shaped correctly before it was stored?**
+
+---
+
+## Mastery Check (If You Can Teach This, You Own It)
+
+Answer these without notes:
+
+- What is the difference between normalization and mapping?
+- Why can a job complete even when values are wrong?
+- What are the three most dangerous type mismatches?
+- Why is multi vs single-value a silent killer?
+- What makes transforms risky?
+- What is your debug order and why?
+
+---
 ### Navigation
 ⬅️ Previous: [Part 3 – Extraction Phase](./Part_3_Extraction_Phase_Reading_Data.md)  
 🏠 Home: [README – Aggregation Master Series](./README.md)  
