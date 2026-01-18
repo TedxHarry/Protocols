@@ -273,6 +273,7 @@ If you can answer these, you can manage changes safely:
 
 ---
 ### Navigation
-⬅️ Previous: [Part 18 – Governance Impacts (Certifications, Requests, and Policies)](../Part_18_Governance_Impacts_Certifications_Requests_and_Policies.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 20 – Security and Compliance Considerations](../part_20_security_and_compliance_considerations.md)
+⬅️ Previous: [Part 18 – Governance](./Part_18_Governance_Impacts_Certifications_Requests_and_Policies.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 20 – Security and Compliance](./Part_20_Security_and_Compliance_Considerations.md)
+
