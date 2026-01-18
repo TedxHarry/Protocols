@@ -1,123 +1,145 @@
-
-# Part 10 – Result Semantics (Story-Driven)
+# Part 10 – Result Semantics (Teaching Mastery Edition)
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-## Big Idea
+## Why This Part Exists
+
+This part answers one sharp question:
+
+**What does the system think happened?**
 
 Result labels are not truth.  
 They are summaries of how far a worker ran.
 
-Most people think:
-Completed = correct  
-Failed = broken
+If you confuse labels with truth, you will relax when you should worry —  
+and panic when nothing is actually wrong.
 
-Reality:
-A job can finish and still be wrong.  
-A job can fail and still change data.
+Keep this sentence in mind:
 
-Result semantics teach you how to read the *signal* without being fooled by it.
+**Results describe execution, not correctness.**
 
 ---
 
-## Where This Fits
+## Where This Fits in the Engine
 
 Trigger → Extract → Normalize → Persist → Correlate → Evaluate → Recompute → Publish  
                                                                      ↑  
-                                                             Result Labels
+                                                             Result Semantics
 
 Results sit above the engine.  
-They describe what the engine *reported*, not what actually happened in data.
+They describe what the worker *reported*, not what the data *became*.
 
 ---
 
-## What ISC Is Thinking When It Reports a Result
+## The Mental Model
 
-ISC is not judging correctness.  
-It is only asking:
+```
+Worker runs steps
+   → Worker reports how far it went
+     → UI shows a label
+```
 
-“Did my worker reach the end of its planned steps?”
+Result labels answer:
 
-So it thinks like this:
+“How far did the worker run?”
 
-- Reached the end → Completed  
-- Some steps errored but worker continued → Partial / Warning  
-- Worker stopped early due to error → Failed  
+They do NOT answer:
 
-None of these mean “data is right.”  
-They only mean “how far the worker ran.”
+“Is the data right?”
 
 ---
 
-## A Simple Story
+## What the System Is Really Asking
+
+When ISC reports a result, it is not judging truth.
+
+It is asking only:
+
+**Did my worker reach the end of its planned steps?**
+
+So the logic is:
+
+- Reached end → Completed  
+- Some steps errored but worker continued → Warning / Partial  
+- Worker stopped early → Failed  
+
+None of these mean “data is correct.”  
+They only mean “how far execution went.”
+
+---
+
+## Guided Story
 
 You run HR aggregation.
 
 UI says: Completed.
 
 You check Alice.  
-Her role is still old.
+Her department is wrong.
 
-What does Completed actually tell you?
+What does Completed tell you?
 
 Only this:
 The worker reached the end of its execution path.
 
 It does NOT tell you:
-- Whether mapping was correct  
-- Whether recompute finished  
-- Whether downstream logic lagged  
+- Mapping was right  
+- Identity updated  
+- Recompute finished  
+- Indexing completed  
 
-So “Completed” answers the wrong question if you care about data.
+Completed answered the wrong question for your problem.
 
 ---
 
 ## What “Completed” Really Means
 
 Completed means:
-The job did not crash before finishing its steps.
+- Worker finished its planned path  
+- No fatal error stopped it  
 
 It does NOT guarantee:
-- Every record was correct  
-- Every page was read  
-- Every transform worked  
-- Every downstream job finished  
+- All records were correct  
+- All pages were read  
+- All transforms worked  
+- All downstream engines finished  
 
 A job can complete even when:
-- Some values were dropped silently  
+- Some values were dropped  
 - Some pages were skipped  
-- Some transforms failed but were ignored  
+- Some transforms returned null  
 
 So Completed means: finished running, not finished being right.
 
 ---
 
-## What “Partial / Warning” Really Means
+## What “Warning / Partial” Really Means
 
-Partial or Warning means:
-Some parts failed, but the job chose to continue.
+Warning or Partial means:
+- Some steps failed  
+- Worker chose to continue  
 
 This is dangerous because:
-It looks successful at first glance.
+It looks mostly green.
 
 Examples:
 - Accounts succeeded, entitlements failed  
 - Some pages failed, others worked  
-- Some transforms errored, others ran  
+- Some transforms errored silently  
 
-Partial often hides data loss behind a green-looking status.
+Partial often hides data loss behind a “mostly okay” label.
 
 ---
 
 ## What “Failed” Really Means
 
 Failed means:
-The job stopped early due to error.
+- Worker stopped early due to error  
 
 But:
-It may have already written some data before stopping.
+It may have already written data before stopping.
 
 So Failed does NOT mean:
 “Nothing changed.”
@@ -138,27 +160,34 @@ UI shows:
 
 But this is a summary of a long story.
 
-Logs and API show the real story:
+Logs and APIs show the real story:
 - Which steps ran  
 - Which records failed  
 - Which values were dropped  
 
-If UI and data disagree, trust data and logs, not the label.
+If UI and data disagree, trust data and logs — not the label.
 
 ---
 
-## Running Example Revisited
+## Interactive Pause
 
-Job: Completed  
-Alice role: still old
+Scenario:
 
-Possible truths:
-- Recompute still running  
-- Recompute failed  
-- Role rule doesn’t match identity  
-- Mapping earlier dropped a field  
+Job = Completed  
+Alice role = old
 
-The result label alone cannot tell you which.
+Question:
+What should you suspect first?
+
+Pause. Think.
+
+Answer:
+- Recompute may not have run  
+- Recompute may have failed  
+- Rules may not match identity  
+- Mapping earlier may have dropped a field  
+
+Not: “Aggregation is broken.”
 
 ---
 
@@ -169,61 +198,116 @@ Team saw “Completed” and relaxed.
 But 30% of users lost department.
 
 Root cause:
-A transform silently dropped values due to type mismatch.  
-Job still said Completed.
+Transform dropped values due to type mismatch.  
+Worker still reached the end.
 
-They trusted the label instead of checking data.
+Job said Completed.  
+Data was wrong.
 
----
-
-## How to Think When Results Confuse You
-
-Do not ask:
-“Did the job succeed?”
-
-Ask:
-“What data actually changed?”
-
-Then walk like this:
-
-1) Check real data in API/UI  
-2) Check recompute / refresh status  
-3) Read warning messages  
-4) Read logs for silent drops  
-5) Only then rerun anything  
+They trusted the label instead of the data.
 
 ---
 
-## The Most Common Traps
+## Illusions This Phase Creates
 
-- Treat Completed as Correct  
-- Ignore warnings  
-- Rerun jobs blindly  
-- Never read logs  
+- Completed means correct  
+- Failed means nothing changed  
+- Partial is mostly safe  
+- UI tells the full story  
 
-These habits create bigger damage than the original problem.
-
----
-
-## Mindset
-
-Result labels are hints, not truth.
-
-Never trust the word.  
-Always trust the data.
-
-The only real question is:
-
-“What actually changed in the system?”
+All four can be false.
 
 ---
 
-## You Understand This If You Can Answer
+## Traps That Fool Smart People
 
-- What does Completed really mean?  
+- Treating Completed as success  
+- Ignoring warnings  
+- Rerunning jobs blindly  
+- Never reading logs  
+
+These habits create bigger disasters than the original bug.
+
+---
+
+## Debug Playbook
+
+When results confuse you, debug like this:
+
+1) What data actually changed?  
+2) Did identity update?  
+3) Did recompute run?  
+4) Are warnings hiding failures?  
+5) What do logs say about drops or skips?  
+
+Only after this, decide whether to rerun anything.
+
+---
+
+## Visual Debug Flow
+
+```
+What data changed?
+   ↓
+Did identity update?
+   ↓
+Did recompute run?
+   ↓
+Any warnings?
+   ↓
+Read logs for silent drops
+```
+
+---
+
+## Proof Paths
+
+To prove result truth:
+
+- API data (accounts, identities, access)  
+- Job messages and warnings  
+- Worker logs  
+- Recompute job history  
+
+Truth lives in data, not labels.
+
+---
+
+## What Must Not Happen
+
+- Do not trust Completed blindly  
+- Do not ignore warnings  
+- Do not rerun without proof  
+- Do not debug only from UI  
+
+---
+
+## Safe Fixes
+
+- Data wrong → find which phase lied  
+- Partial → identify exactly what failed  
+- Failed → check what already changed  
+- UI wrong → wait or check indexing  
+
+---
+
+## The One Sentence That Defines Mastery
+
+Before you ask “Did the job succeed?”, ask:
+
+**What actually changed in the system?**
+
+---
+
+## Mastery Check
+
+Answer without notes:
+
+- What do result labels really describe?  
+- Why can Completed still mean wrong data?  
 - Why is Partial more dangerous than Failed?  
 - Why does Failed not mean “nothing changed”?  
-- Why is UI never enough proof?  
+- What is your debug order when labels mislead you?  
 
 ---
 
