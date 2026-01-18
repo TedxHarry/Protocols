@@ -232,6 +232,7 @@ everything built on it lies quietly.
 ---
 
 ### Navigation
-⬅️ Previous: [Part 8 – Identity Refresh and Recompute](../Part_8_Identity_Refresh_and_Recompute_Story.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 10 – Result Semantics](../Part_10_Result_Semantics.md)
+⬅️ Previous: [Part 8 – Recompute](./Part_8_Identity_Refresh_and_Recompute.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 10 – Result Semantics](./Part_10_Result_Semantics.md)
+
