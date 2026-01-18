@@ -1,148 +1,144 @@
-
-# Part 13 – Proof Paths and Fix Playbooks (Story-Driven)
+# Part 13 – Proof Paths and Fix Playbooks — Teaching Mastery Edition
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-## Big Idea
+## The One Question This Part Answers
+
+**How do I turn suspicion into proof, and proof into a safe fix?**
 
 Troubleshooting finds where truth broke.  
-Proof paths and fix playbooks decide how you *prove* it and how you *fix* it safely.
+Proof paths prove it.  
+Fix playbooks change it safely.
 
-This part turns:
-“I think this is the problem”  
-into  
-“I can prove this is the problem.”
+Keep this line in mind:
 
-And it turns:
-“Let’s try something”  
-into  
-“This fix is known, safe, and reversible.”
+**Never fix what you cannot prove.**
 
 ---
 
-## Where This Lives
+## Where This Fits in the Engine
 
 Trigger → Extract → Normalize → Persist → Correlate → Evaluate → Recompute → Publish
 
 Proof paths run across the whole engine.  
-They are how you walk the engine with evidence, not guesses.
-
-Fix playbooks come after proof.  
-Never before.
+Playbooks come after proof, never before.
 
 ---
 
-## What a Proof Path Really Is
+## Mental Model
 
-A proof path is the story of evidence.
+```
+Symptom
+   → Proof path (evidence)
+     → First broken truth
+       → Fix playbook (safe change)
+         → Prove again
+```
 
-Not opinions.  
-Not UI feelings.  
-Not guesses.
-
-A proof path answers:
-“What is the strongest evidence for truth at this layer?”
-
-Your default mindset:
-
-UI shows the symptom.  
-API shows the stored truth.  
-Logs explain how it happened.
-
-That is the spine of every proof path.
+No guessing. No hope. Evidence only.
 
 ---
 
-## The Story of One Problem
+## Proof Path: What It Really Is
+
+A proof path is the story of evidence from reality to UI.
+
+Default rule:
+
+- Reality is strongest  
+- API is stronger than UI  
+- Logs explain how it happened  
+
+UI shows feelings.  
+API shows memory.  
+Logs show history.
+
+---
+
+## Guided Story
 
 HR says Alice is Engineering.  
 ISC identity says Alice is Sales.  
 Roles still give Sales access.
 
-Three truths cannot all be right.
+Three statements cannot all be true.
 
-Proof paths help you ask:
-Which one is lying?
+Proof path will decide who is lying.
 
 ---
 
 ## Proof Path 1: Source Truth
 
-Question: What does reality say?
+Question:
+What does the real world say?
 
 Best proof:
-The source itself.
+- Source UI
+- Source API
+- Business or HR record
 
-You are not proving ISC yet.  
-You are proving the world.
-
-If HR says Alice is Engineering:
-- Open HR
-- Check Alice
-- Capture timestamp
-
-If this is wrong, stop.  
-Everything else is innocent.
+If source is wrong:
+Stop. Everything else is innocent.
 
 ---
 
 ## Proof Path 2: Extraction
 
-Question: Did ISC even see Alice?
+Question:
+Did ISC even see Alice?
 
 Best proof:
-Logs showing filters, pages, and returned records.
+- Connector logs
+- Filter and pagination logs
 
-Supporting proof:
-Job counts.
+If Alice never appears in logs:
+She never entered the engine.
 
-If Alice is not in logs:
-She never entered the engine.  
 Nothing after this matters.
 
 ---
 
 ## Proof Path 3: Normalization and Mapping
 
-Question: Did ISC shape Alice correctly?
+Question:
+Did ISC shape Alice correctly?
 
 Best proof:
-API view of account attributes.
+- Account object via API
 
-Supporting proof:
-Mapping preview.
-
-If source is right but account is wrong:
+If source is right but account fields are wrong:
 The lie was born here.
 
 ---
 
 ## Proof Path 4: Persistence
 
-Question: What did ISC *decide* about this record?
+Question:
+What did ISC decide about this record?
 
 Best proof:
-Account metadata in API:
-- Created
-- Updated
-- Last seen
-- Disabled
+- Account metadata:
+  - Unique ID
+  - Created vs updated
+  - Last seen
+  - Missing-from-feed
 
-If ISC matched wrong record:
-Everything after this is poisoned.
+If memory is wrong:
+Everything after it is poisoned.
 
 ---
 
 ## Proof Path 5: Correlation
 
-Question: Does this account belong to the right human?
+Question:
+Does this account belong to the right human?
 
 Best proof:
-API link from account → identity.
+- Account → identity link in API
 
-If this is wrong:
+If wrong:
 Stop everything. Fix this first.
 
 Wrong correlation is the most dangerous lie.
@@ -151,10 +147,12 @@ Wrong correlation is the most dangerous lie.
 
 ## Proof Path 6: Identity Evaluation
 
-Question: Why does identity show this value?
+Question:
+Why does identity show this value?
 
 Best proof:
-API identity attributes with source metadata.
+- Identity API with source attribution
+- Identity profile rules
 
 If account is right but identity is wrong:
 The rulebook is lying.
@@ -163,10 +161,12 @@ The rulebook is lying.
 
 ## Proof Path 7: Recompute
 
-Question: Given this identity, is access correct?
+Question:
+Given this identity, is access correct?
 
 Best proof:
-API access model.
+- Access assignments in API
+- Recompute job history
 
 If identity is right but access is wrong:
 Judgment failed, not aggregation.
@@ -175,18 +175,20 @@ Judgment failed, not aggregation.
 
 ## Proof Path 8: UI
 
-Question: Is UI just late?
+Question:
+Is UI just late?
 
 Best proof:
-API already told you truth.
+- Compare UI vs API
 
-UI is only visibility, not reality.
+If API is right and UI is wrong:
+Indexing or cache is lying, not data.
 
 ---
 
 ## Walking the Full Proof Path
 
-When something is wrong, walk like this:
+Always walk in this order:
 
 Reality → Extraction → Mapping → Persistence → Correlation → Identity → Access → UI
 
@@ -200,8 +202,7 @@ The first “no” is where truth broke.
 
 ## What a Fix Playbook Is
 
-A fix playbook is not creativity.  
-It is memory.
+A fix playbook is memory, not creativity.
 
 It says:
 “When this pattern appears, this fix is safe.”
@@ -218,8 +219,11 @@ User exists in source, not in ISC.
 Proof:
 Source right → Extraction wrong.
 
-Fix flow:
-Check filters → check pagination → run full once → validate.
+Fix:
+- Check filters
+- Check pagination
+- Run one controlled full
+- Validate
 
 Never:
 Touch identity or correlation first.
@@ -234,11 +238,14 @@ Account exists but values empty or weird.
 Proof:
 Extraction right → Mapping wrong.
 
-Fix flow:
-Preview mapping → fix types → fix transforms → rerun small scope.
+Fix:
+- Preview mapping
+- Fix type mismatch
+- Fix transforms
+- Rerun small scope
 
 Never:
-Touch identity profile first.
+Change identity profile first.
 
 ---
 
@@ -250,8 +257,10 @@ Account correct, identity wrong.
 Proof:
 Mapping right → Evaluation wrong.
 
-Fix flow:
-Check precedence → check derived logic → re-evaluate identity.
+Fix:
+- Check precedence
+- Check derived logic
+- Re-evaluate identity
 
 Never:
 Rerun aggregation blindly.
@@ -266,8 +275,10 @@ Identity right, access wrong.
 Proof:
 Evaluation right → Recompute wrong.
 
-Fix flow:
-Check recompute status → fix rule logic → rerun recompute.
+Fix:
+- Check recompute status
+- Fix rule logic
+- Rerun recompute
 
 Never:
 Change correlation.
@@ -282,11 +293,14 @@ Source changed, ISC never updates.
 Proof:
 Source right → Delta memory wrong.
 
-Fix flow:
-Inspect token → reset delta once → validate → re-enable delta.
+Fix:
+- Inspect token
+- Controlled reset once
+- Validate
+- Re-enable delta
 
 Never:
-Reset delta repeatedly.
+Reset repeatedly.
 
 ---
 
@@ -294,12 +308,12 @@ Reset delta repeatedly.
 
 Before any fix, ask:
 
-- How many people will this touch?
+- How many people does this touch?
 - Can I test with one?
 - Can I undo it?
 
 High-risk moves:
-- Mass uncorrelate
+- Mass uncorrelation
 - Delete accounts
 - Reset delta on large sources
 
@@ -311,7 +325,7 @@ Treat these like production surgery.
 
 Never trust your own fix.
 
-Walk the proof path again:
+Walk again:
 
 Reality → Account → Identity → Access → UI
 
@@ -319,17 +333,78 @@ If you don’t re-prove, you don’t know.
 
 ---
 
-## Mental Model
+## Illusions This Phase Creates
 
-Proof paths are how you find truth.  
-Playbooks are how you change truth safely.
+- Fixing fast is better than fixing right  
+- UI success means real success  
+- More changes means more progress  
 
-Never fix without proof.  
-Never prove without fixing.
+All can be false.
 
 ---
 
-## You Understand This If You Can Answer
+## Traps That Fool Smart People
+
+- Fixing before proving  
+- Touching many things at once  
+- Trusting UI over API  
+- Ignoring rollback paths  
+
+Senior mistakes are usually rushed mistakes.
+
+---
+
+## What This Phase Does NOT Do
+
+- It does not create data  
+- It does not decide identity  
+- It does not grant access  
+
+It only proves truth and changes it safely.
+
+---
+
+## Debug Mindset
+
+When something is wrong:
+
+1) Pick one person  
+2) Walk proof path  
+3) Find first lie  
+4) Apply matching playbook  
+5) Prove again  
+
+---
+
+## Visual Proof-to-Fix Flow
+
+```
+Symptom
+   ↓
+Walk proof path
+   ↓
+Find first lie
+   ↓
+Choose playbook
+   ↓
+Fix safely
+   ↓
+Prove again
+```
+
+---
+
+## The One Sentence That Defines Mastery
+
+Before you fix anything, ask:
+
+**What is my proof, and how can I undo this?**
+
+---
+
+## Mastery Check
+
+Answer without notes:
 
 - What is a proof path?  
 - Why is API stronger than UI?  
