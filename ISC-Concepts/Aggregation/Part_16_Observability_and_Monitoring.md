@@ -294,6 +294,7 @@ If you can answer these, you understand observability:
 
 ---
 ### Navigation
-⬅️ Previous: [Part 15 – Custom Scheduling Patterns (Weekends, Windows, and Exceptions)](../Part_15_Custom_Scheduling_Patterns_Weekends_Windows_and_Exceptions.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 17 – Performance Tuning and Scale](../part_17_performance_tuning_and_scale.md)
+⬅️ Previous: [Part 15 – Custom Scheduling](./Part_15_Custom_Scheduling_Patterns_Weekends_Windows_and_Exceptions.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 17 – Performance Tuning](./Part_17_Performance_Tuning_and_Scale.md)
+
