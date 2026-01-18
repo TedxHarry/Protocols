@@ -1,23 +1,19 @@
-
-# Part 11 – Verification and Validation (Story-Driven)
+# Part 11 – Verification and Validation — Teaching Mastery Edition
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-## Big Idea
+## The One Question This Part Answers
 
-Verification and validation are how you separate truth from illusion.
+**Do I *know* this is right, or am I just hoping?**
 
-A job can say Completed.  
-The UI can look fine.  
-Access can “mostly” work.
+Verification and validation do not change data.  
+They decide whether data deserves your trust.
 
-And still, the system can be wrong.
+Keep this line in mind:
 
-Verification and validation answer one question:
-
-“Do I *know* this is right, or am I just hoping?”
+**Jobs report progress. Verification proves truth. Validation proves meaning.**
 
 ---
 
@@ -25,45 +21,59 @@ Verification and validation answer one question:
 
 Trigger → Extract → Normalize → Persist → Correlate → Evaluate → Recompute → Publish  
                                                                 ↑  
-                                                        Verification & Validation
+                                                     Verification & Validation
 
-Verification and validation do not change data.  
-They judge whether data deserves to be trusted.
+They sit above everything.  
+They judge the engine and the business, not the buttons.
 
 ---
 
-## Verification vs Validation
+## Mental Model
 
-They sound similar, but they think differently.
+```
+Engine runs
+   → It claims what it did
+     → You prove what actually happened
+       → Then you judge if that result makes sense
+```
+
+- Verification = Is the engine telling the truth?
+- Validation   = Does that truth match reality and expectation?
+
+---
+
+## Verification vs Validation (Human Language)
 
 Verification asks:
-“Did each step do what it claimed to do?”
+“Did each step do what it claimed?”
 
 Validation asks:
-“Does the final result match reality and expectation?”
+“Even if it did, is the result what the business expects?”
 
-Verification is about the engine.  
-Validation is about the business.
+Engine can be right. Business can still be wrong.  
+Business can be right. Engine can still be wrong.
+
+You need both.
 
 ---
 
 ## What the System Is Not Telling You
 
-The system tells you:
-- Job status  
-- Counts  
-- Labels  
+The system happily tells you:
+- Status
+- Counts
+- Labels
 
 It does not tell you:
-- Which record was skipped  
-- Which value was dropped  
-- Which rule misfired  
+- Which record was skipped
+- Which value was dropped
+- Which rule silently misfired
 
-Verification and validation are how *you* become the judge.
+That silence is why this part exists.
 
 ---
 
-## A Simple Story
+## Guided Story
 
 You run HR aggregation.
 
@@ -74,54 +84,58 @@ But HR says Alice is Engineering.
 
 Now you must decide:
 
-Is the system wrong?  
-Or is your expectation wrong?
+- Is ISC wrong?  
+- Is HR wrong?  
+- Or is your expectation wrong?  
 
-This is where verification and validation begin.
+This is the moment where hope must become proof.
 
 ---
 
-## Step 1: Start With One Person
+## Rule 1: Start With One Person
 
 Never start with “all users.”
 
-Pick one person:
-- Someone you know well  
-- Someone who recently changed  
-- Someone with clear source data  
+Pick one person who:
+- Recently changed
+- You understand well
+- Has clear source data
 
 You are not testing scale.  
 You are testing truth.
 
 ---
 
-## Step 2: Validate Against Reality
+## Step 1 – Validate Against Reality
 
-Ask:
-What does the real world say?
+Ask first:
+
+“What does the real world say?”
 
 Check:
-- HR record  
-- Source system UI  
-- Source API  
+- Source UI
+- Source API
+- HR or business record
 
 Now compare:
 What does ISC show for the same person?
 
-If they do not match, you already know:
-Something is wrong.
+If they don’t match, you already know:
+Truth broke somewhere.
 
 You just don’t know where yet.
 
 ---
 
-## Step 3: Verify the Engine Path
+## Step 2 – Verify the Engine Path
 
-Now walk the engine in order:
+Now you walk the engine like a detective.
 
-1) Was the person read?  
-2) Was the data shaped correctly?  
-3) Was the account written correctly?  
+Ask in this order:
+
+1) Was this person extracted?  
+2) Was their data shaped correctly?  
+3) Was their account written correctly?  
 4) Was it linked to the right identity?  
 5) Did identity choose the right value?  
 6) Did recompute apply the right access?  
@@ -130,37 +144,57 @@ You are retracing the system’s thinking.
 
 ---
 
-## How to Ask the Right Questions
+## How to Ask Better Questions
 
 Do not ask:
 “Why is this wrong?”
 
 Ask:
 - Did extraction even see this person?  
-- Did mapping drop the value?  
-- Did persistence match the right record?  
-- Did correlation link to the right identity?  
-- Did evaluation choose the right source?  
+- Did mapping drop this field?  
+- Did persistence overwrite someone else?  
+- Did correlation link wrongly?  
+- Did evaluation choose wrong source?  
 - Did recompute run and succeed?  
 
 Each “yes” moves you forward.  
-Each “no” tells you where truth broke.
+Each “no” shows where truth broke.
+
+---
+
+## Interactive Pause
+
+Scenario:
+
+Alice changed department in HR.  
+ISC still shows old department.
+
+Question:
+Which do you check first?
+
+Pause. Think.
+
+Answer:
+Did extraction even read Alice’s change?
+
+If she never entered the engine, nothing else matters.
 
 ---
 
 ## Failure Story
 
-Alice changed department in HR.
+Alice changed in HR.
 
-UI shows Completed.  
-Identity still shows old department.
+Job said Completed.  
+Identity still old.
 
 Team blamed roles.
 
-But verification showed:
-Extraction never read Alice, because filtering excluded her.
+Verification showed:
+Filter excluded Alice. She was never read.
 
-If she was not read, nothing else mattered.
+Engine did exactly what it was told.  
+Expectation was wrong.
 
 ---
 
@@ -170,10 +204,10 @@ You are not guessing.
 You are proving.
 
 You prove by:
-- Comparing counts  
-- Checking single records  
+- Checking one person end to end  
+- Comparing with source  
 - Reading logs  
-- Tracing one person end to end  
+- Checking stored objects via API  
 
 If you cannot prove it, you do not know it.
 
@@ -181,13 +215,13 @@ If you cannot prove it, you do not know it.
 
 ## Validation Is About Meaning
 
-Even if engine is correct, business can still be wrong.
+Even when engine is perfect, business can still be wrong.
 
 Example:
 System says Alice is Active.  
 Business says Alice left.
 
-Engine did what rules said.  
+Engine followed rules.  
 Rules were wrong.
 
 Validation asks:
@@ -195,54 +229,122 @@ Validation asks:
 
 ---
 
-## Why People Skip This
+## Illusions This Phase Creates
 
-People skip verification and validation because:
+- Completed means correct  
+- Counts matching means truth  
+- UI showing green means safe  
+- Engine logic equals business logic  
 
-- It feels slow  
-- It feels manual  
-- It feels obvious  
-
-But skipping it creates:
-- Blind trust  
-- Silent failures  
-- Big surprises later  
+All can be false.
 
 ---
 
-## How to Think When It Feels Wrong
+## Traps That Fool Smart People
 
-Do not rerun jobs blindly.
+- Trusting counts more than samples  
+- Debugging roles before identity  
+- Rerunning before proving  
+- Trusting UI without API or logs  
 
-Do this instead:
+These are senior-level mistakes.
+
+---
+
+## Debug Mindset
+
+When something feels wrong:
 
 1) Pick one person  
 2) Validate against source  
-3) Verify each engine step  
-4) Fix the first broken truth  
-5) Only then rerun anything  
+3) Verify engine path  
+4) Fix first broken truth  
+5) Then rerun if needed  
+
+Never rerun before proving.
 
 ---
 
-## Mental Model
+## Visual Debug Flow
 
-Verification = Is the engine telling the truth?  
-Validation = Does the truth match reality?
-
-Without both, you are just hoping.
+```
+Pick one person
+   ↓
+Validate with source
+   ↓
+Verify each engine phase
+   ↓
+Find first broken truth
+   ↓
+Fix, then rerun
+```
 
 ---
 
-## You Understand This If You Can Answer
+## Proof Paths
 
-- Why start with one person?  
+To prove truth:
+
+- Source UI or API  
+- ISC account object  
+- Identity object  
+- Access assignments  
+- Logs showing read, map, write  
+
+Truth lives in objects and logs, not in labels.
+
+---
+
+## What This Phase Does NOT Do
+
+- It does not fix data  
+- It does not rerun jobs  
+- It does not change rules  
+
+It only decides whether you deserve to trust what you see.
+
+---
+
+## What Must Not Happen
+
+- Do not rerun blindly  
+- Do not debug with groups first  
+- Do not trust labels  
+- Do not skip proof  
+
+---
+
+## Safe Fixes
+
+- Extraction wrong → fix source, filter, or connector  
+- Mapping wrong → fix transform and preview  
+- Correlation wrong → fix match logic  
+- Evaluation wrong → fix identity profile  
+- Recompute wrong → fix rules and recompute  
+
+Always fix the first broken truth.
+
+---
+
+## The One Sentence That Defines Mastery
+
+Before you act, ask:
+
+**What proof do I have that this is wrong?**
+
+---
+
+## Mastery Check
+
+Answer without notes:
+
 - Difference between verification and validation?  
-- Why UI is never enough?  
-- How to walk the engine logically?  
-- Why “Completed” is not proof?  
+- Why start with one person?  
+- Why “Completed” is never proof?  
+- What is your debug order?  
+- What does this phase absolutely not do?  
 
 ---
-
 ### Navigation
 ⬅️ Previous: [Part 10 – Result Semantics](./Part_10_Result_Semantics.md)  
 🏠 Home: [README](./README.md)  
