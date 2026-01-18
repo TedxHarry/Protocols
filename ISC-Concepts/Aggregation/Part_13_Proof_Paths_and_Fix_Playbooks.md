@@ -340,6 +340,7 @@ Never prove without fixing.
 ---
 
 ### Navigation
-⬅️ Previous: [Part 12 – Troubleshooting Playbook](../Part_12_Troubleshooting_Playbook_Story.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 14 – Operational Scheduling and Avoiding Overlap](../Part_14_Operational_Scheduling_and_Avoiding_Overlap.md)
+⬅️ Previous: [Part 12 – Troubleshooting](./Part_12_Troubleshooting_Playbook.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 14 – Operational Scheduling](./Part_14_Operational_Scheduling_and_Avoiding_Overlap.md)
+
