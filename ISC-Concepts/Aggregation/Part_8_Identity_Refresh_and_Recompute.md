@@ -231,6 +231,7 @@ Fix the judgment that gives access.
 ---
 
 ### Navigation
-⬅️ Previous: [Part 7 – Identity Profile Evaluation](../Part_7_Identity_Profile_Evaluation_Story.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 9 – Delta State and Token Lifecycle](../Part_9_Delta_State_and_Token_Lifecycle.md)
+⬅️ Previous: [Part 7 – Identity Evaluation](./Part_7_Identity_Profile_Evaluation_Engine.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 9 – Delta State](./Part_9_Delta_State_and_Token_Lifecycle.md)
+
