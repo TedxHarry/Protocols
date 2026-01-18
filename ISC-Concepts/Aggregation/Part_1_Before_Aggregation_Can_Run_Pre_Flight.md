@@ -1,27 +1,39 @@
-
-# Part 1 – Before Aggregation Can Run (Pre‑Flight)
+# Part 1 – Before Aggregation Can Run (Pre‑Flight) — Teaching Mastery Edition
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-## Purpose
-Pre‑Flight is the thinking and setup that happens before you ever press Run.  
-It is not about speed. It is about certainty.
+## Why This Part Exists
 
-When pre‑flight is weak, aggregation does not always fail loudly. It often fails quietly, and you only notice later when identities, access, or certifications look wrong.
+Pre‑Flight is everything you do **before** you press Run.
 
-Think of this like cooking. If ingredients are missing or mislabeled, the dish will taste wrong even if you follow the recipe perfectly.
+Not to make things faster.  
+To make things **predictable**.
+
+A bad run usually doesn’t fail loudly.  
+It finishes politely… and builds the wrong truth.
+
+Think of cooking:
+
+- Wrong ingredients → bad dish  
+- Even with a perfect recipe
+
+Pre‑Flight is checking ingredients before cooking.
 
 ---
 
-## Where This Fits in the Master Flow
-This part lives before the engine even starts.
+## Where This Fits in the Big Engine
+
+Pre‑Flight lives **before** the engine starts.
 
 Master Flow:
+
 Trigger → Extract → Normalize → Persist → Correlate → Evaluate → Recompute → Publish
 
-Pre‑Flight decides whether pressing Trigger even makes sense. If the setup is wrong, the engine will only amplify the mistakes.
+Pre‑Flight decides whether pressing Trigger even makes sense.
+
+If Pre‑Flight is wrong, the engine just amplifies the mistake.
 
 Mental picture:
 
@@ -29,136 +41,150 @@ Pre‑Flight
    ↓  
 Trigger  
    ↓  
-Extract / Normalize / Persist  
+Extract → Normalize → Persist  
    ↓  
-Accounts stored in ISC  
+Accounts in ISC  
    ↓  
 Correlation  
    ↓  
-Identity profile evaluation  
+Identity Evaluation  
    ↓  
-Access recompute  
+Access Recompute  
    ↓  
-Publish (UI catches up)
+Publish (UI)
 
-Pre‑Flight is everything that makes the rest of the chain predictable.
-
----
-
-## Mini‑Glossary (Sharp and Practical)
-
-| Term | What it really means |
-|------|----------------------|
-| Authoritative source | The system ISC should trust for who a person is |
-| Non‑authoritative source | A system that mostly adds access, not identity truth |
-| Direct connection | ISC can reach the source over the internet |
-| VA (Virtual Appliance) | A bridge when the source is inside a private network |
-| Schema | Fields and objects the connector can see |
-| Mapping | Where each source field lands inside ISC |
-| Unique ID | The anchor that tells ISC “same account as last time” |
-| Identity profile | Logic that builds the person from linked accounts |
+Pre‑Flight is what makes the chain reliable.
 
 ---
 
-## Wrong Thinking vs Right Thinking
+## The Mental Model
 
-Wrong: “If the job runs, the data is correct.”  
-Right: A job can run perfectly and still build wrong identities.
+```
+Good inputs → Predictable engine → Trustworthy results
+Bad inputs  → Perfect engine     → Perfect lies
+```
 
-Wrong: “Unique ID is just a required field.”  
-Right: Unique ID is the anchor. If it’s wrong, everything becomes unstable.
-
-Wrong: “Identity will match whatever the account shows.”  
-Right: Accounts can be right and identities can still be wrong because identity logic chooses winners.
-
-Wrong: “Let’s schedule first.”  
-Right: Scheduling bad logic only makes bad results arrive faster.
+The engine is not your enemy.  
+Bad setup is.
 
 ---
 
-## Running Example (We Use This Story Everywhere)
+## Running Example (We Use This Everywhere)
 
 Source: HR system (Workday‑like)  
 People: Alice, Bob, Carol  
 Accounts: HR_Alice, HR_Bob, HR_Carol  
 Entitlements: Engineering, HR, Finance  
 
-Goal: When aggregation runs, ISC should read Alice, Bob, and Carol from HR and prepare their accounts so they become clean, correct identities.
+Goal:
+
+When aggregation runs:
+- ISC reads Alice, Bob, Carol from HR
+- Accounts are clean
+- They become correct identities later
+
+Pre‑Flight decides whether this goal is even possible.
 
 ---
 
-## The Pre‑Flight Checklist (One Page)
+## The Pre‑Flight Journey
 
-1) Decide what this source represents  
-2) Decide how ISC will reach it  
-3) Verify credentials and permissions  
-4) Understand schema  
-5) Choose a safe unique ID  
-6) Map fields carefully  
-7) Prepare identity profile logic  
-8) Manual run and prove  
-9) Only then: schedule  
+Instead of a checklist, think of this as a story:
+
+1) What does this system represent?  
+2) How will ISC reach it?  
+3) Can ISC really read what it needs?  
+4) What does the data look like?  
+5) How will ISC remember accounts?  
+6) Where will fields land?  
+7) How will identity be built?  
+8) Prove with a manual run  
+9) Only then: schedule
+
+Each step protects the next one.
 
 ---
 
-## Step 1: Decide What This Source Represents
+## Step 1: What Does This Source Represent?
 
-Every source must answer one question:  
-Does this system define who a person is, or does it only give them access?
+Every source must answer one question:
 
-If it defines who the person is → Authoritative  
-HR systems usually live here.
+Does this system define **who a person is**,  
+or does it mostly give them **access**?
+
+If it defines the person → Authoritative  
+Usually HR systems.
 
 If it mostly gives access → Non‑authoritative  
-AD, Entra, and applications usually live here.
+Usually AD, Entra, apps.
 
-In our example, HR is authoritative.  
-So if Alice’s department changes in HR, ISC must trust HR more than any other system.
+In our example:
+HR defines who Alice is.  
+So HR must be authoritative.
 
-If you mark this wrong, identity data will come from the wrong place and everything will feel random later.
-
----
-
-## Step 2: Decide How ISC Will Reach the Source
-
-If the source is on the internet → Direct connection.  
-If the source is inside a private network → Use a VA.
-
-In our example, HR is SaaS, so we use direct connection.
-
-If this choice is wrong, jobs may start but never really extract anything.
+If you mark this wrong, identity data will come from the wrong place and everything later will feel random.
 
 ---
 
-## Step 3: Prepare Credentials and Permissions
+## Step 2: How Will ISC Reach the Source?
+
+Two choices:
+
+- Direct connection → source is on the internet  
+- VA (Virtual Appliance) → source is inside a private network  
+
+In our example:
+HR is SaaS, so direct connection works.
+
+If this is wrong:
+- Jobs may start
+- But extraction will be empty or partial
+
+Connectivity mistakes often look like “no data” bugs later.
+
+---
+
+## Step 3: Credentials and Permissions
 
 The connector logs in as a real account.
 
 That account must read:
+
 - Accounts
-- Entitlements or groups
+- Entitlements/groups
 - Memberships
 
-In our example, the HR connector must read employees and their departments.
+In our example:
+HR connector must read employees and departments.
 
-A job can complete while silently skipping what it cannot read.  
-Missing access often starts here.
+A job can say Completed even if:
+- It could not read groups
+- It could not read memberships
+
+Silent permission issues are very common.
 
 ---
 
 ## Step 4: Understand the Schema
 
 Schema is the connector’s view of the source:
-What objects exist, what fields exist, and their types.
+
+- What objects exist?
+- What fields exist?
+- What types are they?
 
 Do not rush this screen.
 
-### Choosing the Unique ID (High‑stakes decision)
+This is where you choose the most dangerous field of all:
 
-This field tells ISC:
+### Unique ID — The Memory Anchor
+
+Unique ID tells ISC:
+
 “This is the same account as last time.”
 
-In our example, we choose employeeId.
+In our example:
+We choose employeeId.
 
 Good unique ID:
 - Stable
@@ -170,21 +196,40 @@ Bad unique ID:
 - Display name
 - Reusable usernames
 
-Classic failure:  
-Unique ID = email. People change email. ISC creates duplicates.
+Classic disaster:
+Unique ID = email.  
+People change email.  
+ISC creates duplicates.
+
+This is not a bug.  
+This is memory being reset.
+
+---
+
+## Mini Checkpoint
+
+Answer without looking:
+
+What is Unique ID really used for?
+
+If your answer includes “memory” or “recognition,” you’re right.
 
 ---
 
 ## Step 5: Map Accounts Carefully
 
-Mapping decides where raw source data lands in ISC.
+Mapping decides where source fields land in ISC.
 
 Example:
+
 employeeId → accountAttribute.employeeId  
 email → accountAttribute.email  
 department → accountAttribute.department  
 
-Types must match. Multi‑value must not be forced into single.
+Two dangers here:
+
+- Wrong destination field  
+- Wrong type (text vs date, single vs multi)
 
 Always use mapping preview.  
 Preview is your first lie detector.
@@ -193,43 +238,61 @@ Preview is your first lie detector.
 
 ## Step 6: Prepare the Identity Profile
 
-Accounts are not identities.
+Accounts are not people.  
+Identity profile logic builds the person.
 
-Identity profile logic decides:
-- Which source sets which field
-- What happens when sources disagree
+It decides:
 
-In our example, HR wins for department and email.
+- Which source can set each identity field  
+- Which source wins when they disagree  
+- Whether a field is copied or derived  
+
+In our example:
+HR wins for department and email.
 
 So even if AD says Alice is Sales, but HR says Engineering, identity follows HR.
 
-If this logic is wrong, accounts look perfect and identities still look wrong.
+If identity profile is wrong:
+- Accounts look perfect
+- Identity still looks wrong
 
 ---
 
 ## Step 7: Think About Scheduling (Slowly)
 
-Start with manual runs.  
-Prove one clean run.
+Do not start with schedules.
 
-Then schedule once per day.  
-Avoid overlapping jobs.
+Start with:
+
+- Manual run
+- Fix problems
+- Run again
+- Prove stability
+
+Then:
+
+- Schedule once per day
+- Avoid overlapping jobs
 
 Scheduling bad logic only makes bad results arrive faster.
 
 ---
 
-## Broken‑Flow Walkthrough
+## Broken‑Flow Story
 
 Scenario:
+
 Job says Completed.  
 Accounts look fine.  
 Identity department is wrong.
 
 Logic:
-Accounts right + identity wrong = identity profile problem.
+
+Accounts right + identity wrong  
+→ Identity profile problem.
 
 Proof order:
+
 1) Source truth  
 2) Account truth  
 3) Correlation  
@@ -241,49 +304,52 @@ Completed is not the same as correct.
 
 ---
 
-## Fast Triage
+## Fast Triage Patterns
 
-Duplicate accounts → Check unique ID  
-Empty fields → Check mapping and permissions  
-Identity wrong but accounts right → Check identity profile  
-Job never really starts → Check network and credentials  
+- Duplicate accounts → Check unique ID  
+- Empty fields → Check mapping and permissions  
+- Identity wrong but accounts right → Check identity profile  
+- Job never really extracts → Check network and credentials  
 
 ---
 
 ## Proof Paths
 
-UI: shows configuration  
-API: shows what ISC stored  
-Logs: show connection truth  
+Use more than UI:
 
-Do not debug only from UI symptoms.
+- UI → configuration view  
+- API → stored reality  
+- Logs → connection and read truth  
+
+Never debug only from UI symptoms.
 
 ---
 
 ## What Must Not Happen
 
-Do not schedule before a good manual run.  
-Do not change schema during a run.  
-Do not guess unique ID.
+- Do not schedule before one clean manual run  
+- Do not change schema during a run  
+- Do not guess Unique ID  
 
 ---
 
 ## Safe Fixes
 
-Schema wrong → Fix and rediscover  
-Mapping wrong → Fix and preview  
-Identity profile wrong → Fix and re‑evaluate identities  
+- Schema wrong → Fix and rediscover  
+- Mapping wrong → Fix and preview  
+- Identity profile wrong → Fix and re‑evaluate identities  
 
 ---
 
-## Confidence Check
+## Mastery Check
 
-If you can answer these, you’re ready:
-1) What makes a source authoritative?
-2) Why is unique ID critical?
-3) Why can identity be wrong if accounts are right?
-4) Why start with manual runs?
-5) If job completes but identity is wrong, which layer do you check first?
+Answer these without notes:
+
+1) What makes a source authoritative?  
+2) Why is Unique ID dangerous?  
+3) Why can identity be wrong when accounts are right?  
+4) Why start with manual runs?  
+5) If job completes but identity is wrong, which layer do you check first?  
 
 ---
 
