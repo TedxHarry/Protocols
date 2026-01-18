@@ -258,6 +258,7 @@ If you can answer these, you can design safe schedules:
 
 ---
 ### Navigation
-⬅️ Previous: [Part 13 – Proof Paths and Fix Playbooks](../Part_13_Proof_Paths_and_Fix_Playbooks.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 15 – Custom Scheduling Patterns (Weekends, Windows, and Exceptions)](../part_15_custom_scheduling_patterns.md)
+⬅️ Previous: [Part 13 – Proof Paths](./Part_13_Proof_Paths_and_Fix_Playbooks.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 15 – Custom Scheduling](./Part_15_Custom_Scheduling_Patterns_Weekends_Windows_and_Exceptions.md)
+
