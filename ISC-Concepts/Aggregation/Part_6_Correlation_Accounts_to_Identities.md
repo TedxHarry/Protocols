@@ -257,6 +257,7 @@ everything built on top is wrong.
 ---
 
 ### Navigation
-⬅️ Previous: [Part 5 – Write and Persistence](../Part_5_Write_and_Persistence_Story.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 7 – Identity Profile Evaluation Engine](../Part_7_Identity_Profile_Evaluation_Engine.md)
+⬅️ Previous: [Part 5 – Persistence](./Part_5_Write_and_Persistence_Story.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 7 – Identity Profile Evaluation](./Part_7_Identity_Profile_Evaluation_Engine.md)
+
