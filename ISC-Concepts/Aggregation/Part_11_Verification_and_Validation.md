@@ -244,6 +244,7 @@ Without both, you are just hoping.
 ---
 
 ### Navigation
-⬅️ Previous: [Part 10 – Result Semantics](../Part_10_Result_Semantics_Story_v2.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 12 – Troubleshooting Playbook](../part_12_troubleshooting_playbook.md)
+⬅️ Previous: [Part 10 – Result Semantics](./Part_10_Result_Semantics.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 12 – Troubleshooting](./Part_12_Troubleshooting_Playbook.md)
+
