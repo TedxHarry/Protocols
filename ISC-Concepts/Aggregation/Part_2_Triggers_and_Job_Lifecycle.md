@@ -1,218 +1,355 @@
-
-# Part 2 – Triggers and Job Lifecycle
+# Part 2 – Triggers and Job Lifecycle — Teaching Mastery Edition
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-## Purpose
-This part explains how aggregation actually starts and what really happens from the moment you press Run until the system says Completed.
+## Why This Part Exists
 
-Many beginners think aggregation is one action: click Run and data appears.  
-In reality, a job is created, queued, executed, monitored, and only then closed.
+Most people think aggregation starts when data starts moving.
 
-Understanding this lifecycle lets you answer:
-- Why did my job not start yet?
-- Why does it say Running forever?
-- Why does it say Completed but data is still wrong?
+That’s wrong.
+
+Aggregation really starts when a **job** is born.
+
+If you don’t understand jobs, you will:
+- Click Run again and again,
+- Panic when nothing seems to happen,
+- Trust “Completed” when the real work is still happening elsewhere.
+
+This part teaches you to see what actually happens
+from the moment you press Run to the moment ISC truly finishes.
+
+Keep this sentence in mind:
+
+**Aggregation doesn’t start with data. It starts with a job.**
 
 ---
 
-## Where This Fits in the Master Flow
+## Where This Fits in the Big Engine
 
-Master Flow:  
+Master Flow:
+
 Trigger → Extract → Normalize → Persist → Correlate → Evaluate → Recompute → Publish
 
-This part owns the very first word: Trigger.  
-If trigger or job handling is wrong, nothing else even gets a chance.
+This part owns the very first word:
+
+**Trigger.**
+
+If trigger or job handling is wrong,
+none of the later steps even get a chance to run correctly.
 
 ---
 
-## Mini‑Glossary
+## The Mental Model
 
-Trigger: the action that asks ISC to start aggregation.  
-Job: the background process that does the work.  
-Queue: the waiting line for jobs.  
-Worker: the engine that actually runs jobs.  
-Status: the current life stage of a job.
+```
+Trigger
+   → Job is created
+     → Job waits
+       → Worker runs it
+         → Job ends
+           → Other background work may still continue
+```
+
+So when you click Run, you are not starting extraction.
+You are asking the system:
+
+“Please create a job and put it in line.”
 
 ---
 
-## Running Example
+## Running Story (We Will Use This)
 
 Source: HR system  
 People: Alice, Bob, Carol  
 Accounts: HR_Alice, HR_Bob, HR_Carol  
 
-We are ready to press Run.  
-What actually happens behind the scenes?
+We are ready. We click Run.
+
+What actually happens next?
 
 ---
 
-## How Aggregation Gets Triggered
+## What a Trigger Really Does
 
-Three ways aggregation can start:
+There are three ways to trigger aggregation:
 
-Manual: a human clicks Run.  
-Scheduled: ISC starts it by time rules.  
-API: another system triggers it.
+- Manual: you click Run  
+- Scheduled: time rule starts it  
+- API: another system calls it  
 
-All three do the same thing:  
-They create a job request.
+All three do the same thing:
 
-ISC does not start reading data immediately.  
-It first creates a job object and places it in line.
+They **do not** start reading data.  
+They **create a job request.**
 
-In our example, we click Run for HR. A job is created and placed in the queue.
+In our story:
+We click Run for HR.  
+ISC creates a job that says:
+
+- Source = HR  
+- Type = full or delta  
+- Requested by = you  
+- Time = now  
+
+Then that job is placed in a queue.
 
 ---
 
 ## What a Job Really Is
 
-A job is not the data move.  
-A job is a plan that says:
-- Which source
-- Full or delta
+A job is not the work.
+A job is a **plan** for work.
+
+It contains:
+- Which source to run
+- What type of run
 - Which connector
-- Who requested it
+- Who asked for it
 - When it was created
 
-After creation, it enters the queue.  
-If workers are busy, it waits.
+After creation, the job just waits.
 
-This is why you click Run and nothing seems to happen.  
-Something did happen: the job exists, but it is waiting.
+This is why you click Run and see nothing happening.
+Something did happen:
+A job exists, but no worker has picked it up yet.
+
+---
+
+## Workers and the Queue
+
+Workers are the engines that actually do work.
+
+There are only so many workers.
+
+If many jobs exist:
+- Some run
+- Some wait
+
+This creates a queue.
+
+In our story:
+If two other jobs are already running,
+our HR job will sit in Queued state.
+
+Nothing is broken.
+It is just waiting its turn.
 
 ---
 
 ## Job States in Human Language
 
-Queued: waiting for a worker.  
-Running: a worker picked it up.  
-Completed: the job finished its tasks.  
-Failed: it stopped because of an error.  
-Warning/Partial: some parts worked, some didn’t.
+Job status is not technical.
+It’s just life stages.
 
-In our example: Queued → Running → Completed.
+- Queued → waiting for a worker  
+- Running → a worker is executing it  
+- Completed → worker finished  
+- Failed → worker stopped due to error  
+- Warning/Partial → some parts failed  
 
----
+So our HR job goes:
 
-## Workers and Concurrency
-
-Workers are the engines that do the work.  
-There are only so many.
-
-If many jobs start at once, some must wait.  
-If two jobs run on the same source, they can fight and corrupt state.
-
-This is why overlapping schedules are dangerous.  
-It’s not about time, it’s about shared state.
+Queued → Running → Completed
 
 ---
 
 ## What “Completed” Really Means
 
-Completed only means the job finished running.  
-It does not mean the data is correct.
+Completed means only one thing:
 
-A job can complete even if:
-- Some records failed
-- Some data was skipped
-- Recompute and indexing are still running
+“The worker finished its assignment.”
 
-In our example, HR job may say Completed, but Alice’s access may not show yet because background work is still catching up.
+It does **not** guarantee:
+- Data is correct
+- Identity is updated
+- UI is refreshed
+- Recompute is done
+
+Many things run after the job ends:
+- Identity evaluation
+- Access recompute
+- Indexing
+- UI refresh
+
+So you may see:
+
+Job = Completed  
+UI = Still old
+
+That is not always a bug.
+It is often timing.
 
 ---
 
-## Lifecycle Walkthrough
+## Walk the Story Slowly
 
 We click Run on HR.
 
-Trigger → job request created.  
-Job creation → job object stored.  
-Queue → job waits for worker.  
-Running → worker reads and writes data.  
-Completion → job ends and shows Completed.  
+1) Trigger creates job  
+2) Job enters queue  
+3) Worker becomes free  
+4) Worker picks job  
+5) Job status = Running  
+6) Worker extracts and writes data  
+7) Worker finishes  
+8) Job status = Completed  
+9) Other engines continue working in background  
 
-After this, other background processes may still be updating identity and UI.
-
----
-
-## Why Jobs Get “Stuck”
-
-Usually three reasons:
-
-Queued too long: no free workers.  
-Running too long: network or connector blocked.  
-Running slowly: source is huge or slow.
-
-Killing and restarting blindly usually makes things worse by adding more jobs.
+Only after all background work finishes
+does the UI fully reflect reality.
 
 ---
 
-## Why This Matters
+## Why Jobs Look “Stuck”
 
-Without lifecycle understanding you will:
-- Think nothing is happening when it’s just queued.
-- Think something is broken when it’s just slow.
-- Trust Completed when the real work isn’t visible yet.
+Usually for three reasons:
 
-Understanding this saves panic actions.
+### Queued Too Long
+- All workers are busy
+- Too many jobs at once
+
+### Running Too Long
+- Source is slow
+- Network is slow
+- Connector is blocked
+
+### Looks Finished but UI Wrong
+- Job finished
+- Recompute or indexing still running
+
+Killing jobs blindly usually makes things worse.
 
 ---
 
-## If You See This → Do This
+## Interactive Pause
 
-Queued too long → check how many jobs are running.  
-Running too long → check logs and network.  
-Completed but wrong data → check API and recompute, not just UI.
+Scenario:
+
+You click Run.  
+Status shows Queued for 20 minutes.
+
+Question:
+Is something broken?
+
+Pause. Think.
+
+Answer:
+Not necessarily.
+It probably means no worker is free.
+Check how many jobs are already running.
 
 ---
 
-## How People Fail Here
+## Overlapping Jobs: The Silent Killer
 
-They click Run many times.  
-They schedule overlapping jobs.  
-They kill jobs without understanding.  
-They trust Completed as Correct.
+Running two jobs on the same source at the same time is dangerous.
+
+They can:
+- Overwrite each other’s state
+- Break delta memory
+- Cause missing-from-feed errors
+
+This is why overlapping schedules are risky.
+
+It’s not about time.
+It’s about shared memory.
+
+---
+
+## Why People Panic Here
+
+Because they:
+- Click Run many times
+- Schedule too often
+- Kill jobs too fast
+- Trust Completed too much
+
+This creates chaos that looks like data bugs,
+but really started as job chaos.
+
+---
+
+## Debug Playbook
+
+When something looks wrong, ask in this order:
+
+1) Was a job created?  
+2) What is its status?  
+3) Is it queued or running?  
+4) Are other jobs blocking it?  
+5) Did it complete recently?  
+6) Are background engines still running?  
+
+Only then blame extraction or mapping.
+
+---
+
+## Visual Debug Flow
+
+```
+Did trigger create a job?
+   ↓
+Is job queued or running?
+   ↓
+Are workers busy?
+   ↓
+Did job complete?
+   ↓
+Is recompute/indexing still running?
+```
 
 ---
 
 ## Proof Paths
 
-UI: job list, timestamps, status.  
-API: real job objects and states.  
-Logs: what the worker is actually doing.
+Use more than UI:
+
+- UI → job list and timestamps  
+- API → real job objects  
+- Logs → what worker is actually doing  
+
+UI alone lies by delay.
 
 ---
 
 ## What Must Not Happen
 
-Do not run same source twice at once.  
-Do not spam Run when queued.  
-Do not assume Completed means finished everywhere.
+- Do not spam Run  
+- Do not overlap same-source jobs  
+- Do not trust Completed blindly  
+- Do not kill jobs without reason  
 
 ---
 
 ## Safe Fixes
 
-Overlapping jobs → fix schedules.  
-Queue too long → stagger sources.  
-Slow jobs → test smaller scope.
+- Too many queued jobs → stagger schedules  
+- Overlap → fix timing rules  
+- Slow jobs → test with smaller scope  
 
 ---
 
-## Confidence Check
+## The One Sentence That Defines Mastery
 
-If you can answer these, you understand jobs:
+Before you ask “Why is my data wrong?”, ask:
 
-What creates a job?  
-Why can a job wait after you click Run?  
-What does Completed really mean?  
-Why are overlapping jobs dangerous?
+**What is happening with my job right now?**
 
 ---
 
+## Mastery Check
+
+Answer without notes:
+
+- What does a trigger really do?  
+- What is a job actually?  
+- Why can a job wait after you click Run?  
+- What does Completed really mean?  
+- Why are overlapping jobs dangerous?  
+
+---
 ### Navigation
 ⬅️ Previous: [Part 1 – Before Aggregation Can Run (Pre‑Flight)](./Part_1_Before_Aggregation_Can_Run_Pre_Flight.md)  
 🏠 Home: [README – Aggregation Master Series](./README.md)  
