@@ -1,242 +1,289 @@
-# Part 20 – Security and Compliance Considerations
+# Part 20 – Security and Compliance — Teaching Mastery Edition
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-# Part 20 – Security and Compliance Considerations
+## The One Question This Part Answers
 
-## Purpose
-This part explains how aggregation affects security and compliance.
+**How does wrong truth become real risk?**
 
-Aggregation is not neutral plumbing.
-It decides:
-- who appears to exist
-- what access they appear to have
-- when access is removed
+Security and compliance are not tools.  
+They are the consequences of believing the wrong story.
 
-Security and compliance trust that this truth is accurate and timely.
-If aggregation lies or lags, security decisions become wrong even if policies are perfect.
+Keep this in mind:
+
+**Risk is what happens when lies look like facts.**
 
 ---
-## Where This Fits in the Master Flow
+
+## Where This Lives in the Engine
 
 Trigger → Extract → Normalize → Persist → Correlate → Evaluate → Recompute → Publish
 
-Security and compliance sit on top of the engine.
-They consume the truth the engine produces and turn it into controls, reviews, and evidence.
+Security and compliance do not sit inside the engine.  
+They are the world reacting to what the engine believes.
+
+The engine does not create risk.  
+It creates belief. Risk comes from acting on it.
 
 ---
-## Mini‑Glossary
 
-**Least privilege**  
-Only the access a person truly needs.
+## Mental Model
 
-**Joiner / Mover / Leaver**  
-Lifecycle events that drive access change.
+```
+Engine creates belief
+   → Humans trust it
+     → Systems act on it
+       → Law and safety judge the outcome
+```
 
-**Audit trail**  
-Evidence showing what happened and when.
-
-**Attestation**  
-Formal review of access (certification).
-
-**SLA / SLO**  
-Time promise for how fast changes must appear.
+If belief is wrong, everything after it is dangerous — even if perfectly automated.
 
 ---
-## The Core Security Truth
 
-Security depends on freshness and correctness.
+## A Simple Story
 
-If a leaver still appears active for two days, that is a security gap.
-If a joiner does not appear, that is an operational gap.
-If access is missing or extra, that is a risk gap.
+Alice leaves the company on Friday night.  
+HR updates her as Terminated.
 
-Aggregation quality is security quality.
+But HR aggregation runs only weekdays.
 
----
-## Step 1: Joiners, Movers, Leavers Are Security Events
+On Saturday:
+- Alice still looks Active
+- Access still exists
+- Policies don’t trigger
+- Certifications still include her
 
-Lifecycle changes are not HR events.
-They are security triggers.
+No firewall failed.  
+No workflow failed.
 
-Joiner:
-- new identity appears
-- baseline access must be granted
+Truth was simply late.
 
-Mover:
-- identity attributes change
-- some access must be removed
-- some access must be added
-
-Leaver:
-- identity must become inactive
-- all access must be removed
-
-If aggregation delays these, security is delayed.
+Security didn’t break.  
+Freshness did.
 
 ---
-## Step 2: Staleness Equals Risk
 
-Every hour of staleness is a window of risk.
+## What Security Really Depends On
 
-Examples:
-- Leaver access remains active
-- Contractor end date passes but account still active
-- Department change not reflected, so toxic access stays
+Security is not built on rules.  
+It is built on truth.
 
-So you must define freshness SLOs for security‑critical sources like HR.
+Security systems assume:
+- Identity is correct
+- Access is current
+- Lifecycle is real
+- Correlation is clean
 
----
-## Step 3: Identity Truth Drives Policy Truth
-
-Policies use:
-- identity attributes
-- lifecycle state
-- access assignments
-
-If identity truth is wrong:
-- SoD policies fire on wrong people
-- privileged access not flagged
-- risky combinations missed
-
-So policy tuning without fixing aggregation is fake security.
+If any of those are wrong, security controls become polite lies.
 
 ---
-## Step 4: Correlation Is a Security Control
 
-Correlation decides which account belongs to which person.
+## Compliance Is About Storytelling
 
-If correlation is wrong:
-- one person may “own” another person’s access
-- access reviews go to the wrong manager
-- audit evidence is misleading
+Auditors don’t ask:
+“How fast is your system?”
 
-Weak match keys are not just technical debt.
-They are security debt.
+They ask:
+- Who had access?
+- When did they get it?
+- When was it removed?
+- Who approved it?
+- Why did the system think that was right?
 
----
-## Step 5: Deprovisioning Depends on Aggregation
+Compliance is your ability to tell a true story about access over time.
 
-Automated deprovisioning relies on:
-- lifecycle state
-- account state
-- access model updates
-
-If aggregation does not mark someone inactive:
-Provisioning cannot remove access.
-
-So many “provisioning failures” are actually aggregation failures.
+If your data lies, your story lies.
 
 ---
-## Step 6: Evidence and Audit Trails
 
-Auditors ask:
-- When did Bob leave?
-- When was his access removed?
-- Who approved what and when?
+## How Aggregation Failures Become Security Failures
 
-To answer, you need:
-- source timestamps
-- aggregation timestamps
-- recompute timestamps
-- provisioning timestamps
+Aggregation failure looks technical.  
+Security failure looks human.
 
-If aggregation timing is unclear, your audit story is weak.
+Pattern:
+Identity wrong → Wrong approvals → Wrong access → Real damage.
+
+No breach needs a hacker when truth itself is broken.
 
 ---
-## Step 7: Certifications as Compliance Control
 
-Certifications assume data is correct.
+## The Leaver Risk Revisited
 
-If aggregation is stale:
-- reviewers approve wrong access
-- compliance reports show false comfort
+Alice leaves Friday.  
+HR updates her.
 
-So before launching a campaign, you must prove data freshness.
+But aggregation skips weekends.
 
----
-## Step 8: Security‑Driven Scheduling
+Saturday:
+- Alice still appears active
+- She still passes access checks
+- Policies don’t see risk
 
-Security should influence schedules.
-
-Examples:
-- HR must run early in the day
-- Leaver updates must not wait until next morning
-- Delta may be too risky for leaver‑heavy sources
-
-Scheduling is a security decision, not just an ops decision.
+This is not a scheduling problem anymore.  
+It is a security incident waiting to be noticed.
 
 ---
-## Running Example: Weekend Leaver Risk
 
-Bob leaves Friday night.
-HR updates status Friday.
-Aggregation skips weekends.
-Bob still appears active until Monday.
+## Joiner Risk
 
-For two days:
-- access not removed
-- policies think Bob is active
-- certifications may include him
+New hire joins Monday morning.  
+HR updates at 8 AM.
 
-This is not a tooling issue.
-This is a scheduling and freshness decision that created risk.
+Aggregation runs at noon.
 
----
-## Step 9: Designing for Compliance
+Until then:
+- No identity
+- No access
+- No policies
+- No audit trail
 
-To support compliance, you need:
-- defined freshness SLOs
-- monitoring of staleness
-- proof paths for timing
-- repeatable deprovisioning evidence
+Business feels pain.  
+Security sees blind spots.
 
-Compliance is not about passing audits once.
-It is about being able to prove truth any day.
+Freshness is not convenience.  
+It is safety.
 
 ---
-## Proof Paths
 
-UI: lifecycle state, certification scope, policy violations  
-API: identity attributes, timestamps, access model  
-Logs: job timing, recompute timing, provisioning actions
+## Mover Risk
 
-Security questions always start by proving aggregation truth first.
+Alice moves from Finance to Engineering.
 
----
-## What Must Not Happen
+Identity updates late.  
+Roles still reflect Finance.
 
-Do not treat lifecycle as “just HR data.”  
-Do not accept staleness for leaver data.  
-Do not tune policies while identity truth is broken.  
-Do not ignore correlation quality.
+So:
+- She keeps old access too long
+- Gets new access too early or too late
 
----
-## Safe Practices
+This creates toxic combinations silently.
 
-Run authoritative sources early and often.
-Monitor freshness for security‑critical data.
-Use strong, stable match keys.
-Test deprovisioning paths regularly.
+Not because policy is weak.  
+Because truth arrived out of order.
 
 ---
-## Confidence Check
 
-If you can answer these, you understand security impacts:
-- Why is aggregation quality equal to security quality?
-- Why is staleness a risk window?
-- Why is correlation a security control?
-- Why is scheduling a security decision?
+## Policies Are Only As Smart As Their Inputs
+
+A perfect SoD rule with bad data is a broken rule.
+
+If entitlements are missing:
+Policy never fires.
+
+If identity is wrong:
+Policy fires on wrong people.
+
+Policy logic does not fix data.  
+It only judges what it is given.
 
 ---
-### Navigation
-⬅️ Previous: Part 19 – Change Management and Safe Updates
-🏠 Home: README – Aggregation Master Series
-➡️ Next: Part 21 – Disaster Scenarios and Recovery
+
+## Certifications Are Legal Memory
+
+Certifications are not reviews.  
+They are legal evidence.
+
+They answer:
+“Who confirmed this access at this time?”
+
+If certification scope is wrong because identity is wrong,  
+you are creating official records of false approvals.
+
+That is not just technical debt.  
+That is legal risk.
 
 ---
+
+## Compliance Needs Two Things
+
+1) Correct truth  
+2) Proven history  
+
+Not just what is true now,  
+but what was believed then.
+
+Logs, timestamps, job history, and identity changes are your courtroom evidence.
+
+If you cannot reconstruct the past, you cannot defend it.
+
+---
+
+## Why Security Creates Illusions
+
+You may see:
+- Policies quiet
+- Certifications approved
+- Audits passing
+
+And assume:
+“System is safe.”
+
+But silence can mean:
+Truth never arrived.
+
+Security systems cannot detect what they never saw.
+
+---
+
+## Traps That Fool Smart People
+
+- Trusting policy silence as safety  
+- Running certifications on stale data  
+- Tuning controls before fixing truth  
+- Ignoring freshness as a security metric  
+
+These are not beginner mistakes.  
+They are comfort mistakes.
+
+---
+
+## Debug Mindset for Security
+
+When risk appears, ask:
+
+1) Was identity fresh?  
+2) Was access current?  
+3) Did recompute run?  
+4) Did policy see full data?  
+5) Did governance act on truth or delay?  
+
+Fix truth before fixing controls.
+
+---
+
+## What This Phase Does NOT Do
+
+- It does not fix data  
+- It does not repair aggregation  
+- It does not create identity  
+
+It only shows what wrong truth looks like when the world reacts to it.
+
+---
+
+## The One Sentence That Defines Mastery
+
+Before you trust a control, ask:
+
+**What truth did this control believe, and was it fresh and correct?**
+
+---
+
+## Mastery Check
+
+Answer without notes:
+
+- Why is security built on belief, not tools?  
+- How does stale data become real risk?  
+- Why are certifications legal memory?  
+- Why are policies helpless with bad data?  
+- Why is freshness a safety metric?  
+
+---
+
 ### Navigation
 ⬅️ Previous: [Part 19 – Change Management](./Part_19_Change_Management_and_Safe_Updates.md)  
 🏠 Home: [README](./README.md)  
