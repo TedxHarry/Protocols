@@ -275,6 +275,7 @@ If you can answer these, you can recover safely:
 
 ---
 ### Navigation
-⬅️ Previous: [Part 20 – Security and Compliance Considerations](../Part_20_Security_and_Compliance_Considerations.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 22 – Maturity Model and Long‑Term Operations](../part_22_maturity_model_and_long_term_operations.md)
+⬅️ Previous: [Part 20 – Security](./Part_20_Security_and_Compliance_Considerations.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: None
+
