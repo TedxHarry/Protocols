@@ -1,74 +1,98 @@
-
-# Part 6 – Correlation (Accounts → Identities) — Story-Driven
+# Part 6 – Correlation (Accounts → Identities) — Teaching Mastery Edition
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-## Big Idea
+## Why This Part Exists
 
-Correlation is the moment where accounts stop being “just records” and become “someone.”
+Parts 3–5 decided:
+- What data exists (Extraction),
+- What it looks like (Normalization),
+- What ISC remembers (Persistence).
 
-Before this step:
-We only have accounts from systems.
+Part 6 decides something more human:
 
-After this step:
-Those accounts belong to real people inside ISC.
+**Who does this account belong to?**
 
-Correlation does not give access.  
-Correlation does not change data.  
-Correlation only answers one dangerous question:
+Before correlation, we only have system records.  
+After correlation, those records belong to real people.
 
-“Who does this account belong to?”
+If this step is wrong, the system doesn’t just break —  
+it gives the **wrong person** the **right access**.
 
-If this answer is wrong, everything that follows becomes dangerous.
+Keep this sentence in mind:
+
+**Correlation is recognition.**
 
 ---
 
-## Where This Fits in the Engine
+## Where This Fits in the End-to-End Flow
 
 Trigger → Extract → Normalize → Persist → **Correlate** → Evaluate → Recompute → Publish
 
-Persistence decided what exists.  
-Correlation decides who owns it.
+Persistence answers:
+“Have I seen this account before?”
+
+Correlation answers:
+“Who is the human behind it?”
 
 This is the bridge between data and people.
 
 ---
 
-## What ISC Is Thinking During Correlation
+## The Mental Model
 
-When an account arrives here, ISC is thinking:
+```
+Account record
+   → Look for a matching identity
+     → Link, Create, or Leave Uncertain
+```
 
-“Do I already know the person behind this account?”
-
-It looks at one thing: the match key.
-
-Then it reasons like this:
-
-- If exactly one identity matches → Link  
-- If no identity matches → Leave uncorrelated or create (if authoritative)  
-- If more than one identity matches → Mark ambiguous and refuse to guess  
-
-This is not business logic.  
-This is identity logic.
+Correlation is not about access.  
+It is not about correctness of data.  
+It is only about recognition.
 
 ---
 
-## Match Key: The Identity Fingerprint
+## What ISC Is Really Doing
 
-The match key is how ISC recognizes a person.
+When an account reaches correlation, ISC is not asking:
+
+- Should this person have access?
+- Is this data valid?
+- Is this user active?
+
+It is asking only:
+
+**Do I recognize the person behind this account?**
+
+It checks one thing: the **match key**.
+
+Then it decides:
+
+- Exactly one identity matches → Link  
+- No identity matches → Leave uncorrelated or create (if authoritative)  
+- More than one matches → Mark ambiguous and refuse to guess  
+
+This is identity logic, not business logic.
+
+---
+
+## Match Key: The Recognition Fingerprint
+
+The match key is how ISC recognizes a person over time.
 
 A good match key is:
-- Unique
-- Stable
+- Unique (one person only)
+- Stable (doesn’t change)
 - Never reused
 
-Examples of strong keys:
+Strong examples:
 - employeeId
 - HR person ID
 
-Examples of weak keys:
+Weak examples:
 - name
 - department
 - title
@@ -78,7 +102,7 @@ If the fingerprint changes, the system stops recognizing the person.
 
 ---
 
-## A Slow Story: One Person Over Time
+## Guided Story: One Person Over Time
 
 Source: HR (authoritative)  
 Person: Bob  
@@ -86,20 +110,20 @@ Match key: employeeId
 
 ### First Run
 HR sends Bob with employeeId = 2002  
-ISC finds no identity with 2002  
-→ Creates Identity Bob and links account
+No identity exists with 2002  
+→ Create identity Bob, link account
 
 ### Second Run
 HR sends Bob with employeeId = 2002, department changed  
 ISC finds identity with 2002  
-→ Links account to same Bob
+→ Link to same Bob
 
 ### Third Run
 HR sends Bob with employeeId = 2002, email changed  
-ISC still matches on 2002  
-→ Identity remains Bob
+Match key unchanged  
+→ Still Bob
 
-Now change the match key to email.
+Now change match key to email.
 
 Next run:
 Bob’s email changed last week.  
@@ -115,33 +139,50 @@ This is broken recognition.
 
 ---
 
-## What “Uncorrelated” Really Means
+## Mini Checkpoint
 
-Uncorrelated means:
-“The system has an account, but does not know who it belongs to.”
+Answer without looking:
 
-This might be okay temporarily, but large numbers mean:
-- Wrong match key
-- Identity not created yet
-- Bad data in source
+- What is a match key really used for?  
+- What happens if it changes?  
 
-Uncorrelated is uncertainty.
+If your answer includes “recognition” and “forgetting,” you’re right.
 
 ---
 
-## What “Ambiguous” Really Means
+## Uncorrelated: What It Really Means
+
+Uncorrelated means:
+
+“I have an account, but I don’t know who it belongs to.”
+
+This can happen when:
+- Identity doesn’t exist yet
+- Match key is wrong
+- Source data is bad
+
+Uncorrelated is uncertainty, not failure.
+
+Large numbers of uncorrelated accounts mean:
+- Wrong match key
+- Missing identities
+- Dirty source data
+
+---
+
+## Ambiguous: Safer Than Guessing
 
 Ambiguous means:
+
 “More than one identity looks like a match.”
 
-ISC refuses to guess.
-
 Example:
-Two identities share same email.  
+Two identities share the same email.  
 Account arrives with that email.  
-System cannot decide.
+System refuses to guess.
 
-Ambiguity is safer than guessing, but it blocks automation until fixed.
+Ambiguity is painful, but safe.  
+Guessing would be dangerous.
 
 ---
 
@@ -151,67 +192,79 @@ If the source is authoritative:
 - Correlation may create new identities.
 
 If the source is not authoritative:
-- Correlation only links to existing identities.
+- Correlation can only link to existing identities.
 
 HR is usually authoritative.  
 AD and apps usually are not.
 
-This is how ISC avoids creating people from random systems.
+This prevents random systems from inventing people.
 
 ---
 
-## Full Story Example
+## Interactive Scenario
 
-HR sends:
-Alice (1001), Bob (2002), Carol (3003)
-
-First run:
-No identities exist.  
 HR is authoritative.  
-→ Three identities created.
+Match key = employeeId.
 
-Second run:
-All three still exist.  
-→ All three accounts linked again.
+Run 1: HR sends Alice(1001), Bob(2002)  
+→ Two identities created.
 
-Third run:
-Bob missing from HR.  
-→ Persistence handles missing.  
-Correlation only works with what exists.
+Run 2: HR sends Alice(1001), Bob(2002) again  
+→ Both linked correctly.
 
-Correlation never decides leavers.  
-It only decides ownership of accounts that exist.
+Run 3: Bob missing from HR  
+
+Question:
+Does correlation decide Bob left?
+
+Pause. Think.
+
+Answer:
+No. Correlation only works on what exists.  
+Persistence handles missing.  
+Correlation only assigns ownership of accounts that appear.
 
 ---
 
-## Why This Phase Is So Risky
+## Why This Phase Is Dangerous
 
 If correlation is wrong:
-- One person may get another person’s access
+
+- One person may get another’s access
 - Certifications approve the wrong human
-- Audits become meaningless
+- Audits become lies
 
 This is where identity mistakes become security incidents.
 
 ---
 
-## How to Think When It Breaks
+## Debug Playbook
 
-Do not start with:
-“Why is access wrong?”
-
-Start with:
-“Is this account linked to the right person?”
-
-Ask in this order:
+When something looks wrong, ask in this order:
 
 1) What is the match key?  
 2) Is it stable over time?  
 3) Is it unique across people?  
-4) Are there duplicates in identity data?  
+4) Are there duplicate identity values?  
 5) Are there ambiguous matches?  
 
-Only after that, look at roles or access.
+Only after that, check roles or access.
+
+---
+
+## Visual Debug Flow
+
+```
+What is the match key?
+   ↓
+Is it stable?
+   ↓
+Is it unique?
+   ↓
+Any duplicates?
+   ↓
+Any ambiguous matches?
+```
 
 ---
 
@@ -219,13 +272,13 @@ Only after that, look at roles or access.
 
 Company used email as match key.
 
-Many people changed email during rebranding.
+Rebranding changed many emails.
 
 Next run:
 Old identities unmatched.  
-New identities created.  
-People duplicated.
+New identities created.
 
+People duplicated.  
 Access exploded.  
 Certifications broke.
 
@@ -234,27 +287,48 @@ Recognition was wrong.
 
 ---
 
-## How to Learn Correlation
+## Proof Paths
 
-If you can answer these, you understand correlation:
+To prove correlation health, check:
 
-- What question is ISC really answering here?  
-- Why is match key actually “recognition”?  
-- Why is uncorrelated uncertainty, not error?  
+- Identity records and their match key values  
+- Uncorrelated account list  
+- Ambiguous match list  
+- Duplicate values in identity data  
+
+Truth is in recognition patterns, not access lists.
+
+---
+
+## What Must Not Happen
+
+- Do not change match key casually  
+- Do not use unstable attributes  
+- Do not ignore ambiguity  
+- Do not debug access before recognition  
+
+---
+
+## The One Sentence That Defines Mastery
+
+Before you ask “Why is access wrong?”, ask:
+
+**Is this account linked to the right person?**
+
+---
+
+## Mastery Check
+
+Answer these without notes:
+
+- What question is correlation really answering?  
+- Why is match key recognition?  
+- Why is uncorrelated uncertainty?  
 - Why is ambiguous safer than guessing?  
-- Why do security disasters start here?  
+- Why do disasters start here?  
 
 ---
 
-## Mindset
-
-Correlation is not logic.  
-It is recognition.
-
-Once recognition is wrong,  
-everything built on top is wrong.
-
----
 
 ### Navigation
 ⬅️ Previous: [Part 5 – Persistence](./Part_5_Write_and_Persistence_Story.md)  
