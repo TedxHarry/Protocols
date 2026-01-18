@@ -1,88 +1,103 @@
-
-# Part 5 – Write and Persistence
+# Part 5 – Write and Persistence (Teaching Mastery Edition)
 
 [⬅️ Back to Home](../README.md)
 
 ---
 
-## Big Idea
+## Why This Part Exists
 
-This is the moment where data stops being “temporary” and becomes “real.”
+Part 4 shaped data so ISC could understand it.  
+Part 5 decides something more permanent:
 
-Before this step:
-Data was read.  
-Data was shaped.  
-Data could still be thrown away.
+**Should ISC remember this as truth?**
 
-After this step:
-Data becomes truth inside ISC.  
-Every later decision depends on what is written here.
+Before this step, data is temporary.  
+After this step, data becomes memory.
 
-Think of this as memory formation.  
 Once ISC remembers something, every future run will argue with that memory.
+
+Keep this sentence in mind:
+
+**Persistence is not storage. It is belief.**
 
 ---
 
-## Where This Fits in the Engine
+## Where This Fits in the End-to-End Flow
 
 Trigger → Extract → Normalize → **Persist** → Correlate → Evaluate → Recompute → Publish
 
-Persistence is where the system answers one deep question:
+Extraction copies reality.  
+Normalization shapes it.  
+Persistence decides:
 
-“Do I already know this thing, or am I seeing it for the first time?”
+“Have I seen this before, or is this new?”
 
-Everything else flows from that answer.
+Everything later depends on that answer.
 
 ---
 
-## What ISC Is Thinking During Persistence
+## The Mental Model (Use This Forever)
 
-When data reaches this phase, ISC is not asking:
-“Is this data correct?”
+```
+Incoming shaped data
+   → Compare with memory (unique ID)
+     → Create / Update / Missing-from-feed
+       → Memory is updated
+```
 
-It is asking:
-“Have I seen this identity before?”
+Persistence is a memory engine.  
+It does not judge correctness.  
+It only judges: **Have I seen you before?**
 
-It looks at one thing only: the Unique ID.
+---
 
-Then it thinks like this:
+## What ISC Is Really Doing Here
 
-- If I have never seen this Unique ID → Create  
-- If I have seen this Unique ID → Update  
-- If I used to see this Unique ID but don’t anymore → Missing-from-feed  
+When data reaches persistence, ISC is not asking:
 
-This is not business logic.  
-This is memory logic.
+- Is this data right?
+- Is this person valid?
+- Should they have access?
+
+It is asking only:
+
+**Do I already know this thing?**
+
+It checks one key: the **Unique ID**.
+
+Then it decides:
+
+- New Unique ID → Create  
+- Known Unique ID → Update  
+- Previously known but not seen now → Missing-from-feed  
+
+This is memory logic, not business logic.
 
 ---
 
 ## Unique ID: The Memory Key
 
-Unique ID is not just a field.  
-It is how ISC remembers.
+Unique ID is how ISC remembers.
 
-If this is stable:
-ISC remembers people across time.
+If it stays stable, ISC remembers people across time.  
+If it changes, ISC forgets and starts over.
 
-If this changes:
-ISC forgets and starts over.
-
-Example:
+### Guided Example
 
 Run 1:
 Alice has employeeId = 1001  
-ISC stores account with key 1001.
+ISC stores account with key = 1001
 
 Run 2:
 Alice still has employeeId = 1001  
-ISC says: I remember you → Update.
+ISC says: I remember you → Update
 
 Run 3:
-Unique ID changed to email.  
-Alice’s email changed last week.
+Unique ID changed to email  
+Alice’s email changed last week
 
-ISC now sees a “new” key.  
-It says: I don’t remember you → Create.
+ISC now sees a new key.  
+It says: I don’t remember you → Create
 
 Old Alice still exists.  
 New Alice is born.  
@@ -90,6 +105,17 @@ Duplicates appear.
 
 This is not a bug.  
 This is memory being reset.
+
+---
+
+## Mini Checkpoint
+
+Answer without looking:
+
+- What does Unique ID really represent?  
+- What happens if it changes?  
+
+If your answer is “memory,” you’re on track.
 
 ---
 
@@ -101,62 +127,52 @@ Unique ID: employeeId
 
 ### First Run
 HR sends: employeeId = 2002  
-ISC has never seen 2002 → Create Bob.
+ISC has never seen 2002 → Create Bob
 
 ### Second Run
 HR sends: employeeId = 2002, department changed  
-ISC recognizes 2002 → Update Bob.
+ISC recognizes 2002 → Update Bob
 
 ### Third Run
 HR does not send Bob at all  
-ISC only knows one thing:  
-Bob was not seen this time.
 
-ISC does NOT know:
-- Did Bob leave?
-- Was Bob filtered?
-- Did extraction fail?
+ISC does not know why.  
+It only knows: Bob was not seen this time.
 
-It only knows: Bob is missing-from-feed.
-
-What happens next depends on your rules.
+So Bob becomes: **Missing-from-feed**
 
 ---
 
 ## Missing-from-Feed: Uncertainty, Not Truth
 
-Missing-from-feed does not mean:
-“Person left.”
+Missing-from-feed does NOT mean:
+“Bob left.”
 
 It means:
-“I did not see this record in this run.”
+“I did not see Bob in this run.”
 
-Reasons can include:
-- Person really left
-- Source filtered them
-- Connector lost permission
+Possible reasons:
+- Bob really left
+- Filter excluded Bob
 - Pagination broke
-- Delta marker skipped data
+- Delta skipped Bob
+- Connector lost permission
 
-So persistence asks:
+Persistence now asks:
+
 “What should I do when I am unsure?”
 
-Your answer can be:
-- Disable
-- Delete
-- Ignore
-
-This is a philosophy choice, not just a setting.
+Your answer becomes policy.
 
 ---
 
 ## Disable vs Delete: Two Worldviews
 
-Disable says:
+### Disable says:
 “I don’t see you now, but I remember you.”  
 History stays. Audits stay. Context stays.
 
-Delete says:
+### Delete says:
 “I will forget you completely.”  
 History may vanish. Audits lose meaning.
 
@@ -164,76 +180,54 @@ Most enterprises choose disable because memory is safer than amnesia.
 
 ---
 
+## Interactive Scenario
+
+Source behavior:
+
+Run 1: Alice, Bob  
+Run 2: Alice only  
+
+Policy: Disable when missing
+
+Question: What does ISC believe after Run 2?
+
+Pause. Think.
+
+Answer:
+- Alice → active and updated  
+- Bob → exists but disabled  
+
+ISC now believes Bob is real, but inactive.  
+All later logic will trust that belief.
+
+---
+
 ## State Fields: The System’s Diary
 
-Every account keeps memory of decisions:
+Every account carries memory:
 
 - When it was created  
 - When it was last seen  
 - When it was last changed  
 - Whether it is disabled  
 
-These fields are not noise.  
-They are the diary of persistence.
+These fields tell the story of what ISC believed at each run.
 
-When something feels wrong, these fields tell you what ISC believed at each run.
-
----
-
-## Full Story Example
-
-Run 1:
-Alice, Bob exist → Created
-
-Run 2:
-Alice, Bob exist with changes → Updated
-
-Run 3:
-Alice exists, Bob missing → Missing-from-feed  
-Rule: Disable when missing
-
-Result:
-Alice updated  
-Bob disabled
-
-ISC now believes:
-Alice is active.  
-Bob exists but inactive.
-
-That belief will guide all future logic.
+When something looks wrong, read the diary before guessing.
 
 ---
 
 ## Why This Phase Is Dangerous
 
-Mistakes here do not look small.
+Mistakes here don’t look small.
 
 They look like:
-- Duplicates everywhere
-- Leavers still active
-- People disappearing
-- History becoming confusing
+- Duplicates everywhere  
+- Leavers still active  
+- People disappearing  
+- History becoming confusing  
 
 Because once memory is wrong, every future run argues with a lie.
-
----
-
-## How to Think When It Breaks
-
-Do not start with:
-“Why is access wrong?”
-
-Start with:
-“What does ISC think is real?”
-
-Ask in this order:
-
-1) What is the Unique ID?  
-2) Did it change?  
-3) What does missing-from-feed do?  
-4) What do state fields say happened?  
-
-Only after that, look at correlation or identity logic.
 
 ---
 
@@ -251,31 +245,88 @@ Old people still existed.
 New people were born.
 
 Security team panicked.  
-But persistence just did what it was told.
+Persistence just did what it was told.
 
 Memory was erased. Then rebuilt wrongly.
 
 ---
 
-## How to Learn This Phase
+## Debug Playbook (The Order Masters Use)
 
-If you can answer these, you truly understand persistence:
+When things look wrong, ask in this order:
 
-- What question is ISC really answering here?  
-- Why is unique ID actually “memory”?  
-- Why is missing-from-feed uncertainty, not truth?  
-- Why is disable safer than delete?  
-- Why do most disasters start here?  
+1) What is the Unique ID?  
+2) Did it change?  
+3) What does missing-from-feed do?  
+4) What do state fields say?  
+
+Only after that, check correlation or access logic.
 
 ---
 
-## Mindset
+## Visual Debug Flow
 
-Persistence is not storage.  
-It is belief.
+```
+What is the Unique ID?
+   ↓
+Did it change recently?
+   ↓
+Is object missing-from-feed?
+   ↓
+What did policy do (disable/delete/ignore)?
+   ↓
+Check state fields for history
+```
 
-Once ISC believes something,  
-everything else follows that belief.
+---
+
+## Proof Paths
+
+Use more than one view:
+
+- Account record (created, last seen, disabled flags)  
+- Job history  
+- API or UI state fields  
+
+Truth lives in memory fields, not assumptions.
+
+---
+
+## Safe Fixes
+
+- Unique ID wrong → fix and plan cleanup carefully  
+- Too many missing → check extraction first  
+- Disable/delete wrong → change policy and retest  
+- Duplicates exist → fix key, then reconcile  
+
+---
+
+## What Must Not Happen
+
+- Do not change Unique ID casually  
+- Do not delete unless legally required  
+- Do not ignore missing-from-feed patterns  
+- Do not debug access before memory  
+
+---
+
+## The One Sentence That Defines Mastery
+
+Before you ask “Why is access wrong?”, ask:
+
+**What does ISC think is real?**
+
+---
+
+## Mastery Check
+
+Answer these without notes:
+
+- What question is persistence really answering?  
+- Why is Unique ID actually memory?  
+- Why is missing-from-feed uncertainty?  
+- Why is disable safer than delete?  
+- Why do most disasters start here?  
 
 ---
 
