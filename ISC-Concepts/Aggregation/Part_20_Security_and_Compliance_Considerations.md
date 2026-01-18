@@ -238,6 +238,7 @@ If you can answer these, you understand security impacts:
 
 ---
 ### Navigation
-⬅️ Previous: [Part 19 – Change Management and Safe Updates](../Part_19_Change_Management_and_Safe_Updates.md)  
-🏠 Home: [README – Aggregation Master Series](../README.md)  
-➡️ Next: [Part 21 – Disaster Scenarios and Recovery](../part_21_disaster_scenarios_and_recovery.md)
+⬅️ Previous: [Part 19 – Change Management](./Part_19_Change_Management_and_Safe_Updates.md)  
+🏠 Home: [README](./README.md)  
+➡️ Next: [Part 21 – Disaster Scenarios](./Part_21_Disaster_Scenarios_and_Recovery.md)
+
