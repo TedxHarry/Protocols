@@ -301,8 +301,9 @@ Next, we go into **default correlation fallback and case sensitivity**, which ex
 
 ## Navigation
 
-**⬅ Back:** Part 7 – Custom Identity Attributes and Searchability  
-**➡ Next:** Part 9 – Default Correlation Fallback and Case Sensitivity
+**⬅ Back:** - [Part 7 – Custom Identity Attributes and Searchability](part_7_custom_identity_attributes_and_searchability.md)
+
+**⬅ Next:**- [Part 9 – Default Correlation Fallback and Case Sensitivity](part_9_default_correlation_fallback_and_case_sensitivity.md)
 
 ---
 
