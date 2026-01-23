@@ -212,8 +212,10 @@ Next, we move into **custom identity attributes and searchability**, where many 
 
 ## Navigation
 
-**⬅ Back:** Part 5 – Uncorrelated Accounts Resolution and Safe Fixes  
-**➡ Next:** Part 7 – Custom Identity Attributes and Searchability
+**⬅ Back:** - [Part 5 – Uncorrelated Accounts Resolution and Safe Fixes](part_5_uncorrelated_accounts_resolution.md)
+
+**➡ Next:** - [Part 7 – Custom Identity Attributes and Searchability](part_7_custom_identity_attributes_and_searchability.md)
+
 
 ---
 
