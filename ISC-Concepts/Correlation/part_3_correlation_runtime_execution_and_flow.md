@@ -212,8 +212,8 @@ Next, we cover correlation outcomes and downstream impact.
 
 ## Navigation
 
-**⬅ Back:** Part 2 – Account Correlation Configuration and Criteria Design  
-**➡ Next:** Part 4 – Correlation Outcomes and Result Semantics
+**⬅ Back:** - [Part 2 – Account Correlation Configuration and Criteria Design](part_2_account_correlation_configuration_and_design.md)
+**➡ Next:** - [Part 4 – Correlation Outcomes and Result Semantics](part_4_correlation_outcomes_and_semantics.md)
 
 ---
 
