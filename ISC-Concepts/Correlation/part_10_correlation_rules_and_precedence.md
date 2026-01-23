@@ -232,8 +232,9 @@ Next, we move into **manager correlation**, where identity relationships introdu
 
 ## Navigation
 
-**⬅ Back:** Part 9 – Default Correlation Fallback and Case Sensitivity  
-**➡ Next:** Part 11 – Manager Correlation and Hierarchical Identity Links
+**⬅ Back:**- [Part 9 – Default Correlation Fallback and Case Sensitivity](part_9_default_correlation_fallback_and_case_sensitivity.md)
+
+**⬅ Next:**- [Part 11 – Manager Correlation and Hierarchical Identity Links](part_11_manager_correlation_and_hierarchy.md)
 
 ---
 
