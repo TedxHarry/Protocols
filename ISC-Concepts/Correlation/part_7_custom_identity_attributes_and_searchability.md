@@ -219,8 +219,9 @@ Next, we move into **manual correlation behavior and permanence**.
 
 ## Navigation
 
-**⬅ Back:** Part 6 – Correlation Recommendations and Optimization Logic  
-**➡ Next:** Part 8 – Manual Correlation, Permanence, and Risk
+**⬅ Back:** - [Part 6 – Correlation Recommendations and Optimization Logic](part_6_correlation_recommendations_and_optimization.md)
+
+**➡ Next:**  [Part 8 – Manual Correlation, Permanence, and Risk](part_8_manual_correlation_permanence_and_risk.md)
 
 ---
 
