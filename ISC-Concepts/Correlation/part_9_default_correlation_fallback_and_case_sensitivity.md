@@ -236,8 +236,9 @@ Next, we move into **correlation rules and precedence**, where logic becomes pro
 
 ## Navigation
 
-**⬅ Back:** Part 8 – Manual Correlation, Permanence, and Risk  
-**➡ Next:** Part 10 – Correlation Rules and Precedence
+**⬅ Back:** - [Part 8 – Manual Correlation, Permanence, and Risk](part_8_manual_correlation_permanence_and_risk.md)
+
+**⬅ Next:**- [Part 10 – Correlation Rules and Precedence](part_10_correlation_rules_and_precedence.md)
 
 ---
 
