@@ -220,7 +220,7 @@ If you achieve those, governance works.
 
 ## Navigation
 
-**⬅ Back:** Part 14 – Advanced Correlation Scenarios and Edge Cases  
+**⬅ Back:**- [Part 14 – Advanced Correlation Scenarios and Edge Cases](part_14_advanced_correlation_scenarios_and_edge_cases.md)
 **🏁 End:** Correlation Mastery Series Complete
 
 ---
