@@ -273,8 +273,10 @@ This completes the **Correlation Mastery Core Series**.
 
 ## Navigation
 
-**⬅ Back:** Part 12 – Sequencing Strategies for Clean Correlation and Manager Resolution  
-**➡ Next:** Part 14 – Advanced Correlation Scenarios and Edge Cases
+
+**⬅ Back:**- [Part 12 – Sequencing Strategies for Clean Correlation](part_12_sequencing_strategies_for_clean_correlation.md)
+
+**⬅ Next:**- [Part 14 – Advanced Correlation Scenarios and Edge Cases](part_14_advanced_correlation_scenarios_and_edge_cases.md)
 
 ---
 
