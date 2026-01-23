@@ -249,8 +249,9 @@ Next, we move into **how to resolve uncorrelated accounts safely**.
 
 ## Navigation
 
-**⬅ Back:** Part 3 – Correlation Runtime Execution and Data Flow  
-**➡ Next:** Part 5 – Uncorrelated Accounts Resolution and Safe Fixes
+**⬅ Back:** - [Part 3 – Correlation Runtime Execution and Data Flow](part_3_correlation_runtime_execution_and_flow.md)
+
+**➡ Next:** - [Part 5 – Uncorrelated Accounts Resolution and Safe Fixes](part_5_uncorrelated_accounts_resolution.md)
 
 ---
 
