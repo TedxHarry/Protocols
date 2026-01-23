@@ -231,8 +231,8 @@ Only now does correlation configuration become meaningful.
 
 ## Navigation
 
-**⬅ Back:** Part 0 – Correlation Mental Model, Configuration Meaning, and Runtime Flow  
-**➡ Next:** Part 2 – Account Correlation Configuration and Criteria Design
+**⬅ Back:** - [Part 0 – Correlation Mental Model](part_0_correlation_master_series.md)
+**➡ Next:** - [Part 2 – Account Correlation Configuration and Criteria Design](part_2_account_correlation_configuration_and_design.md)
 
 ---
 
