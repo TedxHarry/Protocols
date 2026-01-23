@@ -241,8 +241,9 @@ This completes the **Correlation Mastery Series**.
 
 ## Navigation
 
-**⬅ Back:** Part 13 – End-to-End Correlation Troubleshooting Playbook  
-**➡ Next:** (Optional) Part 15 – Correlation Design Review Checklist and Governance Readiness
+**⬅ Back:**- [Part 13 – End-to-End Correlation Troubleshooting Playbook](part_13_end_to_end_correlation_troubleshooting_playbook.md)
+
+**⬅ Next:**- [Part 15 – Correlation Design Review and Governance Readiness](part_15_correlation_design_review_and_governance_readiness.md)
 
 ---
 
