@@ -322,7 +322,7 @@ Only now does deeper configuration make sense.
 ## Navigation
 
 **⬅ Back:** README – Correlation Master Series  
-**➡ Next:** Part 1 – Identity Readiness and Correlation Prerequisites
+**➡ Next:** - [Part 1 – Identity Readiness and Correlation Prerequisites](part_1_identity_readiness_and_correlation_prereqs.md)
 
 ---
 
