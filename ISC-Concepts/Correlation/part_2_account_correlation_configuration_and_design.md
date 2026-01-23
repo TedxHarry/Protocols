@@ -249,8 +249,8 @@ Next, we will trace **exact runtime execution** with logs, states, and outcomes.
 
 ## Navigation
 
-**⬅ Back:** Part 1 – Identity Readiness and Correlation Prerequisites  
-**➡ Next:** Part 3 – Correlation Runtime Execution and Data Flow
+**⬅ Back:** [Part 1 – Identity Readiness and Correlation Prerequisites](part_1_identity_readiness_and_correlation_prereqs.md)
+**➡ Next:** [Part 3 – Correlation Runtime Execution and Data Flow](part_3_correlation_runtime_execution_and_flow.md)
 
 ---
 
