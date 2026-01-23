@@ -206,8 +206,9 @@ Next, we move into recommendations and optimization logic.
 
 ## Navigation
 
-**⬅ Back:** Part 4 – Correlation Outcomes and Result Semantics  
-**➡ Next:** Part 6 – Correlation Recommendations and Optimization Logic
+**⬅ Back:** - [Part 4 – Correlation Outcomes and Result Semantics](part_4_correlation_outcomes_and_semantics.md)
+
+**➡ Next:** - [Part 6 – Correlation Recommendations and Optimization Logic](part_6_correlation_recommendations_and_optimization.md)
 
 ---
 
