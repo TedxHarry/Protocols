@@ -234,8 +234,10 @@ Next, we move into **end-to-end correlation troubleshooting**, tying every previ
 
 ## Navigation
 
-**⬅ Back:** Part 11 – Manager Correlation and Hierarchical Identity Links  
-**➡ Next:** Part 13 – End-to-End Correlation Troubleshooting Playbook
+
+**⬅ Back:**- [Part 11 – Manager Correlation and Hierarchical Identity Links](part_11_manager_correlation_and_hierarchy.md)
+
+**⬅ Next:**- [Part 13 – End-to-End Correlation Troubleshooting Playbook](part_13_end_to_end_correlation_troubleshooting_playbook.md)
 
 ---
 
