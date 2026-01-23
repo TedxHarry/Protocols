@@ -253,8 +253,9 @@ Next, we go deeper into **sequencing strategies** and how to design aggregation 
 
 ## Navigation
 
-**⬅ Back:** Part 10 – Correlation Rules and Precedence  
-**➡ Next:** Part 12 – Sequencing Strategies for Clean Correlation and Manager Resolution
+**⬅ Back:**- [Part 10 – Correlation Rules and Precedence](part_10_correlation_rules_and_precedence.md)
+
+**⬅ Next:**- [Part 12 – Sequencing Strategies for Clean Correlation](part_12_sequencing_strategies_for_clean_correlation.md)
 
 ---
 
