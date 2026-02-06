@@ -24,28 +24,6 @@
 
 ---
 
-## Understanding This Dual Format
-
-Starting with Day 5, each transform example shows BOTH:
-
-### Left Side: UI Configuration (How You Build It)
-```
-This describes what you see and click in the SailPoint web interface
-```
-
-### Right Side: JSON Structure (What Gets Stored)
-```json
-{
-  "This shows the underlying JSON structure"
-}
-```
-
-**Why Both?**
-
-- **UI:** For learning and daily configuration
-- **JSON:** For understanding structure and future API work
-- **Together:** Complete understanding of how transforms work
-
 > **Note:** JSON examples are based on SailPoint's transform structure. Exact syntax may vary by ISC version. Always verify in your environment's API documentation.
 
 ---
