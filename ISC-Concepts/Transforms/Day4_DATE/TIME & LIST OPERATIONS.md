@@ -131,7 +131,7 @@ OUTPUT: 2024-01-15T00:00:00Z
 
 **Scenario:** Workday provides hire_date as "01/15/2024", convert to ISO 8601.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Go to Identity Profile > Mappings
 2. Create attribute "hireDateISO"
@@ -145,6 +145,24 @@ OUTPUT: 2024-01-15T00:00:00Z
 
 6. Preview with identities
 7. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "hireDateISO",
+  "type": "dateFormat",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "hire_date"
+      }
+    },
+    "inputFormat": "MM/dd/yyyy",
+    "outputFormat": "ISO8601"
+  }
+}
 ```
 
 ---
@@ -174,7 +192,7 @@ Test Case 4:
 
 **Scenario:** PeopleSoft provides term_date as "15-Jan-2024".
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create attribute "termDateISO"
 2. Transform: Date Format
@@ -186,6 +204,24 @@ Test Case 4:
 
 4. Preview
 5. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "termDateISO",
+  "type": "dateFormat",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "term_date"
+      }
+    },
+    "inputFormat": "dd-MMM-yyyy",
+    "outputFormat": "ISO8601"
+  }
+}
 ```
 
 ---
@@ -207,7 +243,7 @@ Test Case 2:
 
 **Scenario:** Active Directory stores dates as "20240115".
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create attribute "adDateISO"
 2. Transform: Date Format
@@ -219,6 +255,24 @@ Test Case 2:
 
 4. Preview
 5. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "adDateISO",
+  "type": "dateFormat",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "ad_date_field"
+      }
+    },
+    "inputFormat": "yyyyMMdd",
+    "outputFormat": "ISO8601"
+  }
+}
 ```
 
 ---
@@ -280,7 +334,7 @@ OUTPUT: 2024-04-14T00:00:00Z
 
 **Scenario:** Probation ends 90 days after hire date.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. First, ensure hire_date is in ISO8601 format
    (Use hireDateISO from Exercise 1A)
@@ -296,6 +350,23 @@ OUTPUT: 2024-04-14T00:00:00Z
 
 5. Preview
 6. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "probationEndDate",
+  "type": "dateMath",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "hireDateISO"
+      }
+    },
+    "expression": "+90d"
+  }
+}
 ```
 
 ---
@@ -323,7 +394,7 @@ Test Case 3:
 
 **Scenario:** Contractor accounts expire 1 year after hire date.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create attribute "accountExpirationDate"
 2. Transform: Date Math
@@ -336,6 +407,23 @@ Test Case 3:
 
 4. Preview
 5. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "accountExpirationDate",
+  "type": "dateMath",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "hireDateISO"
+      }
+    },
+    "expression": "+1y"
+  }
+}
 ```
 
 ---
@@ -359,7 +447,7 @@ Test Case 2:
 
 **Scenario:** Archive identities if terminated more than 90 days ago.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create attribute "ninetyDaysAgo"
 2. Transform: Date Math
@@ -377,13 +465,27 @@ Test Case 2:
 
 For this exercise, understand the concept: subtracting days moves backwards in time.
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "ninetyDaysAgo",
+  "type": "dateMath",
+  "attributes": {
+    "input": {
+      "type": "now"
+    },
+    "expression": "-90d"
+  }
+}
+```
+
 ---
 
 ### Exercise 2D: Add Time Component to Date
 
 **Scenario:** Set processing time to 6:00 AM on hire date.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create attribute "hireDateWithTime"
 2. Transform chain:
@@ -401,6 +503,30 @@ For this exercise, understand the concept: subtracting days moves backwards in t
      Output: "2024-01-15T06:00:00Z"
 
 3. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "hireDateWithTime",
+  "type": "dateFormat",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "hire_date"
+      }
+    },
+    "inputFormat": "MM/dd/yyyy",
+    "outputFormat": "ISO8601",
+    "next": {
+      "type": "dateMath",
+      "attributes": {
+        "expression": "+6h"
+      }
+    }
+  }
+}
 ```
 
 ---
@@ -452,7 +578,7 @@ OUTPUT: false (Jan 15 is NOT greater than Feb 6)
 
 **Scenario:** Determine if employee is pre-hire (hire date > today).
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create attribute "isPreHire"
 2. Transform chain:
@@ -473,6 +599,28 @@ OUTPUT: false (Jan 15 is NOT greater than Feb 6)
 > - Some have "now" or "today" built-in reference
 > - Some require using a special transform
 > - For this exercise, understand the concept
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "isPreHire",
+  "type": "dateCompare",
+  "attributes": {
+    "firstDate": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "hireDateISO"
+      }
+    },
+    "secondDate": {
+      "type": "now"
+    },
+    "operator": "gt",
+    "positiveCondition": "true",
+    "negativeCondition": "false"
+  }
+}
+```
 
 ---
 
@@ -502,7 +650,7 @@ Test Case 3:
 
 **Scenario:** Determine if employee is terminated (term_date exists and <= today).
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create attribute "isTerminated"
 2. Transform chain:
@@ -519,6 +667,35 @@ Test Case 3:
      Output: true or false
 
 3. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "isTerminated",
+  "type": "conditional",
+  "attributes": {
+    "expression": "termDateISO ne null",
+    "positiveCondition": {
+      "type": "dateCompare",
+      "attributes": {
+        "firstDate": {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "termDateISO"
+          }
+        },
+        "secondDate": {
+          "type": "now"
+        },
+        "operator": "lte",
+        "positiveCondition": "true",
+        "negativeCondition": "false"
+      }
+    },
+    "negativeCondition": "false"
+  }
+}
 ```
 
 ---
@@ -548,7 +725,7 @@ Test Case 3:
 
 **Scenario:** Archive if terminated more than 90 days ago.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create helper attribute: ninetyDaysAgoDate
    Transform: Date Math
@@ -571,6 +748,52 @@ Test Case 3:
      Output: true or false
 
 3. Save
+```
+
+#### JSON Style: Helper Attribute
+```json
+{
+  "name": "ninetyDaysAgoDate",
+  "type": "dateMath",
+  "attributes": {
+    "input": {
+      "type": "now"
+    },
+    "expression": "-90d"
+  }
+}
+```
+
+#### JSON Style: Final Attribute
+```json
+{
+  "name": "shouldBeArchived",
+  "type": "conditional",
+  "attributes": {
+    "expression": "termDateISO ne null",
+    "positiveCondition": {
+      "type": "dateCompare",
+      "attributes": {
+        "firstDate": {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "termDateISO"
+          }
+        },
+        "secondDate": {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "ninetyDaysAgoDate"
+          }
+        },
+        "operator": "lte",
+        "positiveCondition": "true",
+        "negativeCondition": "false"
+      }
+    },
+    "negativeCondition": "false"
+  }
+}
 ```
 
 ---
@@ -601,7 +824,7 @@ Test Case 3:
 
 **Scenario:** Check if end_date is after start_date (validation).
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create attribute "isValidDateRange"
 2. Transform chain:
@@ -618,6 +841,38 @@ Test Case 3:
      Output: true or false
 
 3. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "isValidDateRange",
+  "type": "conditional",
+  "attributes": {
+    "expression": "startDateISO ne null && endDateISO ne null",
+    "positiveCondition": {
+      "type": "dateCompare",
+      "attributes": {
+        "firstDate": {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "endDateISO"
+          }
+        },
+        "secondDate": {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "startDateISO"
+          }
+        },
+        "operator": "gt",
+        "positiveCondition": "true",
+        "negativeCondition": "false"
+      }
+    },
+    "negativeCondition": "true"
+  }
+}
 ```
 
 ---
@@ -676,6 +931,8 @@ Logic:
 ---
 
 ### Step 1: Prepare Date Fields
+
+#### UI Style: Steps
 ```
 1. Attribute: hireDateISO
    Transform: Date Format
@@ -695,9 +952,63 @@ Logic:
      Operation: Subtract 90 days
 ```
 
+#### JSON Style: Transform Definitions
+
+**hireDateISO:**
+```json
+{
+  "name": "hireDateISO",
+  "type": "dateFormat",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "hire_date"
+      }
+    },
+    "inputFormat": "MM/dd/yyyy",
+    "outputFormat": "ISO8601"
+  }
+}
+```
+
+**termDateISO:**
+```json
+{
+  "name": "termDateISO",
+  "type": "dateFormat",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "term_date"
+      }
+    },
+    "inputFormat": "MM/dd/yyyy",
+    "outputFormat": "ISO8601"
+  }
+}
+```
+
+**ninetyDaysAgo:**
+```json
+{
+  "name": "ninetyDaysAgo",
+  "type": "dateMath",
+  "attributes": {
+    "input": {
+      "type": "now"
+    },
+    "expression": "-90d"
+  }
+}
+```
+
 ---
 
 ### Step 2: Build Lifecycle State Logic
+
+#### UI Style: Steps
 ```
 Attribute: lifecycleState
 Transform chain:
@@ -734,6 +1045,8 @@ Transform 4: Conditional
 ### Better Approach: Helper Attributes
 
 Create boolean helpers for clarity:
+
+#### UI Style: Create Helpers
 ```
 Helper 1: isHireDateFuture
   Transform: Date Compare (hireDateISO > today)
@@ -754,6 +1067,125 @@ Final: lifecycleState
   - If termDateISO ne null AND isTermDateOld = true --> "Archived"
   - If termDateISO ne null AND isTermDatePast = true --> "Terminated"
   - Else --> "Active"
+```
+
+#### JSON Style: Helper Attributes
+
+**isHireDateFuture:**
+```json
+{
+  "name": "isHireDateFuture",
+  "type": "dateCompare",
+  "attributes": {
+    "firstDate": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "hireDateISO"
+      }
+    },
+    "secondDate": {
+      "type": "now"
+    },
+    "operator": "gt",
+    "positiveCondition": "true",
+    "negativeCondition": "false"
+  }
+}
+```
+
+**isTermDatePast:**
+```json
+{
+  "name": "isTermDatePast",
+  "type": "conditional",
+  "attributes": {
+    "expression": "termDateISO ne null",
+    "positiveCondition": {
+      "type": "dateCompare",
+      "attributes": {
+        "firstDate": {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "termDateISO"
+          }
+        },
+        "secondDate": {
+          "type": "now"
+        },
+        "operator": "lte",
+        "positiveCondition": "true",
+        "negativeCondition": "false"
+      }
+    },
+    "negativeCondition": "false"
+  }
+}
+```
+
+**isTermDateOld:**
+```json
+{
+  "name": "isTermDateOld",
+  "type": "conditional",
+  "attributes": {
+    "expression": "termDateISO ne null",
+    "positiveCondition": {
+      "type": "dateCompare",
+      "attributes": {
+        "firstDate": {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "termDateISO"
+          }
+        },
+        "secondDate": {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "ninetyDaysAgo"
+          }
+        },
+        "operator": "lte",
+        "positiveCondition": "true",
+        "negativeCondition": "false"
+      }
+    },
+    "negativeCondition": "false"
+  }
+}
+```
+
+**Final lifecycleState:**
+```json
+{
+  "name": "lifecycleState",
+  "type": "conditional",
+  "attributes": {
+    "expression": "leave_flag eq true",
+    "positiveCondition": "Leave of Absence",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "isHireDateFuture eq \"true\"",
+        "positiveCondition": "Pre-hire",
+        "negativeCondition": {
+          "type": "conditional",
+          "attributes": {
+            "expression": "isTermDateOld eq \"true\"",
+            "positiveCondition": "Archived",
+            "negativeCondition": {
+              "type": "conditional",
+              "attributes": {
+                "expression": "isTermDatePast eq \"true\"",
+                "positiveCondition": "Terminated",
+                "negativeCondition": "Active"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
 ---
@@ -852,6 +1284,7 @@ Test Case 5: Leave of Absence
 - ✅ Helper attributes for date logic
 - ✅ Null date handling
 - ✅ Production-ready lifecycle state calculation
+- ✅ Both UI and JSON configuration
 
 ---
 
@@ -951,33 +1384,108 @@ What transforms do you need?
 **Answer:**
 
 **Step 1: Format dates**
+
+**JSON Style:**
+```json
+{
+  "name": "hireDateISO",
+  "type": "dateFormat",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "hire_date"
+      }
+    },
+    "inputFormat": "MM/dd/yyyy",
+    "outputFormat": "ISO8601"
+  }
+}
 ```
-Transform: Date Format
-  hire_date (MM/dd/yyyy) --> hireDateISO (ISO8601)
-  term_date (MM/dd/yyyy) --> termDateISO (ISO8601)
+```json
+{
+  "name": "termDateISO",
+  "type": "dateFormat",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "term_date"
+      }
+    },
+    "inputFormat": "MM/dd/yyyy",
+    "outputFormat": "ISO8601"
+  }
+}
 ```
 
 **Step 2: Create date comparison helpers**
+```json
+{
+  "name": "isPreHire",
+  "type": "dateCompare",
+  "attributes": {
+    "firstDate": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "hireDateISO"
+      }
+    },
+    "secondDate": {
+      "type": "now"
+    },
+    "operator": "gt",
+    "positiveCondition": "true",
+    "negativeCondition": "false"
+  }
+}
 ```
-Attribute: isPreHire
-  Transform: Date Compare
-    hireDateISO > today
-    Output: true/false
-
-Attribute: isTerminated
-  Transform: Conditional + Date Compare
-    If termDateISO ne null
-      Then: Date Compare (termDateISO <= today)
-      Else: false
+```json
+{
+  "name": "isTerminated",
+  "type": "conditional",
+  "attributes": {
+    "expression": "termDateISO ne null",
+    "positiveCondition": {
+      "type": "dateCompare",
+      "attributes": {
+        "firstDate": {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "termDateISO"
+          }
+        },
+        "secondDate": {
+          "type": "now"
+        },
+        "operator": "lte",
+        "positiveCondition": "true",
+        "negativeCondition": "false"
+      }
+    },
+    "negativeCondition": "false"
+  }
+}
 ```
 
 **Step 3: Build lifecycle state**
-```
-Attribute: lifecycleState
-  Transform: Conditional chain
-    If isPreHire = true --> "Pre-hire"
-    If isTerminated = true --> "Terminated"
-    Else --> "Active"
+```json
+{
+  "name": "lifecycleState",
+  "type": "conditional",
+  "attributes": {
+    "expression": "isPreHire eq \"true\"",
+    "positiveCondition": "Pre-hire",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "isTerminated eq \"true\"",
+        "positiveCondition": "Terminated",
+        "negativeCondition": "Active"
+      }
+    }
+  }
+}
 ```
 
 </details>
@@ -1005,18 +1513,37 @@ Source provides: "01/15/2024" (MM/dd/yyyy)
 Date Compare requires: ISO 8601 format
 
 **Fix:**
-```
-Transform chain:
-1. Date Format
-   Input: hire_date
-   Input Format: MM/dd/yyyy
-   Output Format: ISO8601
-   Output: "2024-01-15T00:00:00Z"
 
-2. Date Compare
-   Input: Output from step 1
-   Compare: > today
-   Output: true/false
+**JSON Style:**
+```json
+{
+  "name": "hireDateISO",
+  "type": "dateFormat",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "hire_date"
+      }
+    },
+    "inputFormat": "MM/dd/yyyy",
+    "outputFormat": "ISO8601",
+    "next": {
+      "type": "dateCompare",
+      "attributes": {
+        "firstDate": {
+          "type": "reference"
+        },
+        "secondDate": {
+          "type": "now"
+        },
+        "operator": "gt",
+        "positiveCondition": "true",
+        "negativeCondition": "false"
+      }
+    }
+  }
+}
 ```
 
 **Key Learning:** ALWAYS convert to ISO8601 before date operations!
@@ -1038,6 +1565,7 @@ Transform chain:
 - ✅ Date-based conditionals
 - ✅ Proper lifecycle state calculation
 - ✅ Helper attribute pattern for dates
+- ✅ Both UI and JSON configuration
 
 ---
 
