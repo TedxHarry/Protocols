@@ -106,7 +106,7 @@ OUTPUT: ["John", "Smith", "Engineer"]
 
 **Scenario:** Source provides "Lastname, Firstname" and you need to separate them.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Go to Identity Profile > Mappings
 2. Create attribute "nameParts"
@@ -121,6 +121,23 @@ OUTPUT: ["John", "Smith", "Engineer"]
 ```
 
 > **Note:** Verify Split transform exists in your ISC version and note exact configuration options.
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "nameParts",
+  "type": "split",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "full_name"
+      }
+    },
+    "delimiter": ","
+  }
+}
+```
 
 ---
 
@@ -152,7 +169,7 @@ Test Case 4:
 
 **Scenario:** Extract username and domain from email.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create attribute "emailParts"
 2. Transform: Split
@@ -163,6 +180,23 @@ Test Case 4:
 
 4. Preview
 5. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "emailParts",
+  "type": "split",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "email"
+      }
+    },
+    "delimiter": "@"
+  }
+}
 ```
 
 ---
@@ -191,7 +225,7 @@ Test Case 3:
 
 **Scenario:** Parse AD group DN to extract group name.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Input: "CN=Admins,OU=Groups,DC=company,DC=com"
 2. Create attribute "dnParts"
@@ -205,6 +239,23 @@ Test Case 3:
 6. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "dnParts",
+  "type": "split",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "ad_group_dn"
+      }
+    },
+    "delimiter": ","
+  }
+}
+```
+
 ---
 
 ### Exercise 1D: Split with Multiple Delimiters
@@ -214,6 +265,8 @@ Test Case 3:
 **Challenge:** Has both "," and "-" delimiters.
 
 **Solution:** Split twice (chain splits):
+
+#### UI Style: Steps
 ```
 Transform chain:
 1. Split by ","
@@ -271,7 +324,7 @@ Position 3 = Error (out of bounds)
 
 **Scenario:** After splitting "Smith, John", get the firstname.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. First, create the split (from Exercise 1A)
    Attribute: nameParts
@@ -293,6 +346,26 @@ Position 3 = Error (out of bounds)
      Output: "John"
 
 4. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "firstname",
+  "type": "index",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "nameParts"
+      }
+    },
+    "index": 1,
+    "next": {
+      "type": "trim"
+    }
+  }
+}
 ```
 
 ---
@@ -317,6 +390,8 @@ Test Case 2:
 ### Exercise 2B: Extract Lastname
 
 **Scenario:** Get lastname from same split.
+
+#### UI Style: Steps
 ```
 Attribute: lastname
 Transform chain:
@@ -329,13 +404,33 @@ Transform chain:
    Output: "Smith"
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "lastname",
+  "type": "index",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "nameParts"
+      }
+    },
+    "index": 0,
+    "next": {
+      "type": "trim"
+    }
+  }
+}
+```
+
 ---
 
 ### Exercise 2C: Extract Email Domain
 
 **Scenario:** Get domain from email address.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. First, split email (from Exercise 1B)
    emailParts = ["john.smith", "company.com"]
@@ -347,6 +442,23 @@ Transform chain:
    Output: "company.com"
 
 4. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "emailDomain",
+  "type": "index",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "emailParts"
+      }
+    },
+    "index": 1
+  }
+}
 ```
 
 ---
@@ -369,6 +481,8 @@ Test Case 2:
 ### Exercise 2D: Extract Username from Email
 
 **Scenario:** Get username part before @.
+
+#### UI Style: Steps
 ```
 Attribute: emailUsername
 Transform: Index
@@ -377,13 +491,30 @@ Transform: Index
   Output: "john.smith"
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "emailUsername",
+  "type": "index",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "emailParts"
+      }
+    },
+    "index": 0
+  }
+}
+```
+
 ---
 
 ### Exercise 2E: Get First AD Group
 
 **Scenario:** User has multiple AD groups, get the first one.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Get AD groups (multi-value attribute)
    Attribute: adGroups
@@ -401,6 +532,24 @@ Transform: Index
 4. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "primaryGroup",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "memberOf",
+    "next": {
+      "type": "index",
+      "attributes": {
+        "index": 0
+      }
+    }
+  }
+}
+```
+
 ---
 
 ### Exercise 2F: Handle Out of Bounds
@@ -414,6 +563,8 @@ Result: null or error (depends on ISC version)
 ```
 
 **Best Practice:** Always ensure array has enough items before accessing position.
+
+#### UI Style: Steps
 ```
 Use Conditional:
   IF array_length >= 3
@@ -456,7 +607,7 @@ OUTPUT: "John, Smith, Engineer"
 
 **Scenario:** After splitting and processing, rejoin with different format.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Have array: ["John", "Smith"]
 2. Create attribute "fullNameFormatted"
@@ -468,6 +619,23 @@ OUTPUT: "John, Smith, Engineer"
 
 5. Output: "John Smith"
 6. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "fullNameFormatted",
+  "type": "join",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "namePartsArray"
+      }
+    },
+    "delimiter": " "
+  }
+}
 ```
 
 ---
@@ -496,7 +664,7 @@ Test Case 3:
 
 **Scenario:** Display all AD groups as semicolon-separated string.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Input: adGroups = ["CN=Admins,...", "CN=Developers,...", "CN=Engineering,..."]
 
@@ -507,6 +675,24 @@ Test Case 3:
 
 4. Output: "CN=Admins,...; CN=Developers,...; CN=Engineering,..."
 5. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "adGroupsString",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "memberOf",
+    "next": {
+      "type": "join",
+      "attributes": {
+        "delimiter": "; "
+      }
+    }
+  }
+}
 ```
 
 ---
@@ -534,6 +720,8 @@ Test Case 3:
 ### Exercise 3C: Join Skills List
 
 **Scenario:** Combine skills from multi-value attribute.
+
+#### UI Style: Steps
 ```
 Input: skills = ["Java", "Python", "SQL", "AWS"]
 
@@ -543,6 +731,23 @@ Transform: Join
   Delimiter: " | "
 
 Output: "Java | Python | SQL | AWS"
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "skillsSummary",
+  "type": "join",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "skills"
+      }
+    },
+    "delimiter": " | "
+  }
+}
 ```
 
 ---
@@ -586,6 +791,8 @@ Final Output: "Admins"
 ---
 
 #### Steps to Build
+
+#### UI Style: Steps
 ```
 1. Create attribute "primaryGroupName"
 2. Build transform chain:
@@ -618,6 +825,48 @@ Final Output: "Admins"
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "primaryGroupName",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "memberOf",
+    "next": {
+      "type": "index",
+      "attributes": {
+        "index": 0,
+        "next": {
+          "type": "split",
+          "attributes": {
+            "delimiter": ",",
+            "next": {
+              "type": "index",
+              "attributes": {
+                "index": 0,
+                "next": {
+                  "type": "split",
+                  "attributes": {
+                    "delimiter": "=",
+                    "next": {
+                      "type": "index",
+                      "attributes": {
+                        "index": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
 ---
 
 #### Test Cases
@@ -642,36 +891,139 @@ Test Case 3:
 **Goal:** From "Austin, TX - Building 2" extract city, state, and building.
 
 #### Complete Transform Chain
+
+#### Extract City:
+
+#### UI Style: Steps
 ```
-Input: "Austin, TX - Building 2"
+Transform 1: Split by ","
+  Output: ["Austin", " TX - Building 2"]
+Transform 2: Index (position 0)
+  Output: "Austin"
+Transform 3: Trim
+  Output: "Austin"
+```
 
-Extract City:
-  Transform 1: Split by ","
-    Output: ["Austin", " TX - Building 2"]
-  Transform 2: Index (position 0)
-    Output: "Austin"
-  Transform 3: Trim
-    Output: "Austin"
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "city",
+  "type": "split",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "office_location"
+      }
+    },
+    "delimiter": ",",
+    "next": {
+      "type": "index",
+      "attributes": {
+        "index": 0,
+        "next": {
+          "type": "trim"
+        }
+      }
+    }
+  }
+}
+```
 
-Extract State:
-  Transform 1: Split by ","
-    Output: ["Austin", " TX - Building 2"]
-  Transform 2: Index (position 1)
-    Output: " TX - Building 2"
-  Transform 3: Split by "-"
-    Output: [" TX ", " Building 2"]
-  Transform 4: Index (position 0)
-    Output: " TX "
-  Transform 5: Trim
-    Output: "TX"
+---
 
-Extract Building:
-  Transform 1: Split by "-"
-    Output: ["Austin, TX ", " Building 2"]
-  Transform 2: Index (position 1)
-    Output: " Building 2"
-  Transform 3: Trim
-    Output: "Building 2"
+#### Extract State:
+
+#### UI Style: Steps
+```
+Transform 1: Split by ","
+  Output: ["Austin", " TX - Building 2"]
+Transform 2: Index (position 1)
+  Output: " TX - Building 2"
+Transform 3: Split by "-"
+  Output: [" TX ", " Building 2"]
+Transform 4: Index (position 0)
+  Output: " TX "
+Transform 5: Trim
+  Output: "TX"
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "state",
+  "type": "split",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "office_location"
+      }
+    },
+    "delimiter": ",",
+    "next": {
+      "type": "index",
+      "attributes": {
+        "index": 1,
+        "next": {
+          "type": "split",
+          "attributes": {
+            "delimiter": "-",
+            "next": {
+              "type": "index",
+              "attributes": {
+                "index": 0,
+                "next": {
+                  "type": "trim"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+#### Extract Building:
+
+#### UI Style: Steps
+```
+Transform 1: Split by "-"
+  Output: ["Austin, TX ", " Building 2"]
+Transform 2: Index (position 1)
+  Output: " Building 2"
+Transform 3: Trim
+  Output: "Building 2"
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "building",
+  "type": "split",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "office_location"
+      }
+    },
+    "delimiter": "-",
+    "next": {
+      "type": "index",
+      "attributes": {
+        "index": 1,
+        "next": {
+          "type": "trim"
+        }
+      }
+    }
+  }
+}
 ```
 
 ---
@@ -681,6 +1033,8 @@ Extract Building:
 **Goal:** From "john.smith@company.com" create "SMITH, John".
 
 #### Complete Transform Chain
+
+#### UI Style: Steps
 ```
 Input: "john.smith@company.com"
 
@@ -756,6 +1110,8 @@ This is a **common SailPoint pattern** for time-based identity processing.
 ### Step 1: Prepare Dates (15 min)
 
 #### Convert Source Dates to ISO8601
+
+#### UI Style: Steps
 ```
 1. Attribute: startDateISO
    Transform: Date Format
@@ -770,9 +1126,49 @@ This is a **common SailPoint pattern** for time-based identity processing.
      Output Format: ISO8601
 ```
 
+#### JSON Style: Transform Definitions
+
+**startDateISO:**
+```json
+{
+  "name": "startDateISO",
+  "type": "dateFormat",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "start_date"
+      }
+    },
+    "inputFormat": "MM/dd/yyyy",
+    "outputFormat": "ISO8601"
+  }
+}
+```
+
+**endDateISO:**
+```json
+{
+  "name": "endDateISO",
+  "type": "dateFormat",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "end_date"
+      }
+    },
+    "inputFormat": "MM/dd/yyyy",
+    "outputFormat": "ISO8601"
+  }
+}
+```
+
 ---
 
 ### Step 2: Create Date Comparison Helpers (5 min)
+
+#### UI Style: Steps
 ```
 1. Attribute: isStartDateFuture
    Transform: Date Compare
@@ -789,9 +1185,57 @@ This is a **common SailPoint pattern** for time-based identity processing.
      Output: true/false
 ```
 
+#### JSON Style: Transform Definitions
+
+**isStartDateFuture:**
+```json
+{
+  "name": "isStartDateFuture",
+  "type": "dateCompare",
+  "attributes": {
+    "firstDate": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "startDateISO"
+      }
+    },
+    "secondDate": {
+      "type": "now"
+    },
+    "operator": "gt",
+    "positiveCondition": "true",
+    "negativeCondition": "false"
+  }
+}
+```
+
+**isEndDateFuture:**
+```json
+{
+  "name": "isEndDateFuture",
+  "type": "dateCompare",
+  "attributes": {
+    "firstDate": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "endDateISO"
+      }
+    },
+    "secondDate": {
+      "type": "now"
+    },
+    "operator": "gt",
+    "positiveCondition": "true",
+    "negativeCondition": "false"
+  }
+}
+```
+
 ---
 
 ### Step 3: Add Time to Dates (5 min)
+
+#### UI Style: Steps
 ```
 1. Attribute: startDateWith6AM
    Transform: Date Math
@@ -810,9 +1254,47 @@ This is a **common SailPoint pattern** for time-based identity processing.
      Output: "2024-12-31T15:00:00Z"
 ```
 
+#### JSON Style: Transform Definitions
+
+**startDateWith6AM:**
+```json
+{
+  "name": "startDateWith6AM",
+  "type": "dateMath",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "startDateISO"
+      }
+    },
+    "expression": "+6h"
+  }
+}
+```
+
+**endDateWith3PM:**
+```json
+{
+  "name": "endDateWith3PM",
+  "type": "dateMath",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "endDateISO"
+      }
+    },
+    "expression": "+15h"
+  }
+}
+```
+
 ---
 
 ### Step 4: Build Next Processing Date Logic (5 min)
+
+#### UI Style: Steps
 ```
 Attribute: nextProcessing
 Transform: Conditional chain
@@ -826,6 +1308,36 @@ Level 2: Check end date
   IF endDateISO ne null AND isEndDateFuture eq true
     THEN endDateWith3PM
     ELSE null
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "nextProcessing",
+  "type": "conditional",
+  "attributes": {
+    "expression": "startDateISO ne null && isStartDateFuture eq \"true\"",
+    "positiveCondition": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "startDateWith6AM"
+      }
+    },
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "endDateISO ne null && isEndDateFuture eq \"true\"",
+        "positiveCondition": {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "endDateWith3PM"
+          }
+        },
+        "negativeCondition": null
+      }
+    }
+  }
+}
 ```
 
 ---
@@ -922,6 +1434,7 @@ The **nextProcessing** attribute is used by SailPoint's **time-based processing*
 - ✅ Multi-value attribute handling
 - ✅ Transform chaining (10+ steps)
 - ✅ Production-ready patterns
+- ✅ Both UI and JSON configuration
 
 ---
 
@@ -936,29 +1449,104 @@ From "Smith, John Michael" extract:
 
 <details>
 <summary>Click to reveal solution</summary>
+
+**JSON Style:**
+
+**Step 1: Split by comma**
+```json
+{
+  "name": "nameParts",
+  "type": "split",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "full_name"
+      }
+    },
+    "delimiter": ","
+  }
+}
 ```
-Step 1: Split by ","
-  Output: ["Smith", " John Michael"]
 
-Step 2: Extract lastname
-  Index(0) + Trim
-  Output: "Smith"
+**Step 2: Extract lastname**
+```json
+{
+  "name": "lastname",
+  "type": "index",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "nameParts"
+      }
+    },
+    "index": 0,
+    "next": {
+      "type": "trim"
+    }
+  }
+}
+```
 
-Step 3: Extract firstname + middle
-  Index(1) + Trim
-  Output: "John Michael"
+**Step 3: Extract firstname + middle**
+```json
+{
+  "name": "firstMiddleParts",
+  "type": "index",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "nameParts"
+      }
+    },
+    "index": 1,
+    "next": {
+      "type": "trim",
+      "next": {
+        "type": "split",
+        "attributes": {
+          "delimiter": " "
+        }
+      }
+    }
+  }
+}
+```
 
-Step 4: Split firstname+middle by space
-  Split(" ")
-  Output: ["John", "Michael"]
+**Step 4: Extract firstname**
+```json
+{
+  "name": "firstname",
+  "type": "index",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "firstMiddleParts"
+      }
+    },
+    "index": 0
+  }
+}
+```
 
-Step 5: Extract firstname
-  Index(0)
-  Output: "John"
-
-Step 6: Extract middle
-  Index(1)
-  Output: "Michael"
+**Step 5: Extract middle**
+```json
+{
+  "name": "middle",
+  "type": "index",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "firstMiddleParts"
+      }
+    },
+    "index": 1
+  }
+}
 ```
 
 </details>
@@ -974,21 +1562,105 @@ From "user@mail.subdomain.company.com" extract:
 
 <details>
 <summary>Click to reveal solution</summary>
+
+**JSON Style:**
+
+**Step 1: Split by @**
+```json
+{
+  "name": "emailParts",
+  "type": "split",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "email"
+      }
+    },
+    "delimiter": "@"
+  }
+}
 ```
-Step 1: Split by "@"
-  Output: ["user", "mail.subdomain.company.com"]
 
-Step 2: Index(1) - get domain part
-  Output: "mail.subdomain.company.com"
+**Step 2: Get domain part**
+```json
+{
+  "name": "domainFull",
+  "type": "index",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "emailParts"
+      }
+    },
+    "index": 1
+  }
+}
+```
 
-Step 3: Split by "."
-  Output: ["mail", "subdomain", "company", "com"]
+**Step 3: Split domain by .**
+```json
+{
+  "name": "domainParts",
+  "type": "split",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "domainFull"
+      }
+    },
+    "delimiter": "."
+  }
+}
+```
 
-Step 4: Extract each level
-  Index(3) --> "com" (top domain)
-  Index(2) --> "company"
-  Index(1) --> "subdomain"
-  Index(0) --> "mail"
+**Step 4: Extract each level**
+```json
+{
+  "name": "topDomain",
+  "type": "index",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "domainParts"
+      }
+    },
+    "index": 3
+  }
+}
+```
+```json
+{
+  "name": "company",
+  "type": "index",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "domainParts"
+      }
+    },
+    "index": 2
+  }
+}
+```
+```json
+{
+  "name": "subdomain",
+  "type": "index",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "domainParts"
+      }
+    },
+    "index": 1
+  }
+}
 ```
 
 </details>
@@ -1004,23 +1676,60 @@ Calculate three review dates:
 
 <details>
 <summary>Click to reveal solution</summary>
+
+**Prerequisite: hireDateISO (in ISO8601)**
+
+**JSON Style:**
+
+**Attribute: review30Days**
+```json
+{
+  "name": "review30Days",
+  "type": "dateMath",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "hireDateISO"
+      }
+    },
+    "expression": "+30d"
+  }
+}
 ```
-Prerequisite: hireDateISO (in ISO8601)
 
-Attribute: review30Days
-  Transform: Date Math
-    Input: hireDateISO
-    Add 30 days
+**Attribute: review60Days**
+```json
+{
+  "name": "review60Days",
+  "type": "dateMath",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "hireDateISO"
+      }
+    },
+    "expression": "+60d"
+  }
+}
+```
 
-Attribute: review60Days
-  Transform: Date Math
-    Input: hireDateISO
-    Add 60 days
-
-Attribute: review90Days
-  Transform: Date Math
-    Input: hireDateISO
-    Add 90 days
+**Attribute: review90Days**
+```json
+{
+  "name": "review90Days",
+  "type": "dateMath",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "hireDateISO"
+      }
+    },
+    "expression": "+90d"
+  }
+}
 ```
 
 </details>
@@ -1076,6 +1785,7 @@ This may require multiple conditionals checking if joined group string contains 
 - ✅ Next processing date pattern
 - ✅ Transform chains (15+ steps possible!)
 - ✅ Production-ready date and list patterns
+- ✅ Both UI and JSON configuration
 
 ---
 
