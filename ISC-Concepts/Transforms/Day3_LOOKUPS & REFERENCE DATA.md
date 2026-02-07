@@ -112,6 +112,8 @@ A lookup table has three components:
 **Scenario:** Your HR system uses 3-letter codes, but you need full department names in ISC.
 
 #### Step 1: Create the Lookup Table (10 min)
+
+#### UI Style: Steps
 ```
 1. In SailPoint ISC, navigate to:
    Admin > Identities > Lookup Tables
@@ -149,6 +151,8 @@ A lookup table has three components:
 ---
 
 #### Step 2: Use the Lookup in a Transform (10 min)
+
+#### UI Style: Steps
 ```
 1. Go to Identity Profile > Mappings
 2. Create new attribute "departmentFullName"
@@ -162,6 +166,26 @@ A lookup table has three components:
 
 6. Preview with different identities
 7. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "departmentFullName",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "department"
+      }
+    },
+    "table": {
+      "id": "department-code-mapping"
+    },
+    "default": "Other"
+  }
+}
 ```
 
 ---
@@ -208,6 +232,8 @@ Transform chain:
 ```
 
 **Let's fix this:**
+
+#### UI Style: Steps
 ```
 1. Edit the departmentFullName mapping
 2. Add transform BEFORE lookup:
@@ -224,6 +250,34 @@ Transform chain:
 3. Save
 ```
 
+#### JSON Style: Transform Definition (with normalization)
+```json
+{
+  "name": "departmentFullName",
+  "type": "upper",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "department"
+      }
+    },
+    "next": {
+      "type": "lookup",
+      "attributes": {
+        "input": {
+          "type": "reference"
+        },
+        "table": {
+          "id": "department-code-mapping"
+        },
+        "default": "Other"
+      }
+    }
+  }
+}
+```
+
 Now test again:
 ```
 Input: department = "eng"
@@ -237,7 +291,7 @@ After Lookup: "Engineering" ✓
 
 **Scenario:** Your organization has 50+ job title variations that need to be standardized to 10 standard titles.
 
-#### Create Comprehensive Lookup Table
+#### UI Style: Create Comprehensive Lookup Table
 ```
 1. Create lookup table: TitleStandardization
 2. Add entries (sample - you'd have 50+):
@@ -271,7 +325,7 @@ Default: Individual Contributor
 
 ---
 
-#### Use in Transform
+#### UI Style: Use in Transform
 ```
 1. Create attribute "standardTitle"
 2. Transform: Lookup
@@ -279,6 +333,26 @@ Default: Individual Contributor
    Table: TitleStandardization
    Default: "Individual Contributor"
 3. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "standardTitle",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "title"
+      }
+    },
+    "table": {
+      "id": "title-standardization"
+    },
+    "default": "Individual Contributor"
+  }
+}
 ```
 
 ---
@@ -379,6 +453,8 @@ TYO   | Asia/Tokyo
 ---
 
 #### Create Four Attributes with Lookups
+
+#### UI Style: Steps
 ```
 1. Attribute: city
    Transform: Lookup
@@ -403,6 +479,88 @@ TYO   | Asia/Tokyo
    Input: location_code
    Table: LocationToTimezone
    Default: "UTC"
+```
+
+#### JSON Style: Transform Definitions
+
+**Attribute 1: city**
+```json
+{
+  "name": "city",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "location_code"
+      }
+    },
+    "table": {
+      "id": "location-to-city"
+    },
+    "default": "Unknown"
+  }
+}
+```
+
+**Attribute 2: state**
+```json
+{
+  "name": "state",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "location_code"
+      }
+    },
+    "table": {
+      "id": "location-to-state"
+    },
+    "default": null
+  }
+}
+```
+
+**Attribute 3: country**
+```json
+{
+  "name": "country",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "location_code"
+      }
+    },
+    "table": {
+      "id": "location-to-country"
+    },
+    "default": "Unknown"
+  }
+}
+```
+
+**Attribute 4: timezone**
+```json
+{
+  "name": "timezone",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "location_code"
+      }
+    },
+    "table": {
+      "id": "location-to-timezone"
+    },
+    "default": "UTC"
+  }
+}
 ```
 
 ---
@@ -468,6 +626,8 @@ Other      | CEO
 ---
 
 #### Chain the Lookups
+
+#### UI Style: Steps
 ```
 1. Create intermediate attribute: division
    Transform: Lookup
@@ -482,6 +642,48 @@ Other      | CEO
    Default: "CEO"
 
 3. Save both
+```
+
+#### JSON Style: Transform Definitions
+
+**Attribute 1: division**
+```json
+{
+  "name": "division",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "department"
+      }
+    },
+    "table": {
+      "id": "department-to-division"
+    },
+    "default": "Other"
+  }
+}
+```
+
+**Attribute 2: executiveSponsor**
+```json
+{
+  "name": "executiveSponsor",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "division"
+      }
+    },
+    "table": {
+      "id": "division-to-executive"
+    },
+    "default": "CEO"
+  }
+}
 ```
 
 ---
@@ -575,7 +777,7 @@ If any of these fail, the transform returns **null**.
 
 **Scenario:** Get user's email address from their AD account.
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Go to Identity Profile > Mappings
 2. Create/edit attribute "emailFromAD"
@@ -588,6 +790,18 @@ If any of these fail, the transform returns **null**.
 
 6. Preview with identities that have AD accounts
 7. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "emailFromAD",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "mail"
+  }
+}
 ```
 
 ---
@@ -653,6 +867,8 @@ This is **complex** - Account Attribute alone won't do it!
 SailPoint has **manager correlation** built-in. Once configured, each identity has a `manager` attribute that references their manager's identity.
 
 Then you can use Account Attribute on the **manager's** account:
+
+#### UI Style: Steps
 ```
 1. Create attribute "managerEmailFromAD"
 2. Transform: Account Attribute
@@ -666,6 +882,24 @@ Then you can use Account Attribute on the **manager's** account:
 ```
 
 > **Note:** The exact UI for getting attributes from a manager's account varies by ISC version. Some versions require using the `manager` identity attribute first, then getting their account attribute.
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "managerEmailFromAD",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "mail",
+    "accountSortAttribute": "created",
+    "accountSortDescending": false,
+    "accountReturnFirstLink": false,
+    "accountFilter": null
+  }
+}
+```
+
+> **Note:** Getting manager's account attribute may require additional configuration or a different approach depending on ISC version.
 
 ---
 
@@ -708,6 +942,8 @@ Account Attribute returns the **entire array**.
 ---
 
 #### Get First Group
+
+#### UI Style: Steps
 ```
 1. Create attribute "adGroups"
 2. Transform chain:
@@ -724,12 +960,32 @@ Account Attribute returns the **entire array**.
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "adGroups",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "memberOf",
+    "next": {
+      "type": "index",
+      "attributes": {
+        "index": 0
+      }
+    }
+  }
+}
+```
+
 ---
 
 #### Extract Just Group Name
-```
+
 Continue the chain:
 
+#### UI Style: Steps
+```
    Transform 3: Split
      Delimiter: ","
      Output: ["CN=Admins", "OU=Groups", "DC=company", ...]
@@ -749,9 +1005,53 @@ Continue the chain:
 
 Full chain gets first AD group name: "Admins"
 
+#### JSON Style: Complete Transform Chain
+```json
+{
+  "name": "primaryGroupName",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "memberOf",
+    "next": {
+      "type": "index",
+      "attributes": {
+        "index": 0,
+        "next": {
+          "type": "split",
+          "attributes": {
+            "delimiter": ",",
+            "next": {
+              "type": "index",
+              "attributes": {
+                "index": 0,
+                "next": {
+                  "type": "split",
+                  "attributes": {
+                    "delimiter": "=",
+                    "next": {
+                      "type": "index",
+                      "attributes": {
+                        "index": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
 ---
 
 #### Get All Groups (Joined)
+
+#### UI Style: Steps
 ```
 Transform chain:
 
@@ -766,6 +1066,24 @@ Transform chain:
 ```
 
 This creates a single string with all groups.
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "adGroupsJoined",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "memberOf",
+    "next": {
+      "type": "join",
+      "attributes": {
+        "delimiter": "; "
+      }
+    }
+  }
+}
+```
 
 ---
 
@@ -799,6 +1117,8 @@ You need to:
 ### Exercise 4A: Copy Attribute
 
 **Scenario:** Copy displayName to a backup attribute.
+
+#### UI Style: Steps
 ```
 1. Create attribute "displayNameBackup"
 2. Transform: Identity Attribute
@@ -807,6 +1127,17 @@ You need to:
    Attribute: displayName
 
 4. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "displayNameBackup",
+  "type": "identityAttribute",
+  "attributes": {
+    "name": "displayName"
+  }
+}
 ```
 
 Result: `displayNameBackup` = whatever `displayName` is.
@@ -818,6 +1149,8 @@ Result: `displayNameBackup` = whatever `displayName` is.
 **Scenario:** Use a previously calculated attribute in a new calculation.
 
 #### Example
+
+#### UI Style: Steps
 ```
 You have:
   - Attribute "standardDepartment" (calculated via Lookup)
@@ -834,11 +1167,36 @@ Transform chain:
    Output: "ENG"
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "departmentCode",
+  "type": "identityAttribute",
+  "attributes": {
+    "name": "standardDepartment",
+    "next": {
+      "type": "lookup",
+      "attributes": {
+        "input": {
+          "type": "reference"
+        },
+        "table": {
+          "id": "department-name-to-code"
+        },
+        "default": "UNK"
+      }
+    }
+  }
+}
+```
+
 ---
 
 ### Exercise 4C: Conditional Based on Identity Attribute
 
 **Scenario:** Make decisions based on other calculated attributes.
+
+#### UI Style: Steps
 ```
 Attribute: accessLevel
 Transform: Conditional
@@ -846,6 +1204,19 @@ Transform: Conditional
 Condition: Identity Attribute "standardTitle" equals "Manager"
 If True: "Manager Access"
 If False: "Standard Access"
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "accessLevel",
+  "type": "conditional",
+  "attributes": {
+    "expression": "standardTitle eq \"Manager\"",
+    "positiveCondition": "Manager Access",
+    "negativeCondition": "Standard Access"
+  }
+}
 ```
 
 ---
@@ -898,6 +1269,7 @@ If False: "Standard Access"
 - ✅ Getting data from user's accounts
 - ✅ Handling multi-value account attributes
 - ✅ Identity Attribute for cross-referencing
+- ✅ Both UI and JSON configuration
 
 ---
 
@@ -921,6 +1293,26 @@ D) Replace transforms
 - Lookup table is clean, simple, and easy to update
 - Can add/change mappings without modifying transform
 - Better performance than 30 conditionals
+
+**JSON Example:**
+```json
+{
+  "name": "departmentFullName",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "department"
+      }
+    },
+    "table": {
+      "id": "department-code-mapping"
+    },
+    "default": "Other"
+  }
+}
+```
 
 </details>
 
@@ -946,10 +1338,33 @@ What is the output?
 **Why:** Lookups are case-sensitive. "eng" does NOT match "ENG".
 
 **Solution:** Add Upper transform before Lookup:
-```
-Transform chain:
-1. Upper (eng --> ENG)
-2. Lookup (ENG --> Engineering)
+
+**JSON Style:**
+```json
+{
+  "name": "departmentFullName",
+  "type": "upper",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "department"
+      }
+    },
+    "next": {
+      "type": "lookup",
+      "attributes": {
+        "input": {
+          "type": "reference"
+        },
+        "table": {
+          "id": "department-code-mapping"
+        },
+        "default": "Other"
+      }
+    }
+  }
+}
 ```
 
 </details>
@@ -1026,17 +1441,42 @@ Austin --> America/Chicago
 New York --> America/New_York
 ```
 
-**Transforms:**
+**JSON Style - Step 1:**
+```json
+{
+  "name": "city",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "office_code"
+      }
+    },
+    "table": {
+      "id": "office-to-city"
+    }
+  }
+}
 ```
-Attribute: city
-Transform: Lookup
-  Input: office_code
-  Table: OfficeToCity
 
-Attribute: timezone
-Transform: Lookup
-  Input: city (the attribute we just created!)
-  Table: CityToTimezone
+**JSON Style - Step 2:**
+```json
+{
+  "name": "timezone",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "city"
+      }
+    },
+    "table": {
+      "id": "city-to-timezone"
+    }
+  }
+}
 ```
 
 **Result:**
@@ -1066,28 +1506,91 @@ C) Create a comma-separated string of all groups?
 <summary>Click to reveal answer</summary>
 
 **A) Get first group:**
+
+**JSON Style:**
+```json
+{
+  "name": "firstGroup",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "memberOf",
+    "next": {
+      "type": "index",
+      "attributes": {
+        "index": 0
+      }
+    }
+  }
+}
 ```
-Transform: Index
-  Position: 0
-  Output: "CN=Admins,OU=Groups"
-```
+Output: "CN=Admins,OU=Groups"
 
 **B) Get group name from first group:**
+
+**JSON Style:**
+```json
+{
+  "name": "firstGroupName",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "memberOf",
+    "next": {
+      "type": "index",
+      "attributes": {
+        "index": 0,
+        "next": {
+          "type": "split",
+          "attributes": {
+            "delimiter": ",",
+            "next": {
+              "type": "index",
+              "attributes": {
+                "index": 0,
+                "next": {
+                  "type": "split",
+                  "attributes": {
+                    "delimiter": "=",
+                    "next": {
+                      "type": "index",
+                      "attributes": {
+                        "index": 1
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 ```
-Transform chain:
-1. Index (position 0) --> "CN=Admins,OU=Groups"
-2. Split (delimiter ",") --> ["CN=Admins", "OU=Groups"]
-3. Index (position 0) --> "CN=Admins"
-4. Split (delimiter "=") --> ["CN", "Admins"]
-5. Index (position 1) --> "Admins"
-```
+Output: "Admins"
 
 **C) Join all groups:**
+
+**JSON Style:**
+```json
+{
+  "name": "allGroups",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "memberOf",
+    "next": {
+      "type": "join",
+      "attributes": {
+        "delimiter": ", "
+      }
+    }
+  }
+}
 ```
-Transform: Join
-  Delimiter: ", "
-  Output: "CN=Admins,OU=Groups, CN=Developers,OU=Groups, ..."
-```
+Output: "CN=Admins,OU=Groups, CN=Developers,OU=Groups, ..."
 
 </details>
 
@@ -1105,6 +1608,7 @@ Transform: Join
 - ✅ Getting data from user's accounts
 - ✅ Multi-value attribute handling
 - ✅ Identity Attribute references
+- ✅ Both UI and JSON configuration
 
 ---
 
