@@ -116,7 +116,7 @@ If employee_type is "FTE", set description to "Full-Time Employee"
 Otherwise, set description to "Contractor"
 ```
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Go to Identity Profile > Mappings
 2. Create new attribute "employeeTypeDescription"
@@ -135,6 +135,19 @@ Otherwise, set description to "Contractor"
 
 7. Preview with different identities
 8. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "employeeTypeDescription",
+  "type": "conditional",
+  "attributes": {
+    "expression": "employee_type eq \"FTE\"",
+    "positiveCondition": "Full-Time Employee",
+    "negativeCondition": "Contractor"
+  }
+}
 ```
 
 #### Expected Results
@@ -197,7 +210,7 @@ Conditional 3:
     FALSE --> "Active"
 ```
 
-#### Steps
+#### UI Style: Steps
 
 > **Note:** This creates a chain of conditionals. Each "False" path leads to the next conditional.
 ```
@@ -233,6 +246,33 @@ Conditional 3:
 
 5. Preview with different scenarios
 6. Save
+```
+
+#### JSON Style: Transform Definition (Nested)
+```json
+{
+  "name": "calculatedLifecycleState",
+  "type": "conditional",
+  "attributes": {
+    "expression": "status eq \"On Leave\"",
+    "positiveCondition": "Leave of Absence",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "term_date ne null",
+        "positiveCondition": "Terminated",
+        "negativeCondition": {
+          "type": "conditional",
+          "attributes": {
+            "expression": "hire_date contains \"2026\"",
+            "positiveCondition": "Pre-hire",
+            "negativeCondition": "Active"
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
 > **Note:** We'll improve this with proper date comparisons in the afternoon session. This exercise focuses on the nesting concept.
@@ -287,7 +327,7 @@ The Conditional transform doesn't support **OR** directly in a single condition!
 
 **Solution:** Use `in` operator with a list, or nest conditionals.
 
-#### Steps - Method 1: Using "in" operator (if location is exact)
+#### UI Style: Steps - Method 1: Using "in" operator (if location is exact)
 ```
 1. Create attribute "country"
 2. Transform: Conditional
@@ -317,7 +357,34 @@ The Conditional transform doesn't support **OR** directly in a single condition!
 6. Save
 ```
 
-#### Steps - Method 2: Using "contains" (if location has extra text)
+#### JSON Style: Transform Definition - Method 1
+```json
+{
+  "name": "country",
+  "type": "conditional",
+  "attributes": {
+    "expression": "office_location in [\"Austin\", \"Dallas\", \"Houston\"]",
+    "positiveCondition": "USA",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "office_location in [\"London\", \"Manchester\"]",
+        "positiveCondition": "UK",
+        "negativeCondition": {
+          "type": "conditional",
+          "attributes": {
+            "expression": "office_location in [\"Tokyo\", \"Osaka\"]",
+            "positiveCondition": "Japan",
+            "negativeCondition": "Unknown"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+#### UI Style: Steps - Method 2: Using "contains" (if location has extra text)
 ```
 1. Create attribute "country"
 2. Transform: Conditional
@@ -345,6 +412,33 @@ The Conditional transform doesn't support **OR** directly in a single condition!
 
 5. Continue pattern...
 6. Final Else: "Unknown"
+```
+
+#### JSON Style: Transform Definition - Method 2
+```json
+{
+  "name": "country",
+  "type": "conditional",
+  "attributes": {
+    "expression": "office_location contains \"Austin\"",
+    "positiveCondition": "USA",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "office_location contains \"Dallas\"",
+        "positiveCondition": "USA",
+        "negativeCondition": {
+          "type": "conditional",
+          "attributes": {
+            "expression": "office_location contains \"London\"",
+            "positiveCondition": "UK",
+            "negativeCondition": "Unknown"
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
 #### Expected Results
@@ -429,7 +523,7 @@ OUTPUT: "john@company.com"
 
 **Scenario:** Use preferred email if available, otherwise use work email
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create attribute "primaryEmail"
 2. Transform: FirstValid
@@ -445,6 +539,37 @@ OUTPUT: "john@company.com"
    - Only work email
    - Neither email
 5. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "primaryEmail",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "preferred_email"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "work_email"
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "noemail@company.com"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
 ```
 
 #### Expected Results
@@ -489,7 +614,7 @@ Priority 5: Use "noemail@company.com"
 
 This requires **combining FirstValid with other transforms**!
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create attribute "smartEmail"
 2. Transform: FirstValid
@@ -521,26 +646,176 @@ Create as a separate attribute first:
 Now reference this in your FirstValid!
 ```
 
-**Updated FirstValid:**
+#### JSON Style: Helper Attribute - Generated Email
+```json
+{
+  "name": "generatedEmail",
+  "type": "trim",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "firstname"
+      }
+    },
+    "next": {
+      "type": "concat",
+      "attributes": {
+        "values": [
+          {
+            "type": "reference"
+          },
+          {
+            "type": "static",
+            "attributes": {
+              "value": "."
+            }
+          },
+          {
+            "type": "trim",
+            "attributes": {
+              "input": {
+                "type": "identityAttribute",
+                "attributes": {
+                  "name": "lastname"
+                }
+              }
+            }
+          },
+          {
+            "type": "static",
+            "attributes": {
+              "value": "@company.com"
+            }
+          }
+        ],
+        "next": {
+          "type": "lower"
+        }
+      }
+    }
+  }
+}
 ```
-Values to check:
-- preferred_email
-- work_email
-- generatedEmail (the attribute you just created)
-- [ID email - create similarly]
-- Static "noemail@company.com"
+
+#### JSON Style: Helper Attribute - ID Email
+```json
+{
+  "name": "generatedIDEmail",
+  "type": "concat",
+  "attributes": {
+    "values": [
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "employeeID"
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "@company.com"
+        }
+      }
+    ],
+    "next": {
+      "type": "lower"
+    }
+  }
+}
+```
+
+#### JSON Style: Final FirstValid with All Options
+```json
+{
+  "name": "smartEmail",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "preferred_email"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "work_email"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "generatedEmail"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "generatedIDEmail"
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "noemail@company.com"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
 ```
 
 #### Alternative: Conditional + FirstValid
 
 You can also use Conditional to check if firstname/lastname exist before generating:
-```
-1. Conditional transform:
-   IF firstname is not null AND lastname is not null
-     THEN Concatenate (firstname.lastname@company.com)
-     ELSE null
 
-2. Use this conditional result in FirstValid
+#### JSON Style: Conditional Email Generation
+```json
+{
+  "name": "generatedEmail",
+  "type": "conditional",
+  "attributes": {
+    "expression": "firstname ne null && lastname ne null",
+    "positiveCondition": {
+      "type": "concat",
+      "attributes": {
+        "values": [
+          {
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "firstname"
+            }
+          },
+          {
+            "type": "static",
+            "attributes": {
+              "value": "."
+            }
+          },
+          {
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "lastname"
+            }
+          },
+          {
+            "type": "static",
+            "attributes": {
+              "value": "@company.com"
+            }
+          }
+        ],
+        "next": {
+          "type": "lower"
+        }
+      }
+    },
+    "negativeCondition": null
+  }
+}
 ```
 
 #### Expected Results
@@ -591,7 +866,7 @@ Test Case 5:
 4. If no department head, use "no-manager@company.com"
 ```
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create attribute "managerEmail"
 2. Transform: FirstValid
@@ -605,19 +880,96 @@ Test Case 5:
 5. Save
 ```
 
-**For managerGeneratedEmail (create separately):**
+#### JSON Style: Helper - Manager Generated Email
+```json
+{
+  "name": "managerGeneratedEmail",
+  "type": "conditional",
+  "attributes": {
+    "expression": "manager_firstname ne null && manager_lastname ne null",
+    "positiveCondition": {
+      "type": "concat",
+      "attributes": {
+        "values": [
+          {
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "manager_firstname"
+            }
+          },
+          {
+            "type": "static",
+            "attributes": {
+              "value": "."
+            }
+          },
+          {
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "manager_lastname"
+            }
+          },
+          {
+            "type": "static",
+            "attributes": {
+              "value": "@company.com"
+            }
+          }
+        ],
+        "next": {
+          "type": "lower"
+        }
+      }
+    },
+    "negativeCondition": null
+  }
+}
 ```
-1. Create attribute "managerGeneratedEmail"
-2. Transform chain:
-   - Conditional:
-     IF manager_firstname is not null AND manager_lastname is not null
-       THEN continue to next transform
-       ELSE return null
-   - Trim manager_firstname
-   - Trim manager_lastname
-   - Concatenation (manager_firstname + "." + manager_lastname + "@company.com")
-   - Lower
-3. Save
+
+#### JSON Style: Final Manager Email with Fallbacks
+```json
+{
+  "name": "managerEmail",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "accountAttribute",
+        "attributes": {
+          "sourceName": "Active Directory",
+          "attributeName": "mail"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "managerGeneratedEmail"
+        }
+      },
+      {
+        "type": "lookup",
+        "attributes": {
+          "input": {
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "department"
+            }
+          },
+          "table": {
+            "id": "department-head-emails"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "no-manager@company.com"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
 ```
 
 #### Expected Results
@@ -662,6 +1014,8 @@ But you want to conditionally set it based on another attribute
 ```
 
 #### Combining Static + Conditional
+
+#### UI Style: Steps
 ```
 Transform: Conditional
   IF office_location contains "London"
@@ -669,11 +1023,24 @@ Transform: Conditional
   ELSE Static "United States"
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "country",
+  "type": "conditional",
+  "attributes": {
+    "expression": "office_location contains \"London\"",
+    "positiveCondition": "United Kingdom",
+    "negativeCondition": "United States"
+  }
+}
+```
+
 ### Quick Exercise
 
 **Scenario:** Set timezone based on office
 
-#### Steps
+#### UI Style: Steps
 ```
 1. Create attribute "timezone"
 2. Transform: Conditional
@@ -684,6 +1051,26 @@ Transform: Conditional
    - ELSE Static "America/New_York" (default)
 3. Preview
 4. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "timezone",
+  "type": "conditional",
+  "attributes": {
+    "expression": "office_location contains \"Austin\"",
+    "positiveCondition": "America/Chicago",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "office_location contains \"London\"",
+        "positiveCondition": "Europe/London",
+        "negativeCondition": "America/New_York"
+      }
+    }
+  }
+}
 ```
 
 #### Key Learning
@@ -744,11 +1131,26 @@ Otherwise, return "Not Employed"
 
 <details>
 <summary>Click to reveal answer</summary>
+
+**UI Style:**
 ```
 Transform: Conditional
   Condition: status eq "Active"
   If True: "Employed"
   If False: "Not Employed"
+```
+
+**JSON Style:**
+```json
+{
+  "name": "employmentStatus",
+  "type": "conditional",
+  "attributes": {
+    "expression": "status eq \"Active\"",
+    "positiveCondition": "Employed",
+    "negativeCondition": "Not Employed"
+  }
+}
 ```
 
 </details>
@@ -766,12 +1168,45 @@ Priority 3: Use "555-0000"
 
 <details>
 <summary>Click to reveal answer</summary>
+
+**UI Style:**
 ```
 Transform: FirstValid
   Values:
   1. mobile_phone
   2. work_phone
   3. Static "555-0000"
+```
+
+**JSON Style:**
+```json
+{
+  "name": "primaryPhone",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "mobile_phone"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "work_phone"
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "555-0000"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
 ```
 
 </details>
@@ -796,6 +1231,28 @@ Else
 **Challenge:** You need TWO conditions checked together (FTE AND years > 5)
 
 **Solution:** Nest the conditions:
+
+**JSON Style:**
+```json
+{
+  "name": "employeeCategory",
+  "type": "conditional",
+  "attributes": {
+    "expression": "employee_type eq \"FTE\"",
+    "positiveCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "years_of_service gt 5",
+        "positiveCondition": "Senior Employee",
+        "negativeCondition": "Employee"
+      }
+    },
+    "negativeCondition": "Contractor"
+  }
+}
+```
+
+**UI Flow:**
 ```
 Conditional 1 (Check type first):
   IF employee_type eq "FTE"
@@ -833,12 +1290,34 @@ What will ALWAYS be returned?
 **Why:** Static values are never null, so FirstValid stops at the first value (the static).
 
 **Fix:** Put static value LAST:
-```
-Transform: FirstValid
-  Values:
-  1. work_email
-  2. personal_email
-  3. Static "default@company.com"
+```json
+{
+  "name": "email",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "work_email"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "personal_email"
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "default@company.com"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
 ```
 
 **Key Learning:** Order matters! Most preferred first, fallback last.
@@ -862,30 +1341,98 @@ Priority 3: Use "noemail@company.com"
 **Answer:**
 
 **Step 1:** Create generated email as separate attribute:
-```
-Attribute: generatedEmailFromName
-Transform chain:
-1. Conditional:
-   IF firstname ne null AND lastname ne null
-     TRUE --> continue
-     FALSE --> null
-2. Trim firstname
-3. Trim lastname
-4. Concatenation (firstname + "." + lastname + "@company.com")
-5. Lower
+
+**JSON Style - Helper Attribute:**
+```json
+{
+  "name": "generatedEmailFromName",
+  "type": "conditional",
+  "attributes": {
+    "expression": "firstname ne null && lastname ne null",
+    "positiveCondition": {
+      "type": "trim",
+      "attributes": {
+        "input": {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "firstname"
+          }
+        },
+        "next": {
+          "type": "concat",
+          "attributes": {
+            "values": [
+              {
+                "type": "reference"
+              },
+              {
+                "type": "static",
+                "attributes": {
+                  "value": "."
+                }
+              },
+              {
+                "type": "trim",
+                "attributes": {
+                  "input": {
+                    "type": "identityAttribute",
+                    "attributes": {
+                      "name": "lastname"
+                    }
+                  }
+                }
+              },
+              {
+                "type": "static",
+                "attributes": {
+                  "value": "@company.com"
+                }
+              }
+            ],
+            "next": {
+              "type": "lower"
+            }
+          }
+        }
+      }
+    },
+    "negativeCondition": null
+  }
+}
 ```
 
 **Step 2:** Use in FirstValid:
-```
-Attribute: primaryEmail
-Transform: FirstValid
-  Values:
-  1. preferred_email
-  2. generatedEmailFromName
-  3. Static "noemail@company.com"
-```
 
-**Alternative:** Use Conditional inside FirstValid if your ISC version supports it.
+**JSON Style - Final Attribute:**
+```json
+{
+  "name": "primaryEmail",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "preferred_email"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "generatedEmailFromName"
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "noemail@company.com"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
+```
 
 </details>
 
@@ -901,6 +1448,7 @@ Transform: FirstValid
 - ✅ Combining transforms for sophisticated logic
 - ✅ Null handling strategies
 - ✅ Order of evaluation
+- ✅ Both UI and JSON configuration methods
 
 ---
 
