@@ -65,7 +65,7 @@ Priority 5: Use "noemail@company.com" as absolute fallback
 
 This will be our Priority 3 option.
 
-#### Create Helper Attribute: generatedEmailFromName
+#### UI Style: Create Helper Attribute: generatedEmailFromName
 ```
 1. Go to Identity Profile > Mappings
 2. Create new attribute "generatedEmailFromName"
@@ -120,6 +120,100 @@ This will be our Priority 3 option.
 5. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "generatedEmailFromName",
+  "type": "conditional",
+  "attributes": {
+    "expression": "firstname ne null",
+    "positiveCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "lastname ne null",
+        "positiveCondition": {
+          "type": "trim",
+          "attributes": {
+            "input": {
+              "type": "identityAttribute",
+              "attributes": {
+                "name": "firstname"
+              }
+            },
+            "next": {
+              "type": "concat",
+              "attributes": {
+                "values": [
+                  {
+                    "type": "reference"
+                  },
+                  {
+                    "type": "static",
+                    "attributes": {
+                      "value": "."
+                    }
+                  },
+                  {
+                    "type": "trim",
+                    "attributes": {
+                      "input": {
+                        "type": "identityAttribute",
+                        "attributes": {
+                          "name": "lastname"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "static",
+                    "attributes": {
+                      "value": "@company.com"
+                    }
+                  }
+                ],
+                "next": {
+                  "type": "replace",
+                  "attributes": {
+                    "regex": " ",
+                    "replacement": "",
+                    "next": {
+                      "type": "replace",
+                      "attributes": {
+                        "regex": "-",
+                        "replacement": "",
+                        "next": {
+                          "type": "replace",
+                          "attributes": {
+                            "regex": "'",
+                            "replacement": "",
+                            "next": {
+                              "type": "lower",
+                              "next": {
+                                "type": "substring",
+                                "attributes": {
+                                  "begin": 0,
+                                  "end": 50
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "negativeCondition": null
+      }
+    },
+    "negativeCondition": null
+  }
+}
+```
+
 #### Test Cases
 ```
 Test 1:
@@ -149,7 +243,7 @@ Test 4:
 
 This will be our Priority 4 option.
 
-#### Create Helper Attribute: generatedEmailFromID
+#### UI Style: Create Helper Attribute: generatedEmailFromID
 ```
 1. Create new attribute "generatedEmailFromID"
 2. Build transform chain:
@@ -173,6 +267,48 @@ This will be our Priority 4 option.
 4. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "generatedEmailFromID",
+  "type": "conditional",
+  "attributes": {
+    "expression": "employeeID ne null",
+    "positiveCondition": {
+      "type": "trim",
+      "attributes": {
+        "input": {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "employeeID"
+          }
+        },
+        "next": {
+          "type": "concat",
+          "attributes": {
+            "values": [
+              {
+                "type": "reference"
+              },
+              {
+                "type": "static",
+                "attributes": {
+                  "value": "@company.com"
+                }
+              }
+            ],
+            "next": {
+              "type": "lower"
+            }
+          }
+        }
+      }
+    },
+    "negativeCondition": null
+  }
+}
+```
+
 #### Test Cases
 ```
 Test 1:
@@ -190,7 +326,7 @@ Test 2:
 
 Now combine everything!
 
-#### Create Attribute: primaryEmail
+#### UI Style: Create Attribute: primaryEmail
 ```
 1. Create new attribute "primaryEmail"
 2. Transform: FirstValid
@@ -205,6 +341,49 @@ Now combine everything!
 
 4. Preview with multiple identity scenarios
 5. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "primaryEmail",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "preferred_email"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "work_email"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "generatedEmailFromName"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "generatedEmailFromID"
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "noemail@company.com"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
 ```
 
 #### Comprehensive Test Cases
@@ -309,7 +488,7 @@ For now, let's build the logical structure.
 
 ### Step 1: Build Simplified Lifecycle State (30 min)
 
-#### Create Attribute: calculatedLifecycleState
+#### UI Style: Create Attribute: calculatedLifecycleState
 ```
 1. Create new attribute "calculatedLifecycleState"
 2. Build nested conditional chain:
@@ -337,6 +516,33 @@ Transform 3: Conditional
 
 3. Preview with different scenarios
 4. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "calculatedLifecycleState",
+  "type": "conditional",
+  "attributes": {
+    "expression": "leave_flag eq true",
+    "positiveCondition": "Leave of Absence",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "term_date ne null",
+        "positiveCondition": "Terminated",
+        "negativeCondition": {
+          "type": "conditional",
+          "attributes": {
+            "expression": "hire_date contains \"2026\"",
+            "positiveCondition": "Pre-hire",
+            "negativeCondition": "Active"
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
 #### Test Cases (Simplified Version)
@@ -381,7 +587,7 @@ Priority 4: If hire_date in future, return "Pre-hire"
 Priority 5: Default to "Active"
 ```
 
-#### Updated Transform Chain
+#### UI Style: Updated Transform Chain
 ```
 LEVEL 1: Check status field
 
@@ -419,6 +625,47 @@ Transform 5: Conditional
   If False: "Active"
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "calculatedLifecycleState",
+  "type": "conditional",
+  "attributes": {
+    "expression": "status eq \"On Leave\"",
+    "positiveCondition": "Leave of Absence",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "leave_flag eq true",
+        "positiveCondition": "Leave of Absence",
+        "negativeCondition": {
+          "type": "conditional",
+          "attributes": {
+            "expression": "term_date ne null",
+            "positiveCondition": {
+              "type": "conditional",
+              "attributes": {
+                "expression": "term_date contains \"2024\"",
+                "positiveCondition": "Terminated",
+                "negativeCondition": "Archived"
+              }
+            },
+            "negativeCondition": {
+              "type": "conditional",
+              "attributes": {
+                "expression": "hire_date contains \"2026\"",
+                "positiveCondition": "Pre-hire",
+                "negativeCondition": "Active"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
 ---
 
 ### Step 3: Handle Edge Cases (15 min)
@@ -426,9 +673,9 @@ Transform 5: Conditional
 #### Add Null Handling
 
 What if critical fields are null?
-```
-Enhanced Logic:
 
+#### UI Style: Enhanced Logic
+```
 LEVEL 0: Validate required fields
 
 Transform 1: Conditional
@@ -437,6 +684,54 @@ Transform 1: Conditional
   If False: Continue to normal logic
 
 Then continue with previous levels...
+```
+
+#### JSON Style: Transform Definition with Null Handling
+```json
+{
+  "name": "calculatedLifecycleState",
+  "type": "conditional",
+  "attributes": {
+    "expression": "hire_date eq null",
+    "positiveCondition": "Unknown - Missing Hire Date",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "status eq \"On Leave\"",
+        "positiveCondition": "Leave of Absence",
+        "negativeCondition": {
+          "type": "conditional",
+          "attributes": {
+            "expression": "leave_flag eq true",
+            "positiveCondition": "Leave of Absence",
+            "negativeCondition": {
+              "type": "conditional",
+              "attributes": {
+                "expression": "term_date ne null",
+                "positiveCondition": {
+                  "type": "conditional",
+                  "attributes": {
+                    "expression": "term_date contains \"2024\"",
+                    "positiveCondition": "Terminated",
+                    "negativeCondition": "Archived"
+                  }
+                },
+                "negativeCondition": {
+                  "type": "conditional",
+                  "attributes": {
+                    "expression": "hire_date contains \"2026\"",
+                    "positiveCondition": "Pre-hire",
+                    "negativeCondition": "Active"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
 #### Add Error States
@@ -488,7 +783,7 @@ Priority 4: Use "no-manager@company.com"
 
 ### Step 1: Create Manager Generated Email (15 min)
 
-#### Create Helper Attribute: managerGeneratedEmail
+#### UI Style: Create Helper Attribute: managerGeneratedEmail
 ```
 1. Create attribute "managerGeneratedEmail"
 2. Build transform chain:
@@ -518,11 +813,77 @@ Priority 4: Use "no-manager@company.com"
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "managerGeneratedEmail",
+  "type": "conditional",
+  "attributes": {
+    "expression": "manager_firstname ne null",
+    "positiveCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "manager_lastname ne null",
+        "positiveCondition": {
+          "type": "trim",
+          "attributes": {
+            "input": {
+              "type": "identityAttribute",
+              "attributes": {
+                "name": "manager_firstname"
+              }
+            },
+            "next": {
+              "type": "concat",
+              "attributes": {
+                "values": [
+                  {
+                    "type": "reference"
+                  },
+                  {
+                    "type": "static",
+                    "attributes": {
+                      "value": "."
+                    }
+                  },
+                  {
+                    "type": "trim",
+                    "attributes": {
+                      "input": {
+                        "type": "identityAttribute",
+                        "attributes": {
+                          "name": "manager_lastname"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "type": "static",
+                    "attributes": {
+                      "value": "@company.com"
+                    }
+                  }
+                ],
+                "next": {
+                  "type": "lower"
+                }
+              }
+            }
+          }
+        },
+        "negativeCondition": null
+      }
+    },
+    "negativeCondition": null
+  }
+}
+```
+
 ---
 
 ### Step 2: Create Department Head Lookup (10 min)
 
-#### Create Lookup Table
+#### UI Style: Create Lookup Table
 ```
 1. Go to Admin > Identity Management > Lookup Tables (or configure via transform)
 2. Create lookup table: "DepartmentHeads"
@@ -540,7 +901,7 @@ Priority 4: Use "no-manager@company.com"
 4. Save lookup table
 ```
 
-#### Create Helper Attribute: deptHeadEmail
+#### UI Style: Create Helper Attribute: deptHeadEmail
 ```
 1. Create attribute "deptHeadEmail"
 2. Transform: Lookup
@@ -550,11 +911,31 @@ Priority 4: Use "no-manager@company.com"
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "deptHeadEmail",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "department"
+      }
+    },
+    "table": {
+      "id": "department-heads"
+    },
+    "default": null
+  }
+}
+```
+
 ---
 
 ### Step 3: Combine with FirstValid (10 min)
 
-#### Create Attribute: managerEmail
+#### UI Style: Create Attribute: managerEmail
 ```
 1. Create attribute "managerEmail"
 2. Transform: FirstValid
@@ -573,6 +954,44 @@ Priority 4: Use "no-manager@company.com"
 
 4. Preview with different scenarios
 5. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "managerEmail",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "accountAttribute",
+        "attributes": {
+          "sourceName": "Active Directory",
+          "attributeName": "mail"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "managerGeneratedEmail"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "deptHeadEmail"
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "no-manager@company.com"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
 ```
 
 ---
@@ -649,7 +1068,7 @@ Rules:
 
 ### Step 1: Simple Location Matching (15 min)
 
-#### Create Attribute: country
+#### UI Style: Create Attribute: country
 ```
 1. Create attribute "country"
 2. Build conditional chain:
@@ -704,6 +1123,68 @@ Transform 8: Conditional
 4. Save
 ```
 
+#### JSON Style: Transform Definition (Nested Conditionals)
+```json
+{
+  "name": "country",
+  "type": "conditional",
+  "attributes": {
+    "expression": "office_location contains \"Austin\"",
+    "positiveCondition": "USA",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "office_location contains \"Dallas\"",
+        "positiveCondition": "USA",
+        "negativeCondition": {
+          "type": "conditional",
+          "attributes": {
+            "expression": "office_location contains \"New York\"",
+            "positiveCondition": "USA",
+            "negativeCondition": {
+              "type": "conditional",
+              "attributes": {
+                "expression": "office_location contains \"Chicago\"",
+                "positiveCondition": "USA",
+                "negativeCondition": {
+                  "type": "conditional",
+                  "attributes": {
+                    "expression": "office_location contains \"London\"",
+                    "positiveCondition": "United Kingdom",
+                    "negativeCondition": {
+                      "type": "conditional",
+                      "attributes": {
+                        "expression": "office_location contains \"Manchester\"",
+                        "positiveCondition": "United Kingdom",
+                        "negativeCondition": {
+                          "type": "conditional",
+                          "attributes": {
+                            "expression": "office_location contains \"Tokyo\"",
+                            "positiveCondition": "Japan",
+                            "negativeCondition": {
+                              "type": "conditional",
+                              "attributes": {
+                                "expression": "office_location contains \"Osaka\"",
+                                "positiveCondition": "Japan",
+                                "negativeCondition": "Unknown"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
 ---
 
 ### Step 2: Better Approach - Using Lookup Table (15 min)
@@ -712,7 +1193,7 @@ Transform 8: Conditional
 
 **Better Solution:** Use Lookup table with location parsing.
 
-#### Create City to Country Lookup
+#### UI Style: Create City to Country Lookup
 ```
 1. Create lookup table: "CityToCountry"
 2. Add entries:
@@ -742,7 +1223,7 @@ Sometimes office_location is complex: "Austin Office - Building 2"
 
 We need to extract just "Austin"
 
-##### Create Helper Attribute: extractedCity
+##### UI Style: Create Helper Attribute: extractedCity
 ```
 1. Create attribute "extractedCity"
 2. Transform chain:
@@ -759,7 +1240,30 @@ We need to extract just "Austin"
 3. Save
 ```
 
-#### Use Lookup with Extracted City
+##### JSON Style: Transform Definition
+```json
+{
+  "name": "extractedCity",
+  "type": "split",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "office_location"
+      }
+    },
+    "delimiter": " ",
+    "next": {
+      "type": "index",
+      "attributes": {
+        "position": 0
+      }
+    }
+  }
+}
+```
+
+#### UI Style: Use Lookup with Extracted City
 ```
 1. Create/edit attribute "country"
 2. Transform: Lookup
@@ -767,6 +1271,26 @@ We need to extract just "Austin"
    Lookup Table: CityToCountry
    Default: "Unknown"
 3. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "country",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "extractedCity"
+      }
+    },
+    "table": {
+      "id": "city-to-country"
+    },
+    "default": "Unknown"
+  }
+}
 ```
 
 ---
@@ -842,6 +1366,7 @@ Test 5: Null location
 - ✅ Helper attributes for complex logic
 - ✅ Edge case handling (nulls, unknowns)
 - ✅ Production-ready patterns
+- ✅ Both UI and JSON configuration
 
 ---
 
@@ -865,36 +1390,53 @@ Else
 
 <details>
 <summary>Click to reveal solution</summary>
-```
-Transform 1: Conditional
-  Condition: title contains "VP"
-  If True: "Executive"
-  If False: Continue
 
-Transform 2: Conditional
-  Condition: title contains "C-level"
-  If True: "Executive"
-  If False: Continue
-
-Transform 3: Conditional
-  Condition: title contains "Director"
-  If True: "Director"
-  If False: Continue
-
-Transform 4: Conditional
-  Condition: title contains "Manager"
-  If True: "Manager"
-  If False: Continue
-
-Transform 5: Conditional
-  Condition: title contains "Senior"
-  If True: "Senior"
-  If False: Continue
-
-Transform 6: Conditional
-  Condition: years_of_service gt 5
-  If True: "Senior"
-  If False: "Staff"
+**JSON Style:**
+```json
+{
+  "name": "accessLevel",
+  "type": "conditional",
+  "attributes": {
+    "expression": "title contains \"VP\"",
+    "positiveCondition": "Executive",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "title contains \"C-level\"",
+        "positiveCondition": "Executive",
+        "negativeCondition": {
+          "type": "conditional",
+          "attributes": {
+            "expression": "title contains \"Director\"",
+            "positiveCondition": "Director",
+            "negativeCondition": {
+              "type": "conditional",
+              "attributes": {
+                "expression": "title contains \"Manager\"",
+                "positiveCondition": "Manager",
+                "negativeCondition": {
+                  "type": "conditional",
+                  "attributes": {
+                    "expression": "title contains \"Senior\"",
+                    "positiveCondition": "Senior",
+                    "negativeCondition": {
+                      "type": "conditional",
+                      "attributes": {
+                        "expression": "years_of_service gt 5",
+                        "positiveCondition": "Senior",
+                        "negativeCondition": "Staff"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
 **Note:** For years_of_service, you'd need to ensure it's a number. May need additional validation.
@@ -917,33 +1459,99 @@ Priority 4: Use "555-0000"
 <summary>Click to reveal solution</summary>
 
 **Step 1:** Create cleaned home phone
-```
-Attribute: cleanedHomePhone
-Transform chain:
-1. Replace "(" with ""
-2. Replace ")" with ""
-3. Replace " " with ""
-4. Replace "-" with ""
+
+**JSON Style:**
+```json
+{
+  "name": "cleanedHomePhone",
+  "type": "replace",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "home_phone"
+      }
+    },
+    "regex": "\\(",
+    "replacement": "",
+    "next": {
+      "type": "replace",
+      "attributes": {
+        "regex": "\\)",
+        "replacement": "",
+        "next": {
+          "type": "replace",
+          "attributes": {
+            "regex": " ",
+            "replacement": "",
+            "next": {
+              "type": "replace",
+              "attributes": {
+                "regex": "-",
+                "replacement": ""
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
 **Step 2:** Create validation for mobile
-```
-Attribute: validatedMobilePhone
-Transform: Conditional
-  Condition: mobile_phone startsWith "+"
-  If True: mobile_phone
-  If False: null
+```json
+{
+  "name": "validatedMobilePhone",
+  "type": "conditional",
+  "attributes": {
+    "expression": "mobile_phone startsWith \"+\"",
+    "positiveCondition": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "mobile_phone"
+      }
+    },
+    "negativeCondition": null
+  }
+}
 ```
 
 **Step 3:** Combine with FirstValid
-```
-Attribute: primaryPhone
-Transform: FirstValid
-  Values:
-  1. validatedMobilePhone
-  2. work_phone
-  3. cleanedHomePhone
-  4. Static "555-0000"
+```json
+{
+  "name": "primaryPhone",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "validatedMobilePhone"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "work_phone"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "cleanedHomePhone"
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "555-0000"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
 ```
 
 </details>
@@ -969,6 +1577,8 @@ What transform approach would you use?
 <summary>Click to reveal solution</summary>
 
 **Best Approach: Lookup Table**
+
+**UI Style:**
 ```
 1. Create Lookup Table: DepartmentNormalization
 
@@ -1009,6 +1619,26 @@ Transform: Lookup
   Input: department
   Table: DepartmentNormalization
   Default: "Other"
+```
+
+**JSON Style:**
+```json
+{
+  "name": "standardDepartment",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "department"
+      }
+    },
+    "table": {
+      "id": "department-normalization"
+    },
+    "default": "Other"
+  }
+}
 ```
 
 **Why Lookup instead of Conditional:**
@@ -1088,6 +1718,7 @@ All emails must:
 - ✅ Production-ready patterns
 - ✅ Edge case handling
 - ✅ Complex decision trees
+- ✅ Both UI and JSON configuration methods
 
 ---
 
