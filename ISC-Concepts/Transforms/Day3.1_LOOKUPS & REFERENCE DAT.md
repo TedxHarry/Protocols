@@ -88,6 +88,8 @@ Table 4: BusinessUnitToExecutive
 ### Step 2: Create Lookup Tables (15 min)
 
 #### Table 1: DeptCodeToName
+
+#### UI Style: Create Lookup Table
 ```
 Create lookup table: DeptCodeToName
 
@@ -117,6 +119,8 @@ Default: Unknown Department
 ---
 
 #### Table 2: DeptNameToDivision
+
+#### UI Style: Create Lookup Table
 ```
 Create lookup table: DeptNameToDivision
 
@@ -146,6 +150,8 @@ Default: Other
 ---
 
 #### Table 3: DivisionToBusinessUnit
+
+#### UI Style: Create Lookup Table
 ```
 Create lookup table: DivisionToBusinessUnit
 
@@ -167,6 +173,8 @@ Default: General
 ---
 
 #### Table 4: BusinessUnitToExecutive
+
+#### UI Style: Create Lookup Table
 ```
 Create lookup table: BusinessUnitToExecutive
 
@@ -186,6 +194,8 @@ Default: CEO
 Now create attributes using these lookups in sequence:
 
 #### Attribute 1: departmentName
+
+#### UI Style: Steps
 ```
 1. Create attribute "departmentName"
 2. Transform chain:
@@ -203,9 +213,39 @@ Now create attributes using these lookups in sequence:
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "departmentName",
+  "type": "upper",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "dept_code"
+      }
+    },
+    "next": {
+      "type": "lookup",
+      "attributes": {
+        "input": {
+          "type": "reference"
+        },
+        "table": {
+          "id": "dept-code-to-name"
+        },
+        "default": "Unknown Department"
+      }
+    }
+  }
+}
+```
+
 ---
 
 #### Attribute 2: division
+
+#### UI Style: Steps
 ```
 1. Create attribute "division"
 2. Transform: Lookup
@@ -217,9 +257,31 @@ Now create attributes using these lookups in sequence:
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "division",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "departmentName"
+      }
+    },
+    "table": {
+      "id": "dept-name-to-division"
+    },
+    "default": "Other"
+  }
+}
+```
+
 ---
 
 #### Attribute 3: businessUnit
+
+#### UI Style: Steps
 ```
 1. Create attribute "businessUnit"
 2. Transform: Lookup
@@ -231,9 +293,31 @@ Now create attributes using these lookups in sequence:
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "businessUnit",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "division"
+      }
+    },
+    "table": {
+      "id": "division-to-business-unit"
+    },
+    "default": "General"
+  }
+}
+```
+
 ---
 
 #### Attribute 4: executiveSponsor
+
+#### UI Style: Steps
 ```
 1. Create attribute "executiveSponsor"
 2. Transform: Lookup
@@ -243,6 +327,26 @@ Now create attributes using these lookups in sequence:
    Output: "CTO"
 
 3. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "executiveSponsor",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "businessUnit"
+      }
+    },
+    "table": {
+      "id": "business-unit-to-executive"
+    },
+    "default": "CEO"
+  }
+}
 ```
 
 ---
@@ -390,6 +494,8 @@ Already mapped from Workday:
 ---
 
 #### Get Email from Active Directory
+
+#### UI Style: Steps
 ```
 1. Create attribute "emailFromAD"
 2. Transform: Account Attribute
@@ -398,9 +504,23 @@ Already mapped from Workday:
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "emailFromAD",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "mail"
+  }
+}
+```
+
 ---
 
 #### Get Phone from Active Directory
+
+#### UI Style: Steps
 ```
 1. Create attribute "phoneFromAD"
 2. Transform chain:
@@ -421,9 +541,37 @@ Already mapped from Workday:
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "phoneFromAD",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "telephoneNumber",
+    "next": {
+      "type": "replace",
+      "attributes": {
+        "regex": "-",
+        "replacement": "",
+        "next": {
+          "type": "replace",
+          "attributes": {
+            "regex": " ",
+            "replacement": ""
+          }
+        }
+      }
+    }
+  }
+}
+```
+
 ---
 
 #### Get Office Location from AD
+
+#### UI Style: Steps
 ```
 1. Create attribute "officeLocation"
 2. Transform: Account Attribute
@@ -433,9 +581,23 @@ Already mapped from Workday:
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "officeLocation",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "physicalDeliveryOfficeName"
+  }
+}
+```
+
 ---
 
 #### Get Sales Territory from Salesforce
+
+#### UI Style: Steps
 ```
 1. Create attribute "salesTerritory"
 2. Transform: Account Attribute
@@ -445,9 +607,23 @@ Already mapped from Workday:
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "salesTerritory",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Salesforce",
+    "attributeName": "Territory__c"
+  }
+}
+```
+
 ---
 
 #### Get Sales Quota from Salesforce
+
+#### UI Style: Steps
 ```
 1. Create attribute "salesQuota"
 2. Transform: Account Attribute
@@ -457,6 +633,18 @@ Already mapped from Workday:
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "salesQuota",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Salesforce",
+    "attributeName": "Quota__c"
+  }
+}
+```
+
 ---
 
 ### Step 3: Create Derived Attributes (10 min)
@@ -464,6 +652,8 @@ Already mapped from Workday:
 Now combine data from multiple sources:
 
 #### Derive Primary Contact Method
+
+#### UI Style: Steps
 ```
 1. Create attribute "primaryContact"
 2. Transform: FirstValid
@@ -474,9 +664,42 @@ Now combine data from multiple sources:
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "primaryContact",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "emailFromAD"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "phoneFromAD"
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "No Contact Info"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
+```
+
 ---
 
 #### Derive Sales Region from Territory + Office
+
+#### UI Style: Create Lookup Table
 ```
 1. Create lookup table: TerritoryToRegion
 
@@ -494,6 +717,8 @@ Now combine data from multiple sources:
 ```
 
 > **Note:** Some transforms allow using another attribute as default instead of static value. If not, use FirstValid:
+
+#### UI Style: Alternative with FirstValid
 ```
 Attribute: salesRegion
 Transform: FirstValid
@@ -503,11 +728,52 @@ Transform: FirstValid
   - Static "Unknown"
 ```
 
+#### JSON Style: Transform Definition (FirstValid approach)
+```json
+{
+  "name": "salesRegion",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "lookup",
+        "attributes": {
+          "input": {
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "salesTerritory"
+            }
+          },
+          "table": {
+            "id": "territory-to-region"
+          }
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "officeLocation"
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "Unknown"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
+```
+
 ---
 
 #### Derive Employee Level
 
 Combine title + hire_date for seniority:
+
+#### UI Style: Steps
 ```
 1. Create attribute "employeeLevel"
 2. Transform: Conditional
@@ -522,6 +788,47 @@ Combine title + hire_date for seniority:
      "Individual Contributor"
 
 3. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "employeeLevel",
+  "type": "conditional",
+  "attributes": {
+    "expression": "title contains \"VP\"",
+    "positiveCondition": "Leadership",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "title contains \"Director\"",
+        "positiveCondition": "Leadership",
+        "negativeCondition": {
+          "type": "conditional",
+          "attributes": {
+            "expression": "title contains \"Senior\"",
+            "positiveCondition": "Senior",
+            "negativeCondition": {
+              "type": "conditional",
+              "attributes": {
+                "expression": "hire_date contains \"2020\" || hire_date contains \"2021\"",
+                "positiveCondition": "Senior",
+                "negativeCondition": {
+                  "type": "conditional",
+                  "attributes": {
+                    "expression": "title contains \"Manager\"",
+                    "positiveCondition": "Management",
+                    "negativeCondition": "Individual Contributor"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
 ---
@@ -604,6 +911,8 @@ First, ensure you have manager correlation configured. This is typically done at
 Once configured, the identity has a `manager` attribute that references the manager's identity.
 
 #### Get Manager's Display Name
+
+#### UI Style: Steps
 ```
 1. Create attribute "managerDisplayName"
 2. Transform: Identity Attribute
@@ -614,9 +923,22 @@ Once configured, the identity has a `manager` attribute that references the mana
 
 > **Note:** Syntax varies by ISC version. May be `manager.displayName` or require separate transform.
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "managerDisplayName",
+  "type": "identityAttribute",
+  "attributes": {
+    "name": "manager.displayName"
+  }
+}
+```
+
 ---
 
 #### Get Manager's Title
+
+#### UI Style: Steps
 ```
 1. Create attribute "managerTitle"
 2. Transform: Identity Attribute
@@ -624,9 +946,22 @@ Once configured, the identity has a `manager` attribute that references the mana
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "managerTitle",
+  "type": "identityAttribute",
+  "attributes": {
+    "name": "manager.title"
+  }
+}
+```
+
 ---
 
 #### Get Manager's Department
+
+#### UI Style: Steps
 ```
 1. Create attribute "managerDepartment"
 2. Transform: Identity Attribute
@@ -634,11 +969,24 @@ Once configured, the identity has a `manager` attribute that references the mana
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "managerDepartment",
+  "type": "identityAttribute",
+  "attributes": {
+    "name": "manager.department"
+  }
+}
+```
+
 ---
 
 ### Step 2: Get Manager's Email with Fallbacks (15 min)
 
 #### Helper Attribute 1: Manager Email from AD
+
+#### UI Style: Steps
 ```
 1. Create attribute "managerEmailFromAD"
 2. Transform: Account Attribute
@@ -654,9 +1002,25 @@ Once configured, the identity has a `manager` attribute that references the mana
 
 Consult your ISC version documentation for exact syntax.
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "managerEmailFromAD",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "mail"
+  }
+}
+```
+
+> **Note:** This is simplified. Actual implementation may require additional configuration to specify manager context.
+
 ---
 
 #### Helper Attribute 2: Generated Manager Email from Name
+
+#### UI Style: Steps
 ```
 1. Create attribute "managerEmailGenerated"
 2. Transform chain:
@@ -680,9 +1044,57 @@ Consult your ISC version documentation for exact syntax.
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "managerEmailGenerated",
+  "type": "conditional",
+  "attributes": {
+    "expression": "manager.firstname ne null && manager.lastname ne null",
+    "positiveCondition": {
+      "type": "concat",
+      "attributes": {
+        "values": [
+          {
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "manager.firstname"
+            }
+          },
+          {
+            "type": "static",
+            "attributes": {
+              "value": "."
+            }
+          },
+          {
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "manager.lastname"
+            }
+          },
+          {
+            "type": "static",
+            "attributes": {
+              "value": "@company.com"
+            }
+          }
+        ],
+        "next": {
+          "type": "lower"
+        }
+      }
+    },
+    "negativeCondition": null
+  }
+}
+```
+
 ---
 
 #### Helper Attribute 3: Manager Email from Employee ID
+
+#### UI Style: Steps
 ```
 1. Create attribute "managerEmailFromID"
 2. Transform chain:
@@ -703,9 +1115,45 @@ Consult your ISC version documentation for exact syntax.
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "managerEmailFromID",
+  "type": "conditional",
+  "attributes": {
+    "expression": "manager.employeeID ne null",
+    "positiveCondition": {
+      "type": "concat",
+      "attributes": {
+        "values": [
+          {
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "manager.employeeID"
+            }
+          },
+          {
+            "type": "static",
+            "attributes": {
+              "value": "@company.com"
+            }
+          }
+        ],
+        "next": {
+          "type": "lower"
+        }
+      }
+    },
+    "negativeCondition": null
+  }
+}
+```
+
 ---
 
 #### Helper Attribute 4: Department Head Email
+
+#### UI Style: Create Lookup Table
 ```
 1. Create lookup table: DepartmentHeadEmails
 
@@ -722,9 +1170,31 @@ Consult your ISC version documentation for exact syntax.
 4. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "deptHeadEmail",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "department"
+      }
+    },
+    "table": {
+      "id": "department-head-emails"
+    },
+    "default": null
+  }
+}
+```
+
 ---
 
 #### Final Attribute: Manager Email (Combined)
+
+#### UI Style: Steps
 ```
 1. Create attribute "managerEmail"
 2. Transform: FirstValid
@@ -737,6 +1207,49 @@ Consult your ISC version documentation for exact syntax.
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "managerEmail",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "managerEmailFromAD"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "managerEmailGenerated"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "managerEmailFromID"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "deptHeadEmail"
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "no-manager@company.com"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
+```
+
 ---
 
 ### Step 3: Get Skip-Level Manager (15 min)
@@ -744,6 +1257,8 @@ Consult your ISC version documentation for exact syntax.
 Skip-level manager = manager's manager
 
 #### Get Skip-Level Manager Name
+
+#### UI Style: Steps
 ```
 1. Create attribute "skipLevelManagerName"
 2. Transform: Identity Attribute
@@ -752,9 +1267,22 @@ Skip-level manager = manager's manager
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "skipLevelManagerName",
+  "type": "identityAttribute",
+  "attributes": {
+    "name": "manager.manager.displayName"
+  }
+}
+```
+
 ---
 
 #### Get Skip-Level Manager Email
+
+#### UI Style: Steps
 ```
 1. Create attribute "skipLevelManagerEmail"
 2. Transform: Account Attribute
@@ -765,6 +1293,20 @@ Skip-level manager = manager's manager
 ```
 
 > **Note:** If manager or manager's manager doesn't exist, returns null.
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "skipLevelManagerEmail",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "mail"
+  }
+}
+```
+
+> **Note:** This is simplified. May require additional configuration for manager.manager context.
 
 ---
 
@@ -877,6 +1419,8 @@ Attributes already available:
 ---
 
 #### From Active Directory
+
+#### UI Style: Steps
 ```
 1. Create attribute "adGroups"
 2. Transform: Account Attribute
@@ -886,9 +1430,23 @@ Attributes already available:
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "adGroups",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "memberOf"
+  }
+}
+```
+
 ---
 
 #### From Security App
+
+#### UI Style: Steps
 ```
 1. Create attribute "securityClearance"
 2. Transform: Account Attribute
@@ -896,6 +1454,18 @@ Attributes already available:
    Attribute: clearance_level
    Output: "Secret" (or "Confidential", "Public", etc.)
 3. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "securityClearance",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "SecurityApp",
+    "attributeName": "clearance_level"
+  }
+}
 ```
 ```
 1. Create attribute "trainingComplete"
@@ -906,9 +1476,23 @@ Attributes already available:
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "trainingComplete",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "SecurityApp",
+    "attributeName": "security_training_complete"
+  }
+}
+```
+
 ---
 
 #### Calculate Years of Service
+
+#### UI Style: Steps
 ```
 1. Create attribute "yearsOfService"
 2. Transform chain:
@@ -928,6 +1512,26 @@ Attributes already available:
 
 > **Note:** Proper date math coming in Day 4. This is simplified.
 
+#### JSON Style: Transform Definition (Simplified)
+```json
+{
+  "name": "yearsOfService",
+  "type": "conditional",
+  "attributes": {
+    "expression": "hire_date contains \"2019\" || hire_date contains \"2018\" || hire_date contains \"2017\"",
+    "positiveCondition": "5",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "hire_date contains \"2020\"",
+        "positiveCondition": "4",
+        "negativeCondition": "3"
+      }
+    }
+  }
+}
+```
+
 ---
 
 ### Step 2: Check AD Group Membership (10 min)
@@ -935,6 +1539,8 @@ Attributes already available:
 Need to check if user is in specific groups.
 
 #### Helper: Is in Admins Group
+
+#### UI Style: Steps
 ```
 1. Create attribute "isInAdminsGroup"
 2. Transform: Conditional
@@ -946,9 +1552,24 @@ Need to check if user is in specific groups.
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "isInAdminsGroup",
+  "type": "conditional",
+  "attributes": {
+    "expression": "adGroups contains \"Admins\"",
+    "positiveCondition": "true",
+    "negativeCondition": "false"
+  }
+}
+```
+
 ---
 
 #### Helper: Is in Managers Group
+
+#### UI Style: Steps
 ```
 1. Create attribute "isInManagersGroup"
 2. Transform: Conditional
@@ -960,11 +1581,26 @@ Need to check if user is in specific groups.
 3. Save
 ```
 
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "isInManagersGroup",
+  "type": "conditional",
+  "attributes": {
+    "expression": "adGroups contains \"Managers\"",
+    "positiveCondition": "true",
+    "negativeCondition": "false"
+  }
+}
+```
+
 ---
 
 ### Step 3: Calculate Access Level (15 min)
 
 #### Build Decision Tree
+
+#### UI Style: Steps
 ```
 1. Create attribute "accessLevel"
 2. Build nested conditional chain:
@@ -1000,6 +1636,47 @@ Transform 5: Conditional
   If False: "Standard"
 
 3. Save
+```
+
+#### JSON Style: Transform Definition
+```json
+{
+  "name": "accessLevel",
+  "type": "conditional",
+  "attributes": {
+    "expression": "isInAdminsGroup eq \"true\"",
+    "positiveCondition": "System Administrator",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "title contains \"VP\" || title contains \"Director\"",
+        "positiveCondition": "Executive",
+        "negativeCondition": {
+          "type": "conditional",
+          "attributes": {
+            "expression": "securityClearance eq \"Secret\"",
+            "positiveCondition": "Confidential Access",
+            "negativeCondition": {
+              "type": "conditional",
+              "attributes": {
+                "expression": "title contains \"Manager\" && isInManagersGroup eq \"true\"",
+                "positiveCondition": "Manager",
+                "negativeCondition": {
+                  "type": "conditional",
+                  "attributes": {
+                    "expression": "yearsOfService ge \"5\"",
+                    "positiveCondition": "Senior",
+                    "negativeCondition": "Standard"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
 ---
@@ -1138,6 +1815,7 @@ Result:
 - ✅ FirstValid for multi-source priority
 - ✅ Helper attributes for complex logic
 - ✅ Production-ready data integration patterns
+- ✅ Both UI and JSON configuration
 
 ---
 
@@ -1187,23 +1865,86 @@ London --> UK
 ```
 
 **Create Attributes:**
+
+**JSON Style:**
+```json
+{
+  "name": "city",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "location_code"
+      }
+    },
+    "table": {
+      "id": "location-to-city"
+    }
+  }
+}
 ```
-Attribute: city
-Transform: Lookup
-  Input: location_code
-  Table: LocationToCity
-
-Attribute: state
-Transform: Lookup
-  Input: city
-  Table: CityToState
-
-Attribute: country
-Transform: FirstValid
-  Values:
-  1. [Lookup state --> StateToCountry]
-  2. [Lookup city --> CityToCountry] (direct city to country)
-  3. Static "Unknown"
+```json
+{
+  "name": "state",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "city"
+      }
+    },
+    "table": {
+      "id": "city-to-state"
+    }
+  }
+}
+```
+```json
+{
+  "name": "country",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "lookup",
+        "attributes": {
+          "input": {
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "state"
+            }
+          },
+          "table": {
+            "id": "state-to-country"
+          }
+        }
+      },
+      {
+        "type": "lookup",
+        "attributes": {
+          "input": {
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "city"
+            }
+          },
+          "table": {
+            "id": "city-to-country"
+          }
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "Unknown"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
 ```
 
 </details>
@@ -1226,31 +1967,143 @@ All phones should be cleaned (no formatting)
 <summary>Click to reveal solution</summary>
 
 **Solution:**
+
+**JSON Style:**
+
+**Helper 1: cleanedMobileFromHR**
+```json
+{
+  "name": "cleanedMobileFromHR",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Workday",
+    "attributeName": "mobile_phone",
+    "next": {
+      "type": "replace",
+      "attributes": {
+        "regex": "\\(",
+        "replacement": "",
+        "next": {
+          "type": "replace",
+          "attributes": {
+            "regex": "\\)",
+            "replacement": "",
+            "next": {
+              "type": "replace",
+              "attributes": {
+                "regex": " ",
+                "replacement": "",
+                "next": {
+                  "type": "replace",
+                  "attributes": {
+                    "regex": "-",
+                    "replacement": ""
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
 ```
-Helper 1: cleanedMobileFromHR
-Transform chain:
-1. Source attribute: mobile_phone
-2. Replace "(" --> ""
-3. Replace ")" --> ""
-4. Replace " " --> ""
-5. Replace "-" --> ""
 
-Helper 2: workPhoneFromAD
-Transform chain:
-1. Account Attribute (AD, telephoneNumber)
-2. Replace "(", ")", " ", "-" (multiple Replace transforms)
+**Helper 2: workPhoneFromAD**
+```json
+{
+  "name": "workPhoneFromAD",
+  "type": "accountAttribute",
+  "attributes": {
+    "sourceName": "Active Directory",
+    "attributeName": "telephoneNumber",
+    "next": {
+      "type": "replace",
+      "attributes": {
+        "regex": "\\(",
+        "replacement": "",
+        "next": {
+          "type": "replace",
+          "attributes": {
+            "regex": "\\)",
+            "replacement": "",
+            "next": {
+              "type": "replace",
+              "attributes": {
+                "regex": " ",
+                "replacement": "",
+                "next": {
+                  "type": "replace",
+                  "attributes": {
+                    "regex": "-",
+                    "replacement": ""
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
 
-Helper 3: officePhoneFromLocation
-Transform:
-1. Lookup (office_location --> LocationToOfficePhone)
+**Helper 3: officePhoneFromLocation**
+```json
+{
+  "name": "officePhoneFromLocation",
+  "type": "lookup",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "office_location"
+      }
+    },
+    "table": {
+      "id": "location-to-office-phone"
+    }
+  }
+}
+```
 
-Final: primaryPhone
-Transform: FirstValid
-  Values:
-  1. cleanedMobileFromHR
-  2. workPhoneFromAD
-  3. officePhoneFromLocation
-  4. Static "555-0000"
+**Final: primaryPhone**
+```json
+{
+  "name": "primaryPhone",
+  "type": "firstValid",
+  "attributes": {
+    "values": [
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "cleanedMobileFromHR"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "workPhoneFromAD"
+        }
+      },
+      {
+        "type": "identityAttribute",
+        "attributes": {
+          "name": "officePhoneFromLocation"
+        }
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "555-0000"
+        }
+      }
+    ],
+    "ignoreErrors": true
+  }
+}
 ```
 
 </details>
@@ -1280,51 +2133,86 @@ Else
 <summary>Click to reveal solution</summary>
 
 **Solution:**
+
+**JSON Style:**
+
+**Helper 1: isCLevelTitle**
+```json
+{
+  "name": "isCLevelTitle",
+  "type": "conditional",
+  "attributes": {
+    "expression": "title eq \"CEO\" || title eq \"President\"",
+    "positiveCondition": "true",
+    "negativeCondition": "false"
+  }
+}
 ```
-Helper 1: isCLevelTitle
-Transform: Conditional
-  Condition: title eq "CEO" OR title eq "President"
-  If True: "true"
-  If False: "false"
 
-Helper 2: hasTopSecret
-Transform: Conditional
-  Condition: security_clearance eq "Top Secret"
-  If True: "true"
-  If False: "false"
+**Helper 2: hasTopSecret**
+```json
+{
+  "name": "hasTopSecret",
+  "type": "conditional",
+  "attributes": {
+    "expression": "security_clearance eq \"Top Secret\"",
+    "positiveCondition": "true",
+    "negativeCondition": "false"
+  }
+}
+```
 
-Helper 3: isFinanceOrLegal
-Transform: Conditional
-  Condition: department eq "Finance" OR department eq "Legal"
-  If True: "true"
-  If False: "false"
+**Helper 3: isFinanceOrLegal**
+```json
+{
+  "name": "isFinanceOrLegal",
+  "type": "conditional",
+  "attributes": {
+    "expression": "department eq \"Finance\" || department eq \"Legal\"",
+    "positiveCondition": "true",
+    "negativeCondition": "false"
+  }
+}
+```
 
-Helper 4: isInBoardGroup
-Transform: Conditional
-  Condition: adGroups contains "BoardMembers"
-  If True: "true"
-  If False: "false"
+**Helper 4: isInBoardGroup**
+```json
+{
+  "name": "isInBoardGroup",
+  "type": "conditional",
+  "attributes": {
+    "expression": "adGroups contains \"BoardMembers\"",
+    "positiveCondition": "true",
+    "negativeCondition": "false"
+  }
+}
+```
 
-Final: accessLevel
-Transform chain:
-
-Level 1: Check C-Level
-  Conditional:
-    IF isCLevelTitle eq "true" AND hasTopSecret eq "true"
-      TRUE --> "C-Level Confidential"
-      FALSE --> Continue
-
-Level 2: Check Board
-  Conditional:
-    IF isInBoardGroup eq "true"
-      TRUE --> "Board Access"
-      FALSE --> Continue
-
-Level 3: Check Confidential Departments
-  Conditional:
-    IF isFinanceOrLegal eq "true" AND yearsOfService gt 3
-      TRUE --> "Confidential"
-      FALSE --> "Standard"
+**Final: accessLevel**
+```json
+{
+  "name": "accessLevel",
+  "type": "conditional",
+  "attributes": {
+    "expression": "isCLevelTitle eq \"true\" && hasTopSecret eq \"true\"",
+    "positiveCondition": "C-Level Confidential",
+    "negativeCondition": {
+      "type": "conditional",
+      "attributes": {
+        "expression": "isInBoardGroup eq \"true\"",
+        "positiveCondition": "Board Access",
+        "negativeCondition": {
+          "type": "conditional",
+          "attributes": {
+            "expression": "isFinanceOrLegal eq \"true\" && yearsOfService gt \"3\"",
+            "positiveCondition": "Confidential",
+            "negativeCondition": "Standard"
+          }
+        }
+      }
+    }
+  }
+}
 ```
 
 </details>
@@ -1401,6 +2289,7 @@ Then standardize through lookup table (50+ variations to 10 standard depts)
 - ✅ Multi-source decision making
 - ✅ Complex transform chains (10+ steps)
 - ✅ Production-ready integration patterns
+- ✅ Both UI and JSON configuration
 
 ---
 
