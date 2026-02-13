@@ -8,7 +8,6 @@
 
 - [4.1.1 Purpose and Use of Identity Profiles](#411-purpose-and-use-of-identity-profiles)
 - [4.1.2 Creating and Configuring Identity Profiles](#412-creating-and-configuring-identity-profiles)
-- [4.1.3 Priority and Precedence Rules](#413-priority-and-precedence-rules)
 
 ---
 
