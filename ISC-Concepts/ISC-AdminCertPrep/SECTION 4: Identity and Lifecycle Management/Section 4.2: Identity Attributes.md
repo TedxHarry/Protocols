@@ -7,7 +7,7 @@
 ## Table of Contents
 
 - [4.2.1 Identity Attribute Mappings](#421-identity-attribute-mappings)
-- [4.2.2 Mapping Configuration Options (Static, Complex, Rules)](#422-mapping-configuration-options-static-complex-rules)
+
 ---
 
 # 4.2.1 Identity Attribute Mappings
