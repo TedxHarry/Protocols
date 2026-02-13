@@ -7,6 +7,8 @@
 ## Table of Contents
 
 - [4.2.1 Identity Attribute Mappings](#421-identity-attribute-mappings)
+- [4.2.2 Mapping Configuration Options (Static, Complex, Rules)](#422-mapping-configuration-options-static-complex-rules)
+- [4.2.3 Attribute Transforms and Functions](#423-attribute-transforms-and-functions)
 
 ---
 
@@ -734,3 +736,17 @@ Test Case 4: No Manager
 ```
 
 **Implementation Steps:**
+
+Create identity profile
+Select Workday as authoritative source
+Configure each mapping (table above)
+Create department code-to-name rule
+Test with sample data
+Verify all attributes populate correctly
+Check manager relationships work
+Deploy to production
+Monitor first aggregation
+
+
+**Exam Tip:** Always map unique identifier (employeeNumber) first. Use rules for code-to-name translations. Generate display name and uid from firstName + lastName.
+</details>
