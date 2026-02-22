@@ -911,8 +911,6 @@ In **Lesson 3**, you'll:
 - ✅ See operation families and patterns
 - ✅ Build increasingly complex transforms
 
-**Ready for Lesson 3?** Ask when you're prepared!
-
 ---
 
 ## Quick Reference: Transform Anatomy
