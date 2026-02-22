@@ -22,8 +22,8 @@
 - **When it runs:** When data is aggregated from sources
 - **Example:** Workday sends firstName, you transform it to proper case
 
-**2. Create Profiles (Provisioning)**
-- **Path:** Admin → Identity Management → Create Profiles
+**2. Create Account (Provisioning)**
+- **Path:** Admin → Connections → Sources -> Create Account
 - **What it does:** Transforms data FROM ISC TO target systems
 - **When it runs:** When access is provisioned to target systems
 - **Example:** ISC has email, you transform it to match AD format
