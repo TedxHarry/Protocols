@@ -191,10 +191,11 @@ email              →   [optional]  →   email
 ### Finding Create Profiles (Provisioning)
 
 1. Click **Admin** (top navigation)
-2. Click **Identity Management** (left menu)
-3. Click **Create Profiles**
-4. Select your target system (e.g., "Active Directory")
-5. You see a table of mappings
+2. Click **Connections** 
+3. Click **Sources**
+4. Click **Create Account**
+5. Select your target system (e.g., "Active Directory")
+6. You see a table of mappings
 
 **What you see:**
 ```
