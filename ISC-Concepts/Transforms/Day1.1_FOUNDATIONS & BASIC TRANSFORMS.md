@@ -1,6 +1,7 @@
 # DAY 1: FOUNDATIONS & BASIC TRANSFORMS - AFTERNOON SESSION
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [The 7 Core String Transforms](#the-7-core-string-transforms)
 - [Transform 1: Static](#transform-1-static-15-minutes)
@@ -10,6 +11,7 @@
 - [Transform 5: Trim](#transform-5-trim-15-minutes)
 - [Transform 6: Substring](#transform-6-substring-25-minutes)
 - [Transform 7: Replace](#transform-7-replace-30-minutes)
+- [Understanding Transform Chaining](#understanding-transform-chaining)
 - [Day 1 Final Assessment](#day-1-final-assessment)
 - [Homework Challenges](#homework-challenges-optional-but-recommended)
 
@@ -72,25 +74,29 @@ Outputs a **fixed value**, ignoring all source data
 **Scenario:** All employees in this Identity Profile are in the USA. Set their country attribute to "United States" for everyone.
 
 #### UI Style: Steps to Configure
+
 ```
-1. Go to Identity Profile > Mappings
-2. Find the "country" attribute (if it doesn't exist, create it)
-3. If "country" doesn't exist:
+1. Go to Admin > Identities > Identity Profiles
+2. Select your Identity Profile
+3. Click "Mappings" tab
+4. Find the "country" attribute (if it doesn't exist, create it)
+5. If "country" doesn't exist:
    - Click "Add New Attribute" at top
-   - Name: "Country"
+   - Display Name: "Country"
    - Technical Name: "country" (auto-fills)
    - Click "Add"
-4. Click on the "country" attribute row
-5. In the overlay:
-   - Source: Select "Transform"
-   - Transform: Select "Static"
+6. Click on the "country" attribute row to edit
+7. In the configuration panel:
+   - Source: Select "Transform" from dropdown
+   - Transform: Select "Static" from transform list
    - Value: Type "United States"
-6. Click "Preview" to test
-7. See that ALL identities show "United States" in preview
-8. Click "Save" (don't Apply Changes yet)
+8. Click "Preview" button to test with sample identities
+9. Verify that ALL identities show "United States" in preview
+10. Click "Save" (don't Apply Changes yet - we're still configuring)
 ```
 
 #### JSON Style: Transform Definition
+
 ```json
 {
   "name": "country",
@@ -102,8 +108,9 @@ Outputs a **fixed value**, ignoring all source data
 ```
 
 #### Expected Result
+
 ```
-Source: (ignored)
+Source: (ignored - Static ignores all input)
 Transform: Static
 Value: "United States"
 
@@ -112,7 +119,7 @@ Output for ANY identity: "United States"
 
 #### Key Learning
 
-Static ignores all source data. Everyone gets the same value.
+Static ignores all source data. Every single identity gets the same value - no exceptions.
 
 ---
 
@@ -121,16 +128,19 @@ Static ignores all source data. Everyone gets the same value.
 **Scenario:** Create a "domain" attribute that's always "company.com"
 
 #### UI Style: Steps
+
 ```
-1. Add new attribute "Domain"
+1. In Mappings, create new attribute "Domain"
 2. Technical name: "domain"
-3. Source: Transform
-4. Transform: Static
-5. Value: "company.com"
-6. Save
+3. Click to edit
+4. Source: Transform
+5. Transform: Static
+6. Value: "company.com"
+7. Click Save
 ```
 
 #### JSON Style: Transform Definition
+
 ```json
 {
   "name": "domain",
@@ -172,29 +182,31 @@ Combines multiple strings into one
 **Scenario:** Create displayName as "Firstname Lastname"
 
 #### UI Style: Steps
+
 ```
 1. Go to Mappings
-2. Find "displayName" attribute
-3. Click on it
+2. Find or create "displayName" attribute
+3. Click on it to edit
 4. Source: Transform
 5. Transform: Concatenation
-6. Configuration:
+6. In the Configuration panel:
    Values to concatenate:
-   - Click "Add"
-   - Type: Attribute
-   - Select: firstname
-   - Click "Add" again
-   - Type: String
-   - Value: " " (single space)
-   - Click "Add" again  
-   - Type: Attribute
-   - Select: lastname
-7. Preview with different identities
-8. Should see: "John Smith", "Mary Johnson", etc.
-9. Save
+   - Click "Add Value" button
+   - Type: "Attribute"
+   - Select: "firstname"
+   - Click "Add Value" button again
+   - Type: "String"
+   - Value: " " (single space) - this is literal text
+   - Click "Add Value" button again
+   - Type: "Attribute"
+   - Select: "lastname"
+7. Click "Preview" to test with different identities
+8. Verify output shows: "John Smith", "Mary Johnson", etc.
+9. Click "Save"
 ```
 
 #### JSON Style: Transform Definition
+
 ```json
 {
   "name": "displayName",
@@ -225,6 +237,7 @@ Combines multiple strings into one
 ```
 
 #### Expected Result
+
 ```
 Source: firstname = "John", lastname = "Smith"
 Transform: Concatenation (firstname + " " + lastname)
@@ -238,19 +251,21 @@ Output: "John Smith"
 **Scenario:** Create displayName as "Lastname, Firstname"
 
 #### UI Style: Steps
+
 ```
 1. Edit the displayName mapping again
 2. Transform: Concatenation
-3. Values:
-   - lastname
-   - ", " (comma and space)
-   - firstname
-4. Preview
-5. Should see: "Smith, John"
-6. Save
+3. Values to concatenate:
+   - Add: lastname (attribute)
+   - Add: ", " (string literal)
+   - Add: firstname (attribute)
+4. Click Preview
+5. Verify output shows: "Smith, John"
+6. Click Save
 ```
 
 #### JSON Style: Transform Definition
+
 ```json
 {
   "name": "displayName",
@@ -295,18 +310,20 @@ Order matters! `firstname + lastname` is different from `lastname + firstname`
 **For now, just build the structure:**
 
 #### UI Style: Steps
+
 ```
 1. Create/edit "email" attribute
 2. Transform: Concatenation
-3. Values:
-   - firstname
-   - "."
-   - lastname
-   - "@company.com"
-4. Preview
+3. Values to concatenate:
+   - Add: firstname (attribute)
+   - Add: "." (string)
+   - Add: lastname (attribute)
+   - Add: "@company.com" (string)
+4. Click Preview
 ```
 
 #### JSON Style: Transform Definition
+
 ```json
 {
   "name": "email",
@@ -343,6 +360,7 @@ Order matters! `firstname + lastname` is different from `lastname + firstname`
 ```
 
 #### What You'll See
+
 ```
 Input: firstname = "John", lastname = "Smith"
 Output: "John.Smith@company.com"
@@ -350,7 +368,7 @@ Output: "John.Smith@company.com"
 
 **Issue:** Capital letters! Email should be lowercase.
 
-**We'll fix this with CHAINING in the next exercise!**
+**We'll fix this with CHAINING in the next section!**
 
 ---
 
@@ -373,15 +391,17 @@ Converts string to lowercase
 **First, let's see Lower by itself:**
 
 #### UI Style: Steps
+
 ```
 1. Create test attribute "testLower"
 2. Source: Transform
 3. Transform: Lower
 4. Input: Select "lastname" (or any text attribute)
-5. Preview
+5. Click Preview to see results
 ```
 
 #### JSON Style: Transform Definition
+
 ```json
 {
   "name": "testLower",
@@ -398,12 +418,16 @@ Converts string to lowercase
 ```
 
 #### Result
+
 ```
 Input: lastname = "Smith"
 Output: "smith"
 
 Input: lastname = "O'BRIEN"
 Output: "o'brien"
+
+Input: lastname = "GARCÍA"
+Output: "garcía"
 ```
 
 Simple! It just lowercases everything.
@@ -412,268 +436,39 @@ Simple! It just lowercases everything.
 
 ### Hands-On Exercise 3B: Fix Email with Transform Chaining!
 
-Now let's combine Concatenation + Lower:
+**Scenario:** Now we fix the email from 2C to be lowercase
 
-**This is your first CHAIN!**
+**New email requirement:** "john.smith@company.com" (all lowercase)
 
 #### UI Style: Steps
 
-> **Note:** UI varies by ISC version. Here are both methods:
-
-**Method A (Newer UI):**
 ```
-1. Click email mapping
-2. You'll see current transform: Concatenation
-3. Look for "+ Add Transform" or "Chain" button
-4. Click it
-5. Select "Lower"
-6. Configure: Input is the output from previous transform
-7. Save
+1. Edit the "email" attribute mapping
+2. Transform: Lower
+3. Input: Instead of selecting an attribute, we select "Transform"
+4. Select: Concatenation (the email transform we built in 2C)
+5. This chains Lower AFTER Concatenation
+6. Click Preview
+7. Verify output: "john.smith@company.com" (all lowercase!)
+8. Click Save
 ```
 
-**Method B (Alternative):**
-```
-1. When editing email attribute
-2. After configuring Concatenation
-3. Look for option to add another transform in sequence
-4. Add "Lower" transform
-5. It will automatically use previous output as input
-```
+#### JSON Style: Transform Definition
 
-#### JSON Style: Transform Definition (Chained)
 ```json
 {
   "name": "email",
-  "type": "concat",
-  "attributes": {
-    "values": [
-      {
-        "type": "identityAttribute",
-        "attributes": {
-          "name": "firstname"
-        }
-      },
-      {
-        "type": "static",
-        "attributes": {
-          "value": "."
-        }
-      },
-      {
-        "type": "identityAttribute",
-        "attributes": {
-          "name": "lastname"
-        }
-      },
-      {
-        "type": "static",
-        "attributes": {
-          "value": "@company.com"
-        }
-      }
-    ],
-    "next": {
-      "type": "lower"
-    }
-  }
-}
-```
-
-#### Expected Chain
-```
-Step 1: Concatenation
-  firstname + "." + lastname + "@company.com"
-  Output: "John.Smith@company.com"
-  ↓
-Step 2: Lower
-  Input: "John.Smith@company.com"
-  Output: "john.smith@company.com"
-```
-
-#### Preview Different Identities
-```
-- "Mary" + "Johnson" --> "mary.johnson@company.com"
-- "Christopher" + "Anderson" --> "christopher.anderson@company.com"
-```
-
-### Congratulations!
-
-You just built your **first transform chain**!
-
----
-
-## Transform 4: Upper (10 minutes)
-
-### What It Does
-
-Converts to UPPERCASE
-
-### When to Use
-
-- Department codes
-- State abbreviations
-- Standardized codes
-
----
-
-### Hands-On Exercise 4: Create Uppercase Display Name
-
-**Quick exercise:**
-
-#### UI Style: Steps
-```
-1. Create attribute "displayNameUpper"
-2. Transform chain:
-   - Concatenation (firstname + " " + lastname)
-   - Upper
-3. Preview
-```
-
-#### JSON Style: Transform Definition
-```json
-{
-  "name": "displayNameUpper",
-  "type": "concat",
-  "attributes": {
-    "values": [
-      {
-        "type": "identityAttribute",
-        "attributes": {
-          "name": "firstname"
-        }
-      },
-      {
-        "type": "static",
-        "attributes": {
-          "value": " "
-        }
-      },
-      {
-        "type": "identityAttribute",
-        "attributes": {
-          "name": "lastname"
-        }
-      }
-    ],
-    "next": {
-      "type": "upper"
-    }
-  }
-}
-```
-
-#### Result
-```
-"John Smith" --> "JOHN SMITH"
-```
-
-Easy! Same concept as Lower, just opposite direction.
-
----
-
-## Transform 5: Trim (15 minutes)
-
-### What It Does
-
-Removes whitespace from beginning and end
-
-### When to Use
-
-- Source data has extra spaces
-- Clean up messy imports
-- Before concatenating (avoid double spaces)
-
-### Important Note
-
-Trim removes spaces at **START and END only**, not in the middle!
-
----
-
-### Hands-On Exercise 5A: Clean Messy Data
-
-**Scenario:** Your HR system exports data with trailing spaces
-
-#### UI Style: Steps
-```
-1. Create attribute "cleanFirstname"
-2. Transform: Trim
-3. Input: firstname
-4. Preview with an identity
-```
-
-#### JSON Style: Transform Definition
-```json
-{
-  "name": "cleanFirstname",
-  "type": "trim",
+  "type": "lower",
   "attributes": {
     "input": {
-      "type": "identityAttribute",
-      "attributes": {
-        "name": "firstname"
-      }
-    }
-  }
-}
-```
-
-#### What It Does
-```
-Input: "John   " (trailing spaces)
-Output: "John" (spaces removed)
-
-Input: "  Mary" (leading spaces)
-Output: "Mary"
-
-Input: "  Bob  " (both sides)
-Output: "Bob"
-
-Input: "Van Der Berg" (middle spaces)
-Output: "Van Der Berg" (middle spaces stay!)
-```
-
----
-
-### Best Practice Alert
-
-**Always Trim before Concatenating** to avoid issues like:
-```
-BAD: "John   " + " " + "Smith" = "John     Smith" (extra spaces)
-GOOD: Trim("John   ") + " " + "Smith" = "John Smith"
-```
-
----
-
-### Hands-On Exercise 5B: Improve Email with Trim
-
-Let's make our email even better:
-
-#### UI Style: Steps
-```
-Step 1: Trim firstname
-Step 2: Trim lastname  
-Step 3: Concatenation (firstname + "." + lastname + "@company.com")
-Step 4: Lower
-```
-
-#### JSON Style: Transform Definition
-```json
-{
-  "name": "email",
-  "type": "trim",
-  "attributes": {
-    "input": {
-      "type": "identityAttribute",
-      "attributes": {
-        "name": "firstname"
-      }
-    },
-    "next": {
       "type": "concat",
       "attributes": {
         "values": [
           {
-            "type": "reference"
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "firstname"
+            }
           },
           {
             "type": "static",
@@ -682,14 +477,9 @@ Step 4: Lower
             }
           },
           {
-            "type": "trim",
+            "type": "identityAttribute",
             "attributes": {
-              "input": {
-                "type": "identityAttribute",
-                "attributes": {
-                  "name": "lastname"
-                }
-              }
+              "name": "lastname"
             }
           },
           {
@@ -698,40 +488,275 @@ Step 4: Lower
               "value": "@company.com"
             }
           }
-        ],
-        "next": {
-          "type": "lower"
-        }
+        ]
       }
     }
   }
 }
 ```
 
-#### Updated Email Chain
+#### Result
+
 ```
-Step 1: Trim firstname
-  "  John  " → "John"
-  ↓
-Step 2: Concatenation
-  "John" + "." + Trim("Smith  ") + "@company.com"
-  → "John.Smith@company.com"
-  ↓
-Step 3: Lower
-  → "john.smith@company.com"
+Input: firstname = "John", lastname = "Smith"
+Concatenation Output: "John.Smith@company.com"
+Lower Output: "john.smith@company.com" ✓ Perfect!
 ```
 
-#### Why This Matters
+#### Key Learning
 
-If source has `"John "` (with space), without Trim you get:
+**Transform Chaining**: Lower's input is NOT an identity attribute - it's the output of Concatenation!
+
+---
+
+## Transform 4: Upper (10 minutes)
+
+### What It Does
+
+Converts string to UPPERCASE
+
+### When to Use
+
+- Standardizing codes
+- Department codes
+- Status values
+
+---
+
+### Hands-On Exercise 4A: Uppercase Department Code
+
+**Scenario:** Create a department code attribute that's always uppercase
+
+#### UI Style: Steps
+
 ```
-"John " + "." + "Smith" = "John .Smith" (space before period!)
+1. Create/edit "departmentCode" attribute
+2. Source: Transform
+3. Transform: Upper
+4. Input: Select "department" (identity attribute)
+5. Preview to verify uppercase output
+6. Save
 ```
 
-**With Trim:**
+#### JSON Style: Transform Definition
+
+```json
+{
+  "name": "departmentCode",
+  "type": "upper",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "department"
+      }
+    }
+  }
+}
 ```
-Trim("John ") = "John"
-"John" + "." + "Smith" = "John.Smith" ✓
+
+#### Result
+
+```
+Input: department = "Engineering"
+Output: "ENGINEERING"
+
+Input: department = "it operations"
+Output: "IT OPERATIONS"
+```
+
+---
+
+### Hands-On Exercise 4B: Create Uppercase Display Name
+
+**Scenario:** Create displayName as "JOHN SMITH"
+
+#### UI Style: Steps
+
+```
+1. Create/edit "displayNameUpper" attribute
+2. Transform: Upper
+3. Input: Transform (select Concatenation)
+4. Use the firstname + " " + lastname concatenation
+5. Preview: Should show "JOHN SMITH"
+6. Save
+```
+
+#### JSON Style: Transform Definition
+
+```json
+{
+  "name": "displayNameUpper",
+  "type": "upper",
+  "attributes": {
+    "input": {
+      "type": "concat",
+      "attributes": {
+        "values": [
+          {
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "firstname"
+            }
+          },
+          {
+            "type": "static",
+            "attributes": {
+              "value": " "
+            }
+          },
+          {
+            "type": "identityAttribute",
+            "attributes": {
+              "name": "lastname"
+            }
+          }
+        ]
+      }
+    }
+  }
+}
+```
+
+---
+
+## Transform 5: Trim (15 minutes)
+
+### What It Does
+
+Removes whitespace from beginning AND end of string
+
+### When to Use
+
+- Data cleanup (source data often has trailing/leading spaces)
+- Before concatenation (to prevent spaces in output)
+- Before email/username generation
+
+---
+
+### Hands-On Exercise 5A: Clean Up Source Data
+
+**Scenario:** Source has "  John  " (with spaces). We need "John"
+
+#### UI Style: Steps
+
+```
+1. Create test attribute "testTrim"
+2. Transform: Trim
+3. Input: Select "firstname" 
+4. Preview: See "John" (spaces removed)
+5. Save
+```
+
+#### JSON Style: Transform Definition
+
+```json
+{
+  "name": "testTrim",
+  "type": "trim",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "firstname"
+      }
+    }
+  }
+}
+```
+
+#### Result
+
+```
+Input: firstname = "  John  " (leading and trailing spaces)
+Output: "John"
+
+Input: firstname = "\t Smith \n" (tabs and newlines too)
+Output: "Smith"
+```
+
+---
+
+### Hands-On Exercise 5B: Build Clean Email with Trim + Concatenation
+
+**Scenario:** Create email that handles messy source data
+
+**Real problem:** Source often has "  John  " and "  Smith  "
+
+#### UI Style: Steps
+
+```
+1. Edit "email" attribute
+2. Transform: Trim
+3. Input: Attribute "firstname"
+4. Next Step: Add another transform
+5. Transform: Trim again
+6. Input: Attribute "lastname"
+7. Next Step: Add Concatenation
+8. Combine: [trimmed firstname].[trimmed lastname]@company.com
+9. Next Step: Add Lower
+10. Preview: Clean lowercase email!
+11. Save
+```
+
+#### JSON Style: Transform Definition
+
+```json
+{
+  "name": "email",
+  "type": "trim",
+  "attributes": {
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "firstname"
+      }
+    }
+  },
+  "next": {
+    "type": "concat",
+    "attributes": {
+      "values": [
+        {
+          "type": "reference"
+        },
+        {
+          "type": "static",
+          "attributes": {
+            "value": "."
+          }
+        },
+        {
+          "type": "trim",
+          "attributes": {
+            "input": {
+              "type": "identityAttribute",
+              "attributes": {
+                "name": "lastname"
+              }
+            }
+          }
+        },
+        {
+          "type": "static",
+          "attributes": {
+            "value": "@company.com"
+          }
+        }
+      ]
+    },
+    "next": {
+      "type": "lower"
+    }
+  }
+}
+```
+
+#### Result
+
+```
+Input: firstname = "  John  ", lastname = "  Smith  "
+Output: "john.smith@company.com" (clean!)
 ```
 
 ---
@@ -740,99 +765,95 @@ Trim("John ") = "John"
 
 ### What It Does
 
-Extracts part of a string
+Extracts a portion of a string based on start and end positions
 
-### Configuration
+### When to Use
 
-- **Begin Index:** Where to start (0 = first character)
-- **End Index (optional):** Where to end
-- OR **Length:** How many characters to extract
-
-### Important Note
-
-String indexes start at 0!
-```
-"John"
- 0123
- 
-J = position 0
-o = position 1
-h = position 2
-n = position 3
-```
+- Extract area code from phone number
+- Get first N characters
+- Extract employee ID from longer string
+- Truncate long names
 
 ---
 
-### Hands-On Exercise 6A: Extract Department Code
+### Hands-On Exercise 6A: Extract First Initial
 
-**Scenario:** department field has "ENG-Engineering-USA" but you only want "ENG"
+**Scenario:** Get first letter of firstname for a username initial
 
 #### UI Style: Steps
+
 ```
-1. Create attribute "deptCode"
+1. Create attribute "firstInitial"
 2. Transform: Substring
-3. Input: department
-4. Begin Index: 0
-5. Length: 3 (or End Index: 3)
-6. Preview
+3. Input: Select "firstname"
+4. Begin: 0 (start position - counts from 0)
+5. End: 1 (extract 1 character)
+6. Preview: Shows "J" for John
+7. Save
 ```
 
 #### JSON Style: Transform Definition
+
 ```json
 {
-  "name": "deptCode",
+  "name": "firstInitial",
   "type": "substring",
   "attributes": {
     "input": {
       "type": "identityAttribute",
       "attributes": {
-        "name": "department"
+        "name": "firstname"
       }
     },
     "begin": 0,
-    "end": 3
+    "end": 1
   }
 }
 ```
 
 #### Result
-```
-Input: "ENG-Engineering-USA"
-Output: "ENG"
 
-Input: "FIN-Finance-USA"
-Output: "FIN"
 ```
+Input: firstname = "John"
+Substring (0, 1): "J"
+
+Input: firstname = "Christopher"
+Substring (0, 1): "C"
+```
+
+#### Key: Zero-based indexing!
+
+- Position 0 = first character
+- Position 1 = second character
+- Begin = inclusive
+- End = exclusive (so end: 1 means "up to but not including position 1")
 
 ---
 
-### Hands-On Exercise 6B: Create Username from Name
+### Hands-On Exercise 6B: Build Username (First Letter + Last Name)
 
-**Scenario:** Username = first letter of firstname + lastname
+**Scenario:** Username = first letter of firstname + full lastname, lowercase, max 8 chars
+
+Example: "Christopher Anderson" → "canders"
 
 #### UI Style: Steps
+
 ```
 1. Create attribute "username"
-2. Transform chain:
-
-   Step 1: Substring
-     Input: firstname
-     Begin Index: 0
-     Length: 1
-     Output: "J" (from "John")
-   
-   Step 2: Concatenation
-     Values: 
-       - Result from Step 1 ("J")
-       - lastname ("Smith")
-     Output: "JSmith"
-   
-   Step 3: Lower
-     Input: "JSmith"
-     Output: "jsmith"
+2. Transform: Substring
+3. Input: firstname
+4. Begin: 0, End: 1 (get first letter)
+5. Next: Add Concatenation
+6. Values: [first letter] + [lastname]
+7. Next: Add Lower
+8. Next: Add Substring again
+9. Begin: 0, End: 8 (max 8 chars)
+10. Preview: Should show "canders" or similar
+11. Save
 ```
 
 #### JSON Style: Transform Definition
+
 ```json
 {
   "name": "username",
@@ -845,93 +866,30 @@ Output: "FIN"
       }
     },
     "begin": 0,
-    "end": 1,
-    "next": {
-      "type": "concat",
-      "attributes": {
-        "values": [
-          {
-            "type": "reference"
-          },
-          {
-            "type": "identityAttribute",
-            "attributes": {
-              "name": "lastname"
-            }
+    "end": 1
+  },
+  "next": {
+    "type": "concat",
+    "attributes": {
+      "values": [
+        {
+          "type": "reference"
+        },
+        {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "lastname"
           }
-        ],
-        "next": {
-          "type": "lower"
         }
-      }
-    }
-  }
-}
-```
-
-#### Result
-```
-"John" + "Smith" --> "jsmith"
-"Mary" + "Johnson" --> "mjohnson"
-"Christopher" + "Anderson" --> "canderson"
-```
-
-**This is a 3-step chain!** Well done!
-
----
-
-### Hands-On Exercise 6C: Truncate Long Values
-
-**Scenario:** Some systems have username limits (max 8 characters)
-
-#### UI Style: Steps
-```
-1. Edit the username mapping
-2. Add one more transform to the chain:
-
-   Step 4: Substring
-     Input: output from Step 3
-     Begin Index: 0
-     Length: 8
-```
-
-#### JSON Style: Transform Definition (4-step chain)
-```json
-{
-  "name": "username",
-  "type": "substring",
-  "attributes": {
-    "input": {
-      "type": "identityAttribute",
-      "attributes": {
-        "name": "firstname"
-      }
+      ]
     },
-    "begin": 0,
-    "end": 1,
     "next": {
-      "type": "concat",
-      "attributes": {
-        "values": [
-          {
-            "type": "reference"
-          },
-          {
-            "type": "identityAttribute",
-            "attributes": {
-              "name": "lastname"
-            }
-          }
-        ],
-        "next": {
-          "type": "lower",
-          "next": {
-            "type": "substring",
-            "attributes": {
-              "begin": 0,
-              "end": 8
-            }
-          }
+      "type": "lower",
+      "next": {
+        "type": "substring",
+        "attributes": {
+          "begin": 0,
+          "end": 8
         }
       }
     }
@@ -940,20 +898,15 @@ Output: "FIN"
 ```
 
 #### Result
+
 ```
-"jsmith" --> "jsmith" (6 chars, no change)
-"canderson" --> "canders" (truncated to 8)
-"mvanderbilt" --> "mvanderb" (truncated to 8)
+Input: firstname = "Christopher", lastname = "Anderson"
+Step 1 (Substring): "C"
+Step 2 (Concat): "CAnderson"
+Step 3 (Lower): "canderson"
+Step 4 (Substring 0,8): "canderson" (already 9 chars, truncated to 8)
+Final Output: "canderson" or "canders" if lastname has max 7 chars
 ```
-
----
-
-### Key Learning
-
-Substring is great for:
-- Extracting parts (first 3 chars, last 4 chars)
-- Truncating to max length
-- Getting specific portions (area code from phone number)
 
 ---
 
@@ -961,194 +914,111 @@ Substring is great for:
 
 ### What It Does
 
-Finds and replaces characters or strings
+Finds text and replaces it with something else
 
-### Configuration
-
-- **Find:** What to look for
-- **Replace with:** What to substitute
-
-### Use Cases
+### When to Use
 
 - Remove special characters
-- Fix formatting
-- Standardize data
+- Format phone numbers
+- Clean data
+- Standardize formats
 
 ---
 
-### Hands-On Exercise 7A: Clean Phone Numbers
+### Hands-On Exercise 7A: Remove Spaces
 
-**Scenario:** Phone numbers come as "(214) 555-1234" but you want "2145551234"
+**Scenario:** Phone number has spaces: "555 123 4567" → Remove spaces → "5551234567"
 
 #### UI Style: Steps
+
 ```
-1. Create attribute "cleanPhone"
-2. Transform chain:
-   
-   Step 1: Replace
-     Input: phoneNumber
-     Find: "("
-     Replace: "" (empty string)
-     Output: "214) 555-1234"
-   
-   Step 2: Replace
-     Input: output from Step 1
-     Find: ")"
-     Replace: ""
-     Output: "214 555-1234"
-   
-   Step 3: Replace
-     Input: output from Step 2
-     Find: " " (space)
-     Replace: ""
-     Output: "214555-1234"
-   
-   Step 4: Replace
-     Input: output from Step 3
-     Find: "-"
-     Replace: ""
-     Output: "2145551234"
+1. Create attribute "phoneClean"
+2. Transform: Replace
+3. Input: Select "phone" attribute
+4. Regex: " " (space character)
+5. Replacement: "" (empty - removes it)
+6. Preview: Shows phone without spaces
+7. Save
 ```
 
 #### JSON Style: Transform Definition
+
 ```json
 {
-  "name": "cleanPhone",
+  "name": "phoneClean",
   "type": "replace",
   "attributes": {
     "input": {
       "type": "identityAttribute",
       "attributes": {
-        "name": "phoneNumber"
+        "name": "phone"
       }
     },
-    "regex": "\\(",
-    "replacement": "",
-    "next": {
-      "type": "replace",
-      "attributes": {
-        "regex": "\\)",
-        "replacement": "",
-        "next": {
-          "type": "replace",
-          "attributes": {
-            "regex": " ",
-            "replacement": "",
-            "next": {
-              "type": "replace",
-              "attributes": {
-                "regex": "-",
-                "replacement": ""
-              }
-            }
-          }
-        }
-      }
-    }
+    "regex": " ",
+    "replacement": ""
   }
 }
 ```
 
-**This is a 4-STEP CHAIN!**
-
 #### Result
+
 ```
-Input: "(214) 555-1234"
-Output: "2145551234"
+Input: phone = "555 123 4567"
+Output: "5551234567"
 ```
-
-#### Important Note
-
-You need **SEPARATE Replace transforms** for each character!
-
-Can't do multiple replacements in one transform.
 
 ---
 
-### Hands-On Exercise 7B: Remove Special Characters from Names
+### Hands-On Exercise 7B: Remove Special Characters
 
-**Scenario:** Names have hyphens and apostrophes: "Mary-Ann O'Brien"  
-For username, you want: "maryannobrien"
+**Scenario:** Clean phone number completely: "(555) 123-4567" → "5551234567"
 
 #### UI Style: Steps
+
 ```
-1. Create attribute "cleanUsername"
-2. Transform chain:
-   
-   Step 1: Concatenation
-     firstname + "." + lastname
-     Output: "Mary-Ann.O'Brien"
-   
-   Step 2: Replace "-" with ""
-     Output: "MaryAnn.O'Brien"
-   
-   Step 3: Replace "'" with ""
-     Output: "MaryAnn.OBrien"
-   
-   Step 4: Replace " " with ""
-     Output: "MaryAnn.OBrien"
-   
-   Step 5: Replace "." with ""
-     Output: "MaryAnnOBrien"
-   
-   Step 6: Lower
-     Output: "maryannobrien"
+1. Create attribute "phoneDigitsOnly"
+2. Transform: Replace (need to chain multiple)
+3. First Replace: "(" with ""
+4. Then Replace: ")" with ""
+5. Then Replace: "-" with ""
+6. Then Replace: " " with ""
+7. Result: Pure digits
+8. Save
 ```
 
 #### JSON Style: Transform Definition
+
 ```json
 {
-  "name": "cleanUsername",
-  "type": "concat",
+  "name": "phoneDigitsOnly",
+  "type": "replace",
   "attributes": {
-    "values": [
-      {
-        "type": "identityAttribute",
-        "attributes": {
-          "name": "firstname"
-        }
-      },
-      {
-        "type": "static",
-        "attributes": {
-          "value": "."
-        }
-      },
-      {
-        "type": "identityAttribute",
-        "attributes": {
-          "name": "lastname"
-        }
+    "input": {
+      "type": "identityAttribute",
+      "attributes": {
+        "name": "phone"
       }
-    ],
+    },
+    "regex": "\\(",
+    "replacement": ""
+  },
+  "next": {
+    "type": "replace",
+    "attributes": {
+      "regex": "\\)",
+      "replacement": ""
+    },
     "next": {
       "type": "replace",
       "attributes": {
         "regex": "-",
-        "replacement": "",
-        "next": {
-          "type": "replace",
-          "attributes": {
-            "regex": "'",
-            "replacement": "",
-            "next": {
-              "type": "replace",
-              "attributes": {
-                "regex": " ",
-                "replacement": "",
-                "next": {
-                  "type": "replace",
-                  "attributes": {
-                    "regex": "\\.",
-                    "replacement": "",
-                    "next": {
-                      "type": "lower"
-                    }
-                  }
-                }
-              }
-            }
-          }
+        "replacement": ""
+      },
+      "next": {
+        "type": "replace",
+        "attributes": {
+          "regex": " ",
+          "replacement": ""
         }
       }
     }
@@ -1156,56 +1026,90 @@ For username, you want: "maryannobrien"
 }
 ```
 
-**This is a 6-STEP CHAIN!**
+#### Result
 
-#### Test Cases
 ```
-"Mary-Ann" + "O'Brien" --> "maryannobrien"
-"François" + "Müller" --> "françoismuller" (accents stay!)
+Input: phone = "(555) 123-4567"
+After Remove (: "555) 123-4567"
+After Remove ): "555 123-4567"
+After Remove -: "555 1234567"
+After Remove space: "5551234567" ✓
+```
+
+---
+
+## Understanding Transform Chaining
+
+### How Chaining Works
+
+**Transform Chaining** = Feed the output of one transform as input to the next transform
+
+```
+Input Data
+    ↓
+[Transform 1] → Output 1
+                    ↓
+                [Transform 2] → Output 2
+                                  ↓
+                              [Transform 3] → Final Output
+```
+
+### In ISC UI
+
+When editing a transform, look for:
+- **Input** field at the top (what data goes in)
+- **Transform type** dropdown
+- **Configuration** for that transform
+- **Next** section (optional - chain another transform here)
+
+### In JSON
+
+Chaining uses the **"next"** property:
+
+```json
+{
+  "name": "myAttribute",
+  "type": "transform1",
+  "attributes": { /* config */ },
+  "next": {
+    "type": "transform2",
+    "attributes": { /* config */ },
+    "next": {
+      "type": "transform3",
+      "attributes": { /* config */ }
+    }
+  }
+}
+```
+
+### Using "reference" in Concatenation
+
+When concatenating a chained result, use **"reference"** to mean "the output from previous step":
+
+```json
+{
+  "type": "concat",
+  "attributes": {
+    "values": [
+      {
+        "type": "reference"  // This means "use the output from previous transform"
+      },
+      {
+        "type": "static",
+        "attributes": {
+          "value": "@company.com"
+        }
+      }
+    ]
+  }
+}
 ```
 
 ---
 
 ## Day 1 Final Assessment
 
-### What You Built Today
-
-Count them:
-
-- [ ] Static country attribute
-- [ ] Concatenated display name (2 versions)
-- [ ] Email generator with chaining (Concatenate + Lower)
-- [ ] Uppercase display name
-- [ ] Trimmed firstname
-- [ ] Department code extractor (Substring)
-- [ ] Username generator (3-step chain)
-- [ ] Truncated username (4-step chain)
-- [ ] Clean phone number (4-step chain)
-- [ ] Clean username with special char removal (6-step chain)
-
-**Total: 10+ working transforms!**
-
----
-
-### Concepts Mastered
-
-- ✅ What transforms are and why they exist  
-- ✅ Transform vs mapping vs rule  
-- ✅ When transforms execute  
-- ✅ Input/output model  
-- ✅ How to navigate Identity Profile mappings  
-- ✅ How to use Identity Preview  
-- ✅ Static transform  
-- ✅ Concatenation  
-- ✅ Upper/Lower  
-- ✅ Trim  
-- ✅ Substring  
-- ✅ Replace  
-- ✅ **TRANSFORM CHAINING** (up to 6 steps!)  
-
----
-
-### Final Quiz - Test Yourself!
+### Checkpoint Quiz
 
 #### Question 1: Build This Transform
 
@@ -1226,11 +1130,11 @@ What's your transform chain?
 <details>
 <summary>Click to reveal answer</summary>
 
-**UI Style:**
+**UI Style (Chaining Order):**
 ```
 1. Trim (firstname)
 2. Trim (lastname)
-3. Concatenation (firstname + "." + lastname + "@company.com")
+3. Concatenation (trim output + "." + trim output + "@company.com")
 4. Replace (" " with "")
 5. Lower
 6. Substring (0, 50)
@@ -1247,53 +1151,53 @@ What's your transform chain?
       "attributes": {
         "name": "firstname"
       }
-    },
-    "next": {
-      "type": "concat",
-      "attributes": {
-        "values": [
-          {
-            "type": "reference"
-          },
-          {
-            "type": "static",
-            "attributes": {
-              "value": "."
-            }
-          },
-          {
-            "type": "trim",
-            "attributes": {
-              "input": {
-                "type": "identityAttribute",
-                "attributes": {
-                  "name": "lastname"
-                }
+    }
+  },
+  "next": {
+    "type": "concat",
+    "attributes": {
+      "values": [
+        {
+          "type": "reference"
+        },
+        {
+          "type": "static",
+          "attributes": {
+            "value": "."
+          }
+        },
+        {
+          "type": "trim",
+          "attributes": {
+            "input": {
+              "type": "identityAttribute",
+              "attributes": {
+                "name": "lastname"
               }
-            }
-          },
-          {
-            "type": "static",
-            "attributes": {
-              "value": "@company.com"
             }
           }
-        ],
-        "next": {
-          "type": "replace",
+        },
+        {
+          "type": "static",
           "attributes": {
-            "regex": " ",
-            "replacement": "",
-            "next": {
-              "type": "lower",
-              "next": {
-                "type": "substring",
-                "attributes": {
-                  "begin": 0,
-                  "end": 50
-                }
-              }
-            }
+            "value": "@company.com"
+          }
+        }
+      ]
+    },
+    "next": {
+      "type": "replace",
+      "attributes": {
+        "regex": " ",
+        "replacement": ""
+      },
+      "next": {
+        "type": "lower",
+        "next": {
+          "type": "substring",
+          "attributes": {
+            "begin": 0,
+            "end": 50
           }
         }
       }
@@ -1309,6 +1213,7 @@ What's your transform chain?
 ---
 
 #### Question 2: What's Wrong With This?
+
 ```
 Input: firstname = "John   " (trailing spaces)
 
@@ -1326,14 +1231,17 @@ Output: "John   .Smith"
 2. Trim (lastname)
 3. Concatenation
 
-Output: "John.Smith"
+Output: "John.Smith" ✓
 ```
+
+Always trim text attributes before concatenation!
 
 </details>
 
 ---
 
 #### Question 3: Build Username
+
 ```
 firstname = "Christopher"
 lastname = "Anderson"
@@ -1362,30 +1270,30 @@ Transform chain?
       }
     },
     "begin": 0,
-    "end": 1,
+    "end": 1
+  },
+  "next": {
+    "type": "concat",
+    "attributes": {
+      "values": [
+        {
+          "type": "reference"
+        },
+        {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "lastname"
+          }
+        }
+      ]
+    },
     "next": {
-      "type": "concat",
-      "attributes": {
-        "values": [
-          {
-            "type": "reference"
-          },
-          {
-            "type": "identityAttribute",
-            "attributes": {
-              "name": "lastname"
-            }
-          }
-        ],
-        "next": {
-          "type": "lower",
-          "next": {
-            "type": "substring",
-            "attributes": {
-              "begin": 0,
-              "end": 8
-            }
-          }
+      "type": "lower",
+      "next": {
+        "type": "substring",
+        "attributes": {
+          "begin": 0,
+          "end": 8
         }
       }
     }
@@ -1393,7 +1301,7 @@ Transform chain?
 }
 ```
 
-**Output:** "canders"
+**Output:** "canders" (c + anderson = canderson, lowercased, truncated to 8 chars)
 
 </details>
 
@@ -1430,28 +1338,28 @@ You'll need:
       "attributes": {
         "name": "lastname"
       }
-    },
-    "next": {
-      "type": "concat",
-      "attributes": {
-        "values": [
-          {
-            "type": "reference"
-          },
-          {
-            "type": "static",
-            "attributes": {
-              "value": ", "
-            }
-          },
-          {
-            "type": "identityAttribute",
-            "attributes": {
-              "name": "firstname"
-            }
+    }
+  },
+  "next": {
+    "type": "concat",
+    "attributes": {
+      "values": [
+        {
+          "type": "reference"
+        },
+        {
+          "type": "static",
+          "attributes": {
+            "value": ", "
           }
-        ]
-      }
+        },
+        {
+          "type": "identityAttribute",
+          "attributes": {
+            "name": "firstname"
+          }
+        }
+      ]
     }
   }
 }
@@ -1476,8 +1384,10 @@ Create a username that:
 You'll need:
 - Substring (firstname, 0, 3)
 - Substring (lastname, 0, 3)
-- Concatenation
-- Lower
+- Concatenation (combine the two substrings)
+- Lower (lowercase the result)
+
+Think about the order!
 
 </details>
 
@@ -1495,14 +1405,14 @@ Output: "12145551234"
 <details>
 <summary>Hint</summary>
 
-You'll need multiple Replace transforms:
-- Replace "+"
-- Replace "("
-- Replace ")"
-- Replace " "
-- Replace "-"
+You'll need multiple Replace transforms chained together:
+- Replace "+" (but keep the + just remove space after)
+- Replace "(" with ""
+- Replace ")" with ""
+- Replace " " with ""
+- Replace "-" with ""
 
-Or: Replace "+" with empty, then use your existing phone cleaning chain
+Or think: Replace all non-digits? Actually, keep it simple with 5 Replace steps.
 
 </details>
 
@@ -1583,6 +1493,7 @@ Don't try to build a 6-step chain all at once:
 | Missing Lower on email | Uppercase in email address | Always lowercase emails |
 | Not testing with nulls | Transforms fail on missing data | Test with incomplete data |
 | Too many steps | Hard to debug | Keep chains under 8 steps if possible |
+| Wrong regex in Replace | Not replacing what you expect | Test regex carefully (escape special chars) |
 
 ---
 
@@ -1598,12 +1509,6 @@ When a transform doesn't work:
 4. ✓ Check for null values
 5. ✓ Verify transform configuration (indexes, values)
 6. ✓ Test with different identities
-
-### Resources
-
-- [SailPoint Transforms Documentation](https://documentation.sailpoint.com/saas/help/transforms/index.html)
-- [SailPoint Developer Community](https://developer.sailpoint.com/)
-- Your sandbox environment for practice
 
 ---
 
