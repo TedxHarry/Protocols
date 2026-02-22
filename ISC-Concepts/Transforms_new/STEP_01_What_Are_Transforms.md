@@ -245,14 +245,3 @@ Ready? Continue to STEP 02.
 
 ---
 
-**Your Learning Path:**
-```
-STEP 01: ✅ What Are Transforms
-STEP 02: → ISC Navigation & Execution Context
-STEP 03: → Reading Transform JSON
-STEP 04: → Writing Transform JSON & Velocity
-STEP 05: → String Operations
-... (and 8 more steps)
-STEP 13: → Practice Module (10 Exercises)
-```
-
