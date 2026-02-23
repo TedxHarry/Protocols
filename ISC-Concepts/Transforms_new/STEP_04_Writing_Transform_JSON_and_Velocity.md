@@ -55,7 +55,7 @@
 ```json
 {
   "name": "Transform1",
-  "type": "lower",           ← Last item has NO comma
+  "type": "lower"           ← Last item has NO comma
 }
 ```
 
